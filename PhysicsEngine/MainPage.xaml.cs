@@ -55,8 +55,8 @@ namespace PhysicsEngine
             rect.RotationCenter = new Point(100, 100);
             MainScene.Children.Add(rect.UIRect);
 
-            //p = new Particle(new Point(500, 500), 10);
-            //MainScene.Children.Add(p.UIEllipse);
+            p = new Particle(new Point(500, 500), 25);
+            MainScene.Children.Add(p.UIEllipse);
         }
 
         private void Loop(object sender, object e) 
