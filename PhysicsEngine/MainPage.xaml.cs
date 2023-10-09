@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Linq;
@@ -36,6 +35,7 @@ namespace PhysicsEngine
         Ellipse circ = new Ellipse();
         CompRectangle rect;
         Particle p;
+        CompLine l;
 
         public MainPage()
         {
@@ -57,8 +57,13 @@ namespace PhysicsEngine
 
             p = new Particle(new Point(500, 500), 25);
             MainScene.Children.Add(p.UIEllipse);
+
+            l = new CompLine(new Point(0, 0), new Point(200, 200), Colors.Blue, 5);
+            MainScene.Children.Add(l.UILine);
         }
 
+
+        public double thick = 0;
         private void Loop(object sender, object e) 
         {
             Update(); //Main Canvas Update To be within Loop
@@ -76,6 +81,8 @@ namespace PhysicsEngine
 
             if (left > 1200)
                 Renderer.SetBgColor(Colors.Gray);
+
+            l.Thickness = Math.Sin(thick += 0.01 * Timer.DeltaTime) * 10.0;
         }
 
 
