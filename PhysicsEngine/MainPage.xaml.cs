@@ -17,8 +17,6 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
 namespace PhysicsEngine
 {
     /// <summary>
@@ -32,57 +30,30 @@ namespace PhysicsEngine
 
 
         int x = 50;
-        Ellipse circ = new Ellipse();
         CompRectangle rect;
         Particle p;
-        CompLine l;
+        ParticleEjector ejector;
 
         public MainPage()
         {
             Initialize(Colors.White); //Main Initial Canvas Initialization
 
 
-            circ.Height = 100;
-            circ.Width = 100;
-            SolidColorBrush red = new SolidColorBrush();
-            red.Color = Colors.Red;
-            circ.Fill = red;
-            Canvas.SetLeft(circ, x);
-            Canvas.SetTop(circ, 200);
-            MainScene.Children.Add(circ);
+            rect = new CompRectangle(new Coord(300, 50), new Size(50, 80));
+            MainScene.Children.Add(rect.GetUIElement());
 
-            rect = new CompRectangle(new Point(300, 50), new Point(50, 80));
-            rect.RotationCenter = new Point(100, 100);
-            MainScene.Children.Add(rect.UIRect);
+            p = new Particle(new Coord(500, 500), 25);
+            MainScene.Children.Add(p.GetUIElement());
 
-            p = new Particle(new Point(500, 500), 25);
-            MainScene.Children.Add(p.UIEllipse);
-
-            l = new CompLine(new Point(0, 0), new Point(200, 200), Colors.Blue, 5);
-            MainScene.Children.Add(l.UILine);
+            ejector = new ParticleEjector(new Coord(50, 200), 0.0, 10, 3);
+            MainScene.Children.Add(ejector.GetUIElement());
         }
 
 
-        public double thick = 0;
         private void Loop(object sender, object e) 
         {
             Update(); //Main Canvas Update To be within Loop
 
-
-            double left = Canvas.GetLeft(circ);
-            Canvas.SetLeft(circ, left + 1 * Timer.DeltaTime);
-
-
-            rect.RotationAngle = (rect.RotationAngle + 1 * Timer.DeltaTime) % 360.0;
-            if (rect.RotationAngle > 180)
-                rect.Fill = Colors.Red;
-            else
-                rect.Fill = Colors.Blue;
-
-            if (left > 1200)
-                Renderer.SetBgColor(Colors.Gray);
-
-            l.Thickness = Math.Sin(thick += 0.01 * Timer.DeltaTime) * 10.0;
         }
 
 
@@ -113,6 +84,15 @@ namespace PhysicsEngine
             Timer.Update();
             Renderer.Update();
             //
+
+            //Update all Children
+            foreach (UIElement element in MainScene.Children)
+            {
+                if (element is Shape && ((Shape)element).Tag is Component)
+                {
+                    ((Component)((Shape)element).Tag).Update();
+                }
+            }
         }
     }
 }

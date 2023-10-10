@@ -11,32 +11,31 @@ using Windows.UI;
 
 namespace PhysicsEngine
 {
-    public class CompLine
+    public class CompLine : Component
     {
-        private SolidColorBrush FillColor { get; set; }
-        public Line UILine { get; private set; }
+        private Line _line = new Line();
 
-        private Point posA;
-        public Point PosA
+        private Coord posA;
+        public Coord PosA
         {
             get => posA;
             set
             {
                 posA = value;
-                UILine.X1 = posA.X;
-                UILine.Y1 = posA.Y;
+                _line.X1 = posA.X;
+                _line.Y1 = posA.Y;
             }
         }
 
-        private Point posB;
-        public Point PosB
+        private Coord posB;
+        public Coord PosB
         {
             get => posB;
             set
             {
                 posB = value;
-                UILine.X2 = posB.X;
-                UILine.Y2 = posB.Y;
+                _line.X2 = posB.X;
+                _line.Y2 = posB.Y;
             }
         }
 
@@ -47,7 +46,7 @@ namespace PhysicsEngine
             set
             {
                 thickness = value;
-                UILine.StrokeThickness = thickness;
+                _line.StrokeThickness = thickness;
             }
         }
 
@@ -58,35 +57,35 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillColor == null)
-                    FillColor = new SolidColorBrush();
-                FillColor.Color = fill;
-                if (UILine.Stroke != FillColor)
-                    UILine.Stroke = FillColor;
+                if (FillBrush == null)
+                    FillBrush = new SolidColorBrush();
+                FillBrush.Color = fill;
+                if (_line.Stroke != FillBrush)
+                    _line.Stroke = FillBrush;
             }
         }
 
         public CompLine()
         {
-            UILine = new Line();
-            PosA = new Point(0, 0);
-            PosB = new Point(50, 50);
+            _line.Tag = this;
+            PosA = new Coord(0, 0);
+            PosB = new Coord(50, 50);
             Fill = Colors.Red;
             Thickness = 5.0;
         }
 
-        public CompLine(Point posA, Point posB)
+        public CompLine(Coord posA, Coord posB)
         {
-            UILine = new Line();
+            _line.Tag = this;
             PosA = posA;
             PosB = posB;
             Fill = Colors.Red;
             Thickness = 5.0;
         }
 
-        public CompLine(Point posA, Point posB, Color fill, double thickness = 5.0)
+        public CompLine(Coord posA, Coord posB, Color fill, double thickness = 5.0)
         {
-            UILine = new Line();
+            _line.Tag = this;
             PosA = posA;
             PosB = posB;
             Fill = fill;
@@ -95,9 +94,13 @@ namespace PhysicsEngine
         }
 
 
-        public void Update()
+        public override Shape GetUIElement() => _line;
+
+        public override void Update()
         {
+            base.Update();
 
         }
+
     }
 }

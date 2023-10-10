@@ -121,10 +121,12 @@
     </Compile>
     <Compile Include="Component.cs" />
     <Compile Include="CompLine.cs" />
+    <Compile Include="Coord.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Particle.cs" />
+    <Compile Include="ParticleEjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CompRectangle.cs" />
     <Compile Include="Renderer.cs" />
