@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
@@ -64,17 +65,25 @@ namespace PhysicsEngine
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
 
+        private void Initialize()
+        {
+            _rect.Tag = this;
+            _rect.PointerPressed += Rect_PointerPressed;
+            _rect.PointerReleased += Rect_PointerReleased;
+            _rect.PointerMoved += Rect_PointerMoved;
+            RotationTransform = new RotateTransform();
+            RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
+            RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
+            _rect.RenderTransform = RotationTransform;
+        }
 
         public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0)
         {
-            _rect.Tag = this;
+            Initialize();
             Position = position;
             Canvas.SetZIndex(_rect, 1);
             _rect.Width = EJECTOR_SIZE.Width;
             _rect.Height = EJECTOR_SIZE.Height;
-            RotationTransform = new RotateTransform();
-            RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
-            RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
             RotationAngle = rotationAngle;
             ParticleLimit = particleLimit;
             ParticleRate = ratePerSecond;
@@ -82,6 +91,32 @@ namespace PhysicsEngine
             ParticleTimer = 0;
             FillColor = Colors.Black;
         }
+
+        private void Rect_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            IsBeingDragged = true;
+            _rect.Opacity = 0.6;
+            _rect.CapturePointer(e.Pointer);
+
+            //Get position of pointer relative to shape movement center for smoother pickups
+            Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+            PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
+        }
+        private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            IsBeingDragged = false;
+            _rect.Opacity = 1.0;
+            _rect.ReleasePointerCapture(e.Pointer);
+        }
+        private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (!IsBeingDragged) return;
+
+            Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+            Position = new Coord(pointerCoord.X - PointerDragPoint.X, pointerCoord.Y - PointerDragPoint.Y);
+        }
+
+
 
         public override Shape GetUIElement() => _rect;
 

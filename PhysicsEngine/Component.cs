@@ -13,6 +13,8 @@ namespace PhysicsEngine
 {
     public abstract class Component
     {
+        protected bool IsBeingDragged { get; set; } = false;
+        protected Coord PointerDragPoint { get; set; } = new Coord(0, 0);
         protected SolidColorBrush FillBrush { get; set; }
         protected SolidColorBrush StrokeBrush { get; set; }
 

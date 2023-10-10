@@ -32,6 +32,7 @@ namespace PhysicsEngine
         int x = 50;
         CompRectangle rect;
         Particle p;
+        CompLine l;
         ParticleEjector ejector;
 
         public MainPage()
@@ -44,6 +45,9 @@ namespace PhysicsEngine
 
             p = new Particle(new Coord(500, 500), 25);
             MainScene.Children.Add(p.GetUIElement());
+
+            l = new CompLine(new Coord(50, 50), new Coord(200, 200));
+            MainScene.Children.Add(l.GetUIElement());
 
             ejector = new ParticleEjector(new Coord(50, 200), 0.0, 10, 3);
             MainScene.Children.Add(ejector.GetUIElement());
