@@ -28,6 +28,10 @@ namespace PhysicsEngine
         public static Canvas MainScene { get; private set; }
 
 
+        //Main Snappable Grid Global Values
+        public static double SnapCellSize { get; set; } = 25.0;
+        public static bool IsSnappableGridEnabled { get; set; } = true;
+
 
         int x = 50;
         CompRectangle rect;
@@ -88,7 +92,7 @@ namespace PhysicsEngine
             Timer.Update();
             Renderer.Update();
             //
-
+            
             //Update all Children
             foreach (UIElement element in MainScene.Children)
             {

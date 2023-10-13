@@ -152,7 +152,7 @@ namespace PhysicsEngine
             IsBeingDragged = true;
             _rect.Opacity = 0.6;
             _rect.CapturePointer(e.Pointer);
-
+            
             //Get position of pointer relative to shape movement center for smoother pickups
             Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
@@ -168,7 +168,15 @@ namespace PhysicsEngine
             if (!IsBeingDragged) return;
 
             Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
-            Position = new Coord(pointerCoord.X - PointerDragPoint.X, pointerCoord.Y - PointerDragPoint.Y);
+
+            double posx = pointerCoord.X - PointerDragPoint.X;
+            double posy = pointerCoord.Y - PointerDragPoint.Y;
+            if (MainPage.IsSnappableGridEnabled)
+            {
+                posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+                posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+            }
+            Position = new Coord(posx, posy);
         }
 
 

@@ -128,12 +128,20 @@ namespace PhysicsEngine
             if (!IsBeingDragged) return;
 
             Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+
+            double posx = pointerCoord.X - PointerDragPoint.X;
+            double posy = pointerCoord.Y - PointerDragPoint.Y;
+            if (MainPage.IsSnappableGridEnabled)
+            {
+                posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+                posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+            }
             if (PosABeingDragged)
             {
-                PosA = new Coord(pointerCoord.X - PointerDragPoint.X, pointerCoord.Y - PointerDragPoint.Y);
+                PosA = new Coord(posx, posy);
             } else
             {
-                PosB = new Coord(pointerCoord.X - PointerDragPoint.X, pointerCoord.Y - PointerDragPoint.Y);
+                PosB = new Coord(posx, posy);
             }
         }
 
