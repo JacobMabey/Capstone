@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -60,7 +63,7 @@ namespace PhysicsEngine
         }
 
         public double ParticleRate { get; private set; }
-
+        public double ParticleVelocity { get; private set; }
         private int ParticlesEjected { get; set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
@@ -77,7 +80,7 @@ namespace PhysicsEngine
             _rect.RenderTransform = RotationTransform;
         }
 
-        public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0)
+        public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 0.5)
         {
             Initialize();
             Position = position;
@@ -87,6 +90,7 @@ namespace PhysicsEngine
             RotationAngle = rotationAngle;
             ParticleLimit = particleLimit;
             ParticleRate = ratePerSecond;
+            ParticleVelocity = particleVelocity;
             ParticlesEjected = 0;
             ParticleTimer = 0;
             FillColor = Colors.Black;
@@ -95,18 +99,25 @@ namespace PhysicsEngine
         private void Rect_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _rect.Opacity = 0.6;
             _rect.CapturePointer(e.Pointer);
 
             //Get position of pointer relative to shape movement center for smoother pickups
             Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
+
+            //Drag mode on if user hold control
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            {
+                IsMouseDragMode = true;
+                _rect.Opacity = 0.6;
+            }
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _rect.Opacity = 1.0;
             _rect.ReleasePointerCapture(e.Pointer);
+            IsMouseDragMode = false;
+            _rect.Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -116,7 +127,7 @@ namespace PhysicsEngine
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled)
+            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
             {
                 posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
                 posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
@@ -144,7 +155,12 @@ namespace PhysicsEngine
                     ParticleTimer = 0;
 
                     Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0));
-                    //Set a force of velocity HERE (including rotational angle)
+
+                    //Set Eject Velocity
+                    double rotationRadians = RotationAngle * Math.PI / 180.0;
+                    particle.Phys.ApplyForce(new Coord(Math.Sin(rotationRadians) * ParticleVelocity, Math.Cos(rotationRadians) * ParticleVelocity));
+
+                    //Create
                     MainPage.MainScene.Children.Add(particle.GetUIElement());
 
                     ParticlesEjected++;

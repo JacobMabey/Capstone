@@ -14,6 +14,9 @@ namespace PhysicsEngine
     public abstract class Component
     {
         protected bool IsBeingDragged { get; set; } = false;
+
+        //Is true during drag if user is holding ctrl. will freely move component with no physics and snap to grid
+        protected bool IsMouseDragMode { get; set; } = false;
         protected Coord PointerDragPoint { get; set; } = new Coord(0, 0);
         protected SolidColorBrush FillBrush { get; set; }
         protected SolidColorBrush StrokeBrush { get; set; }

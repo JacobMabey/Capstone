@@ -44,17 +44,20 @@ namespace PhysicsEngine
             Initialize(Colors.White); //Main Initial Canvas Initialization
 
 
-            rect = new CompRectangle(new Coord(300, 50), new Size(50, 80));
+            rect = new CompRectangle(new Coord(600, 50), new Size(50, 80));
             MainScene.Children.Add(rect.GetUIElement());
 
             p = new Particle(new Coord(500, 500), 25);
+            p.Phys.Mass = 5.0;
             MainScene.Children.Add(p.GetUIElement());
 
             l = new CompLine(new Coord(50, 50), new Coord(200, 200));
             MainScene.Children.Add(l.GetUIElement());
 
-            ejector = new ParticleEjector(new Coord(50, 200), 0.0, 10, 3);
+            ejector = new ParticleEjector(new Coord(300, 50), 225.0, 1000, 10, 0.5);
             MainScene.Children.Add(ejector.GetUIElement());
+
+            Timer.TimeScale = 1;
         }
 
 
@@ -64,6 +67,7 @@ namespace PhysicsEngine
 
         }
 
+        
 
 
         private void Initialize(Color bgColor)
@@ -77,15 +81,42 @@ namespace PhysicsEngine
             MainCanvas.Children.Add(MainScene);
             //
 
+            //For testing
+            //Window.Current.Content.KeyDown += HandleKeyDown;
+
             //Initialize Systems
-            CompositionTarget.Rendering += Loop;
+            this.Loaded += PageLoaded;
 
             Timer.Initialize();
             Renderer.Initialize(bgColor);
             //
         }
 
+        private void PageLoaded(object sender, RoutedEventArgs e)
+        {
+            CompositionTarget.Rendering += Loop;
+        }
 
+        /* For testing
+        private void HandleKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            switch(e.Key)
+            {
+                case Windows.System.VirtualKey.A:
+                    p.Phys.ApplyForce(new Coord(-2, 0));
+                    break;
+                case Windows.System.VirtualKey.S:
+                    p.Phys.ApplyForce(new Coord(0, 2));
+                    break;
+                case Windows.System.VirtualKey.D:
+                    p.Phys.ApplyForce(new Coord(2, 0));
+                    break;
+                case Windows.System.VirtualKey.W:
+                    p.Phys.ApplyForce(new Coord(0, -2));
+                    break;
+            }
+        }
+        */
         private void Update()
         {
             //Update Systems

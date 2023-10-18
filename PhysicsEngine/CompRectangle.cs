@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -150,18 +152,25 @@ namespace PhysicsEngine
         private void Rect_PointerPressed( object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _rect.Opacity = 0.6;
             _rect.CapturePointer(e.Pointer);
             
             //Get position of pointer relative to shape movement center for smoother pickups
             Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
+
+            //Drag mode on if user hold control
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            {
+                IsMouseDragMode = true;
+                _rect.Opacity = 0.6;
+            }
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _rect.Opacity = 1.0;
             _rect.ReleasePointerCapture(e.Pointer);
+            IsMouseDragMode = false;
+            _rect.Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -171,7 +180,7 @@ namespace PhysicsEngine
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled)
+            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
             {
                 posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
                 posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;

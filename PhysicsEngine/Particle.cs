@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -55,7 +58,8 @@ namespace PhysicsEngine
             }
         }
 
-        public double Mass { get; set; }
+
+        public Physics Phys { get; private set; }
 
 
         private void Initialize()
@@ -64,6 +68,8 @@ namespace PhysicsEngine
             _ellipse.PointerPressed += Ellipse_PointerPressed;
             _ellipse.PointerReleased += Ellipse_PointerReleased;
             _ellipse.PointerMoved += Ellipse_PointerMoved;
+
+            Phys = new Physics(this);
         }
 
         public Particle()
@@ -71,7 +77,6 @@ namespace PhysicsEngine
             Initialize();
             Position = new Coord(0, 0);
             Radius = 5.0;
-            Mass = 1.0;
             Fill = Colors.Red;
         }
         public Particle(Coord position, double radius = 5.0)
@@ -79,7 +84,6 @@ namespace PhysicsEngine
             Initialize();
             Position = position;
             Radius = radius;
-            Mass = 1.0;
             Fill = Colors.Red;
         }
 
@@ -87,14 +91,21 @@ namespace PhysicsEngine
         private void Ellipse_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _ellipse.Opacity = 0.6;
             _ellipse.CapturePointer(e.Pointer);
+
+            //Drag mode on if user hold control
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            {
+                IsMouseDragMode = true;
+                _ellipse.Opacity = 0.6;
+            }
         }
         private void Ellipse_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _ellipse.Opacity = 1.0;
             _ellipse.ReleasePointerCapture(e.Pointer);
+            IsMouseDragMode = false;
+            _ellipse.Opacity = 1.0;
         }
         private void Ellipse_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -104,7 +115,7 @@ namespace PhysicsEngine
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled)
+            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
             {
                 posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
                 posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
@@ -120,9 +131,7 @@ namespace PhysicsEngine
 
             if (IsBeingDragged) return;
 
-
-            //This is temporarily for testing, remove once physics is added
-            Position = new Coord(Position.X + 0.25 * Timer.DeltaTime, Position.Y);
+            Phys.Update();
         }
 
     }

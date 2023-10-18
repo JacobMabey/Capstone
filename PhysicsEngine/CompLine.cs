@@ -9,6 +9,9 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI;
 using Windows.UI.Xaml.Input;
+using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace PhysicsEngine
 {
@@ -108,7 +111,6 @@ namespace PhysicsEngine
         private void Line_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _line.Opacity = 0.6;
             _line.CapturePointer(e.Pointer);
 
             //Find whether pointA or pointB is closer to the mouse
@@ -116,12 +118,20 @@ namespace PhysicsEngine
             double pointADistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosA.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosA.Y), 2));
             double pointBDistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosB.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosB.Y), 2));
             PosABeingDragged = pointADistance < pointBDistance;
+
+            //Drag mode on if user hold control
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            {
+                IsMouseDragMode = true;
+                _line.Opacity = 0.6;
+            }
         }
         private void Line_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _line.Opacity = 1.0;
             _line.ReleasePointerCapture(e.Pointer);
+            IsMouseDragMode = false;
+            _line.Opacity = 1.0;
         }
         private void Line_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -131,7 +141,7 @@ namespace PhysicsEngine
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled)
+            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
             {
                 posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
                 posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
