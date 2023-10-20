@@ -64,6 +64,8 @@ namespace PhysicsEngine
 
         public double ParticleRate { get; private set; }
         public double ParticleVelocity { get; private set; }
+        public double ParticleElasticity { get; set; }
+        public double ParticleRadius { get; set; }
         private int ParticlesEjected { get; set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
@@ -91,6 +93,8 @@ namespace PhysicsEngine
             ParticleLimit = particleLimit;
             ParticleRate = ratePerSecond;
             ParticleVelocity = particleVelocity;
+            ParticleElasticity = 1.0;
+            ParticleRadius = 5.0;
             ParticlesEjected = 0;
             ParticleTimer = 0;
             FillColor = Colors.Black;
@@ -154,7 +158,8 @@ namespace PhysicsEngine
                 {
                     ParticleTimer = 0;
 
-                    Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0));
+                    Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), ParticleRadius);
+                    particle.Phys.Elasticity = ParticleElasticity;
 
                     //Set Eject Velocity
                     double rotationRadians = RotationAngle * Math.PI / 180.0;

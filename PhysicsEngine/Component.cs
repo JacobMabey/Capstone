@@ -13,6 +13,7 @@ namespace PhysicsEngine
 {
     public abstract class Component
     {
+        public bool IsCollisionEnabled { get; set; } = true;
         protected bool IsBeingDragged { get; set; } = false;
 
         //Is true during drag if user is holding ctrl. will freely move component with no physics and snap to grid

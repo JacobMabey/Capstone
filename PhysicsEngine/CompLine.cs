@@ -85,7 +85,7 @@ namespace PhysicsEngine
             PosA = new Coord(0, 0);
             PosB = new Coord(50, 50);
             Fill = Colors.Red;
-            Thickness = 5.0;
+            Thickness = 3.0;
         }
 
         public CompLine(Coord posA, Coord posB)

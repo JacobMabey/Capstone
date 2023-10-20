@@ -27,17 +27,25 @@ namespace PhysicsEngine
         //Main Global Canvas
         public static Canvas MainScene { get; private set; }
 
+        public static readonly Thickness OUT_OF_BOUNDS_MARGIN = new Thickness(100);
+
+        //Fills list of indexes for elements to be destroyed
+        private static List<int> elementsToBeDestroyed = new List<int>();
 
         //Main Snappable Grid Global Values
         public static double SnapCellSize { get; set; } = 25.0;
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
+        public static 
 
         int x = 50;
         CompRectangle rect;
         Particle p;
         CompLine l;
+        CompLine l2;
+        CompLine l3;
         ParticleEjector ejector;
+        ParticleEjector ejector2;
 
         public MainPage()
         {
@@ -47,15 +55,25 @@ namespace PhysicsEngine
             rect = new CompRectangle(new Coord(600, 50), new Size(50, 80));
             MainScene.Children.Add(rect.GetUIElement());
 
-            p = new Particle(new Coord(500, 500), 25);
-            p.Phys.Mass = 5.0;
+            p = new Particle(new Coord(200, 0), 25);
+            p.Phys.Elasticity = 0.9;
             MainScene.Children.Add(p.GetUIElement());
 
-            l = new CompLine(new Coord(50, 50), new Coord(200, 200));
+            l = new CompLine(new Coord(10, 300), new Coord(410, 325));
             MainScene.Children.Add(l.GetUIElement());
 
-            ejector = new ParticleEjector(new Coord(300, 50), 225.0, 1000, 10, 0.5);
+            l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
+            MainScene.Children.Add(l2.GetUIElement());
+
+            l3 = new CompLine(new Coord(410, 10), new Coord(410, 300));
+            MainScene.Children.Add(l3.GetUIElement());
+
+            ejector = new ParticleEjector(new Coord(350, 50), 225.0, 1000, 10, 5);
+            ejector.ParticleElasticity = 0.9;
             MainScene.Children.Add(ejector.GetUIElement());
+
+            ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 5);
+            //MainScene.Children.Add(ejector2.GetUIElement());
 
             Timer.TimeScale = 1;
         }
@@ -97,41 +115,44 @@ namespace PhysicsEngine
             CompositionTarget.Rendering += Loop;
         }
 
-        /* For testing
-        private void HandleKeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            switch(e.Key)
-            {
-                case Windows.System.VirtualKey.A:
-                    p.Phys.ApplyForce(new Coord(-2, 0));
-                    break;
-                case Windows.System.VirtualKey.S:
-                    p.Phys.ApplyForce(new Coord(0, 2));
-                    break;
-                case Windows.System.VirtualKey.D:
-                    p.Phys.ApplyForce(new Coord(2, 0));
-                    break;
-                case Windows.System.VirtualKey.W:
-                    p.Phys.ApplyForce(new Coord(0, -2));
-                    break;
-            }
-        }
-        */
         private void Update()
         {
             //Update Systems
             Timer.Update();
             Renderer.Update();
             //
-            
+
+            if (elementsToBeDestroyed == null)
+                elementsToBeDestroyed = new List<int>();
+            else elementsToBeDestroyed.Clear();
+
             //Update all Children
             foreach (UIElement element in MainScene.Children)
             {
+
+                //Update all components
                 if (element is Shape && ((Shape)element).Tag is Component)
                 {
+                    //Check for out of bounds elements
+                    double x = Canvas.GetLeft(element);
+                    double y = Canvas.GetTop(element);
+
+                    if (x < -OUT_OF_BOUNDS_MARGIN.Left || x > MainScene.Width + OUT_OF_BOUNDS_MARGIN.Right
+                        || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainScene.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
+                    {
+                        //Mark element to be destroyed
+                        elementsToBeDestroyed.Add(MainScene.Children.IndexOf(element));
+                        continue;
+                    }
+
+                    //Update Element
                     ((Component)((Shape)element).Tag).Update();
                 }
             }
+
+            //Destroy and remove all marked elements
+            for (int i = elementsToBeDestroyed.Count - 1; i >= 0; i--)
+                MainScene.Children.RemoveAt(elementsToBeDestroyed[i]);
         }
     }
 }

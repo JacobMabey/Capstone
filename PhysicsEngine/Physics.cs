@@ -11,7 +11,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 0.02;
+        public static double GravityAcceleration { get; set; } = 0.2;
 
         private static readonly double Epsilon = 0.01;
 
@@ -39,7 +39,7 @@ namespace PhysicsEngine
         /// 0 to 1 Sets "bounce amount"
         /// 0 will not bounce, while 1 will lose no kenetic energy
         /// </summary>
-        private double elasticity = 0.0;
+        private double elasticity = 1.0;
         public double Elasticity
         {
             get => elasticity;
@@ -83,7 +83,7 @@ namespace PhysicsEngine
                     Velocity = new Coord(Velocity.X + Acceleration.X, Velocity.Y + Acceleration.Y + GravityAcceleration / Timer.TimeScale);
 
                     //Update Position
-                    Coord step = new Coord(Velocity.X * Timer.DeltaTime, Velocity.Y * Timer.DeltaTime);
+                    Coord step = new Coord(Velocity.X, Velocity.Y);
                     Coord newPosition = new Coord(((Particle)Parent).Position.X + step.X, ((Particle)Parent).Position.Y + step.Y);
 
                     //Check for collision in next position
@@ -114,7 +114,7 @@ namespace PhysicsEngine
                 if (!(element is Shape)) continue;
                 object comp = ((Shape)element).Tag;
                 if (!(Parent is Particle)) continue;
-                if (comp is CompLine)
+                if (comp is CompLine && ((CompLine)comp).IsCollisionEnabled)
                 {
                     CompLine line = (CompLine)comp;
                     Coord oldPosition = ((Particle)Parent).Position;
@@ -123,13 +123,14 @@ namespace PhysicsEngine
                     if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) continue;
 
                     //Get particle slope
-                    double particleSlope = (newPosition.Y - oldPosition.Y) / (newPosition.X - oldPosition.X);
-                    if (particleSlope == double.PositiveInfinity || particleSlope == double.NegativeInfinity)
-                        particleSlope = 0;
+                    double particleSlope = GetSlope(oldPosition, newPosition);
+
                     //get line slope
-                    double lineSlope = (line.PosB.Y - line.PosA.Y) / (line.PosB.X - line.PosA.X);
-                    if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
-                        lineSlope = 0;
+                    double lineSlope = 0;
+                    if (line.PosA.X < line.PosB.X)
+                        lineSlope = GetSlope(line.PosA, line.PosB);
+                    else
+                        lineSlope = GetSlope(line.PosB, line.PosA);
 
                     //If slopes equal, lines are parallel and do not collide
                     if (particleSlope == lineSlope) continue;
@@ -140,13 +141,46 @@ namespace PhysicsEngine
                     //get line y-intercept
                     double lineYInt = line.PosB.Y - lineSlope * line.PosB.X;
 
-
                     //Get continuous lines intersection point
                     Coord intersection = new Coord(0, 0);
-                    intersection.X = (particleYInt - lineYInt) / (lineSlope - particleSlope);
-                    intersection.Y = particleSlope * intersection.X + particleYInt;
+                    if (lineSlope == 0)
+                    {
+                        if (particleSlope == double.PositiveInfinity || particleSlope == double.NegativeInfinity)
+                            intersection.X = newPosition.X;
+                        else
+                            intersection.X = (particleYInt - lineYInt) / (lineSlope - particleSlope);
+
+                        intersection.Y = line.PosA.Y;
+                    }
+                    else if(lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
+                    {
+                        intersection.X = line.PosA.X;
+
+                        if (particleSlope == 0)
+                            intersection.Y = newPosition.Y;
+                        else
+                            intersection.Y = particleSlope * intersection.X + particleYInt;
+                    } else
+                    {
+                        if (particleSlope == double.PositiveInfinity || particleSlope == double.NegativeInfinity)
+                        {
+                            intersection.X = newPosition.X;
+                            intersection.Y = lineSlope * intersection.X + lineYInt;
+                        } else if (particleSlope == 0)
+                        {
+                            intersection.X = (particleYInt - lineYInt) / (lineSlope - particleSlope);
+                            intersection.Y = newPosition.Y;
+                        } else
+                        {
+                            intersection.X = (particleYInt - lineYInt) / (lineSlope - particleSlope);
+                            intersection.Y = particleSlope * intersection.X + particleYInt;
+                        }
+                    }
 
                     //Check if intersection point is within lines end points
+                    if (intersection.X == double.NaN || intersection.Y == double.NaN)
+                        continue;
+
                     if (intersection.X < Math.Min(oldPosition.X, newPosition.X) || intersection.X > Math.Max(oldPosition.X, newPosition.X) ||
                         intersection.X < Math.Min(line.PosA.X, line.PosB.X) || intersection.X > Math.Max(line.PosA.X, line.PosB.X))
                     {
@@ -158,16 +192,30 @@ namespace PhysicsEngine
                         continue; //no collision
                     }
 
-                    //Get reflection slope
-                    double reflectSlope = particleSlope == 0 ? 0 : -1 / particleSlope;
 
-                    //Get reflection y-intercept
-                    double reflectYInt = intersection.Y - reflectSlope * intersection.X;
-
-                    //Get reflection intersection point
                     Coord reflectIntersection = new Coord(0, 0);
-                    reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
-                    reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
+                    if (lineSlope == 0)
+                    {
+                        reflectIntersection = intersection;
+                        reflectIntersection.X = newPosition.X;
+                    }
+                    else if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
+                    {
+                        reflectIntersection = intersection;
+                        reflectIntersection.Y = newPosition.Y;
+                    }
+                    else
+                    {
+                        //Get reflection slope
+                        double reflectSlope = -1.0 / lineSlope;
+
+                        //Get reflection y-intercept
+                        double reflectYInt = newPosition.Y - reflectSlope * newPosition.X;
+
+                        //Get reflection intersection point
+                        reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
+                        reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
+                    }
 
                     //Get reflect move distance
                     Coord reflectMoveDistance = new Coord(reflectIntersection.X + (reflectIntersection.X - newPosition.X), reflectIntersection.Y + (reflectIntersection.Y - newPosition.Y));
@@ -176,20 +224,53 @@ namespace PhysicsEngine
                     newPosition = reflectMoveDistance;
 
                     //Get new particle slope
-                    double newParticleSlope = (reflectMoveDistance.Y - intersection.Y) / (reflectMoveDistance.X - intersection.X);
+                    double newParticleSlope = GetSlope(intersection, newPosition);
 
                     //Reset Velocity
                     //Get velocity length
-                    double velocityLength = Math.Sqrt(Math.Pow(Velocity.X, 2) + Math.Pow(Velocity.Y, 2));
-                    double newAngle = Math.Atan(newParticleSlope);
-                    Velocity = new Coord(Math.Cos(newAngle) * velocityLength, Math.Sin(newAngle) * velocityLength);
+                    double velocityLength = Math.Sqrt(Math.Pow(Velocity.X, 2.0) + Math.Pow(Velocity.Y, 2.0));
+                    Coord VelocityDirection = new Coord(Math.Sign(newPosition.X - intersection.X), Math.Sign(newPosition.Y - intersection.Y));
+
+                    //Check for perfectly verticle or horizontal lines
+                    if (newParticleSlope == 0)
+                    {
+                        Velocity.X = (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Math.Abs(Velocity.X);
+                        Velocity.Y = (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Velocity.Y;
+                    } else if (newParticleSlope == double.PositiveInfinity || newParticleSlope == double.NegativeInfinity)
+                    {
+                        Velocity.X = (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Velocity.X;
+                        Velocity.Y = (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Math.Abs(Velocity.Y);
+                    }
+                    else
+                    {
+                        Velocity.Y = Math.Sqrt((newParticleSlope * newParticleSlope * velocityLength * velocityLength) / (1.0 + newParticleSlope * newParticleSlope));
+                        Velocity.X = Velocity.Y / newParticleSlope;
+
+                        //reset velocity direction
+                        Velocity.X = VelocityDirection.X * Math.Abs(Velocity.X);
+                        Velocity.Y = VelocityDirection.Y * Math.Abs(Velocity.Y);
+                    }
+
+
+                    //Add collision dampining due to elasticity
+                    Velocity.X *= Elasticity;
+                    Velocity.Y *= Elasticity;
                 }
-                else if (comp is CompRectangle)
+                else if (comp is CompRectangle && ((CompRectangle)comp).IsCollisionEnabled)
                 {
 
                 }
+
+
             }
             return newPosition;
+        }
+
+
+        private double GetSlope(Coord pointA, Coord pointB)
+        {
+            double slope = (pointB.Y - pointA.Y) / (pointB.X - pointA.X);
+            return slope;
         }
     }
 }
