@@ -220,9 +220,9 @@ namespace PhysicsEngine
 
                         //Get all 4 rect corner points and rotate via ratation angle
                         Coord pointTL = rect.Position;
-                        Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, -rect.RotationAngle);
-                        Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, -rect.RotationAngle);
-                        Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, -rect.RotationAngle);
+                        Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, rect.RotationAngle);
+                        Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
+                        Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
 
                         //Get all 4 intersection points
                         Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointTR);
@@ -371,9 +371,10 @@ namespace PhysicsEngine
 
         private Coord RotatePointAroundPoint(Coord point, Coord origin, double angle)
         {
+            double angleRad = angle * Math.PI / 180.0;
             return new Coord(//WONT WORK INCLUDE ORIGIN POINT CALC
-                (point.X - origin.X) * Math.Cos(angle) - (point.Y - origin.Y) * Math.Sin(angle) + origin.X,
-                (point.Y - origin.Y) * Math.Cos(angle) - (point.X - origin.X) * Math.Sin(angle) + origin.Y
+                (point.X - origin.X) * Math.Cos(angleRad) - (point.Y - origin.Y) * Math.Sin(angleRad) + origin.X,
+                (point.Y - origin.Y) * Math.Cos(-angleRad) - (point.X - origin.X) * Math.Sin(-angleRad) + origin.Y
             );
         }
 

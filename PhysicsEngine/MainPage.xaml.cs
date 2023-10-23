@@ -47,26 +47,31 @@ namespace PhysicsEngine
         ParticleEjector ejector;
         ParticleEjector ejector2;
 
+
+        CompLine borderTop;
+        CompLine borderRight;
+        CompLine borderBottom;
+        CompLine borderLeft;
+
         public MainPage()
         {
             Initialize(Colors.White); //Main Initial Canvas Initialization
 
             //Add collision border lines
-            CompLine borderTop = new CompLine(new Coord(0, 0), new Coord(MainCanvas.Width, 0), Colors.Black, 1.0);
-            CompLine borderRight = new CompLine(new Coord(MainCanvas.Width, 0), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
-            CompLine borderBottom = new CompLine(new Coord(0, MainCanvas.Height), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
-            CompLine borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainCanvas.Height), Colors.Black, 1.0);
-            //borderTop.IsCollisionEnabled = false;
-            //borderRight.IsCollisionEnabled = false;
-            //borderBottom.IsCollisionEnabled = false;
-            //borderLeft.IsCollisionEnabled = false;
+            borderTop = new CompLine(new Coord(0, 0), new Coord(MainCanvas.Width, 0), Colors.Black, 1.0);
+            borderRight = new CompLine(new Coord(MainCanvas.Width, 0), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
+            borderBottom = new CompLine(new Coord(0, MainCanvas.Height), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
+            borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainCanvas.Height), Colors.Black, 1.0);
             MainScene.Children.Add(borderTop.GetUIElement());
             MainScene.Children.Add(borderRight.GetUIElement());
             MainScene.Children.Add(borderBottom.GetUIElement());
             MainScene.Children.Add(borderLeft.GetUIElement());
 
+            //ToggleBorderCollision();
 
-            rect = new CompRectangle(new Coord(600, 50), new Size(50, 80));
+
+            rect = new CompRectangle(new Coord(300, 50), new Size(50, 80));
+            rect.RotationAngle = 45;
             MainScene.Children.Add(rect.GetUIElement());
 
             p = new Particle(new Coord(200, 5), 25);
@@ -167,6 +172,16 @@ namespace PhysicsEngine
             //Destroy and remove all marked elements
             for (int i = elementsToBeDestroyed.Count - 1; i >= 0; i--)
                 MainScene.Children.RemoveAt(elementsToBeDestroyed[i]);
+        }
+
+
+
+        public void ToggleBorderCollision()
+        {
+            borderTop.IsCollisionEnabled = !borderTop.IsCollisionEnabled;
+            borderRight.IsCollisionEnabled = !borderRight.IsCollisionEnabled;
+            borderBottom.IsCollisionEnabled = !borderBottom.IsCollisionEnabled;
+            borderLeft.IsCollisionEnabled = !borderLeft.IsCollisionEnabled;
         }
     }
 }
