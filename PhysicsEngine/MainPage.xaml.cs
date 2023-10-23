@@ -51,15 +51,29 @@ namespace PhysicsEngine
         {
             Initialize(Colors.White); //Main Initial Canvas Initialization
 
+            //Add collision border lines
+            CompLine borderTop = new CompLine(new Coord(0, 0), new Coord(MainCanvas.Width, 0), Colors.Black, 1.0);
+            CompLine borderRight = new CompLine(new Coord(MainCanvas.Width, 0), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
+            CompLine borderBottom = new CompLine(new Coord(0, MainCanvas.Height), new Coord(MainCanvas.Width, MainCanvas.Height), Colors.Black, 1.0);
+            CompLine borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainCanvas.Height), Colors.Black, 1.0);
+            //borderTop.IsCollisionEnabled = false;
+            //borderRight.IsCollisionEnabled = false;
+            //borderBottom.IsCollisionEnabled = false;
+            //borderLeft.IsCollisionEnabled = false;
+            MainScene.Children.Add(borderTop.GetUIElement());
+            MainScene.Children.Add(borderRight.GetUIElement());
+            MainScene.Children.Add(borderBottom.GetUIElement());
+            MainScene.Children.Add(borderLeft.GetUIElement());
+
 
             rect = new CompRectangle(new Coord(600, 50), new Size(50, 80));
             MainScene.Children.Add(rect.GetUIElement());
 
-            p = new Particle(new Coord(200, 0), 25);
+            p = new Particle(new Coord(200, 5), 25);
             p.Phys.Elasticity = 0.9;
             MainScene.Children.Add(p.GetUIElement());
 
-            l = new CompLine(new Coord(10, 300), new Coord(410, 325));
+            l = new CompLine(new Coord(10, 300), new Coord(410, 350));
             MainScene.Children.Add(l.GetUIElement());
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));

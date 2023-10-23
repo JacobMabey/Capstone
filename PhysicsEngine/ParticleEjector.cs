@@ -148,7 +148,7 @@ namespace PhysicsEngine
             base.Update();
 
             //If particle limit has not been reached
-            if (ParticlesEjected < ParticleLimit)
+            if (ParticlesEjected < ParticleLimit && Timer.FPS > 50)
             {
                 //if ejector is not paused, add to timer
                 if (!IsPaused) ParticleTimer += Timer.DeltaTime;
