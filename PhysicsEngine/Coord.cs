@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PhysicsEngine
 {
-    public class Coord
+    public struct Coord
     {
-        public double X { get; set; } = 0.0;
-        public double Y { get; set; } = 0.0;
+        public double X { get; set; }
+        public double Y { get; set; }
 
         public Coord(double x, double y)
         {

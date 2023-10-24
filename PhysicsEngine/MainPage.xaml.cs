@@ -40,10 +40,12 @@ namespace PhysicsEngine
         //Global Random Object
         public static Random Rand = new Random();
         CompRectangle rect;
-        Particle p;
+        Particle p1;
+        Particle p2;
         CompLine l;
         CompLine l2;
         CompLine l3;
+        CompLine l4;
         ParticleEjector ejector;
         ParticleEjector ejector2;
 
@@ -69,7 +71,7 @@ namespace PhysicsEngine
             MainScene.Children.Add(borderBottom.GetUIElement());
             MainScene.Children.Add(borderLeft.GetUIElement());
 
-            //ToggleBorderCollision();
+            ToggleBorderCollision();
 
             particleCounter = new TextBlock();
             Canvas.SetLeft(particleCounter, 500);
@@ -78,30 +80,43 @@ namespace PhysicsEngine
             MainPage.MainScene.Children.Add(particleCounter);
 
 
-            rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
-            rect.RotationAngle = 45;
-            MainScene.Children.Add(rect.GetUIElement());
+            //rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
+            //rect.RotationAngle = 45;
+            //MainScene.Children.Add(rect.GetUIElement());
 
-            //p = new Particle(new Coord(200, 5), 25);
-            //p.Phys.Elasticity = 0.9;
-            //MainScene.Children.Add(p.GetUIElement());
+            //p1 = new Particle(new Coord(300, 15), 25);
+            //p1.Phys.Elasticity = 0.9;
+            //p1.Phys.Friction = 0;
+            //p1.Phys.ApplyForce(new Coord(-1, 1));
+            //MainScene.Children.Add(p1.GetUIElement());
 
-            //l = new CompLine(new Coord(10, 300), new Coord(410, 300));
-            //MainScene.Children.Add(l.GetUIElement());
+            //p2 = new Particle(new Coord(100, 200), 25);
+            //p2.Phys.Elasticity = 0.9;
+            //p2.Phys.Friction = 0;
+            //p2.Phys.Mass = 5.0;
+            //p2.Phys.ApplyForce(new Coord(50, -50));
+            //MainScene.Children.Add(p2.GetUIElement());
+
+            l = new CompLine(new Coord(10, 300), new Coord(310, 300));
+            MainScene.Children.Add(l.GetUIElement());
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
             MainScene.Children.Add(l2.GetUIElement());
 
-            l3 = new CompLine(new Coord(410, 10), new Coord(410, 300));
+            l3 = new CompLine(new Coord(310, 10), new Coord(310, 300));
             MainScene.Children.Add(l3.GetUIElement());
 
-            ejector = new ParticleEjector(new Coord(350, 50), 225.0, 1000, 6, 5);
-            ejector.ParticleElasticity = 0.9;
-            ejector.ParticleFriction = 1.0;
+            l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
+            MainScene.Children.Add(l4.GetUIElement());
+
+            ejector = new ParticleEjector(new Coord(250, 80), 225.0, 3, 1, 5);
+            ejector.ParticleElasticity = 1.0;
+            ejector.ParticleRadius = 20;
+            ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 20.0;
             MainScene.Children.Add(ejector.GetUIElement());
 
-            ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 5);
+            //ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 0.05);
             //MainScene.Children.Add(ejector2.GetUIElement());
 
             Timer.TimeScale = 1;
@@ -112,7 +127,7 @@ namespace PhysicsEngine
         {
             Update(); //Main Canvas Update To be within Loop
 
-            particleCounter.Text = ""+ejector.ParticlesEjected;
+            particleCounter.Text = "" + ejector.ParticlesEjected;
         }
 
         
@@ -153,6 +168,9 @@ namespace PhysicsEngine
             Timer.Update();
             Renderer.Update();
             //
+
+            if (Timer.Ticks < 25)
+                return;
 
             if (elementsToBeDestroyed == null)
                 elementsToBeDestroyed = new List<int>();

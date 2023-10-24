@@ -28,7 +28,7 @@ namespace PhysicsEngine
 
         public static bool IsPaused { get; set; } = false;
 
-        public static double FPS => ((int)((1000.0 / DeltaTimeRaw) * 1000.0)) / 1000.0;
+        public static double FPS => ((int)((1.0 / DeltaTimeRaw) * 1000.0)) / 1000.0;
 
 
         private static long PrevTime { get; set; } = 0;
@@ -42,7 +42,7 @@ namespace PhysicsEngine
             //Update Delta Time
             long now = DateTime.Now.Ticks;
             if (PrevTime == 0) PrevTime = now;
-            DeltaTimeRaw = ((now - PrevTime) / 10000.0f);
+            DeltaTimeRaw = ((now - PrevTime) / 10000000.0f);
             DeltaTime = DeltaTimeRaw * TimeScale;
             PrevTime = now;
             Ticks++;

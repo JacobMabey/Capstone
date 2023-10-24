@@ -34,7 +34,7 @@ namespace PhysicsEngine
             }
         }
 
-        private readonly Size EJECTOR_SIZE = new Size(50, 20);
+        private Size EJECTOR_SIZE { get; set; } = new Size(50, 20);
 
         private Color fill;
         public Color FillColor
@@ -67,7 +67,17 @@ namespace PhysicsEngine
         public double ParticleVelocity { get; private set; }
         public double ParticleElasticity { get; set; }
         public double ParticleFriction { get; set; }
-        public double ParticleRadius { get; set; }
+
+        private double radius;
+        public double ParticleRadius
+        {
+            get => radius;
+            set
+            {
+                radius = value;
+                _rect.Height = radius * 2.0;
+            }
+        }
         public int ParticlesEjected { get; private set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
@@ -158,7 +168,7 @@ namespace PhysicsEngine
                 if (!IsPaused) ParticleTimer += Timer.DeltaTime;
 
                 //if timer is reached, reset timer and eject particle
-                if (ParticleTimer > 1000.0 / ParticleRate)
+                if (ParticleTimer > 1.0 / ParticleRate)
                 {
                     ParticleTimer = 0;
 
