@@ -62,11 +62,13 @@ namespace PhysicsEngine
             }
         }
 
+        public double ParticleScatterAngle { get; set; }
         public double ParticleRate { get; private set; }
         public double ParticleVelocity { get; private set; }
         public double ParticleElasticity { get; set; }
+        public double ParticleFriction { get; set; }
         public double ParticleRadius { get; set; }
-        private int ParticlesEjected { get; set; }
+        public int ParticlesEjected { get; private set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
 
@@ -93,7 +95,9 @@ namespace PhysicsEngine
             ParticleLimit = particleLimit;
             ParticleRate = ratePerSecond;
             ParticleVelocity = particleVelocity;
+            ParticleScatterAngle = 0.0;
             ParticleElasticity = 1.0;
+            ParticleFriction = 0.1;
             ParticleRadius = 5.0;
             ParticlesEjected = 0;
             ParticleTimer = 0;
@@ -148,7 +152,7 @@ namespace PhysicsEngine
             base.Update();
 
             //If particle limit has not been reached
-            if (ParticlesEjected < ParticleLimit && Timer.FPS > 55)
+            if (ParticlesEjected < ParticleLimit && Timer.FPS > 40)
             {
                 //if ejector is not paused, add to timer
                 if (!IsPaused) ParticleTimer += Timer.DeltaTime;
@@ -160,9 +164,15 @@ namespace PhysicsEngine
 
                     Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), ParticleRadius);
                     particle.Phys.Elasticity = ParticleElasticity;
+                    particle.Phys.Friction = ParticleFriction;
+
 
                     //Set Eject Velocity
-                    double rotationRadians = RotationAngle * Math.PI / 180.0;
+                    double ejectAngle = RotationAngle;
+                    if (ParticleScatterAngle != 0)
+                        ejectAngle += ParticleScatterAngle * (MainPage.Rand.NextDouble() * 2.0 - 1.0);
+
+                    double rotationRadians = ejectAngle * Math.PI / 180.0;
                     particle.Phys.ApplyForce(new Coord(Math.Sin(rotationRadians) * ParticleVelocity, Math.Cos(rotationRadians) * ParticleVelocity));
 
                     //Create

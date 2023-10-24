@@ -9,6 +9,7 @@ namespace PhysicsEngine
 {
     public static class Timer
     {
+        public static ulong Ticks { get; private set; } = 0;
         private static double DeltaTimeRaw { get; set; } = 0.0;
         public static double DeltaTime { get; private set; } = 0.0;
 
@@ -44,10 +45,12 @@ namespace PhysicsEngine
             DeltaTimeRaw = ((now - PrevTime) / 10000.0f);
             DeltaTime = DeltaTimeRaw * TimeScale;
             PrevTime = now;
+            Ticks++;
         }
 
         public static void Shutdown()
         {
+
         }
     }
 }

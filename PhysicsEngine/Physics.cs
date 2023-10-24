@@ -9,6 +9,7 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Shapes;
 
 namespace PhysicsEngine
@@ -113,27 +114,29 @@ namespace PhysicsEngine
 
         private Coord UpdatePositionOnCollison(Coord newPosition)
         {
-            foreach (object comp in MainPage.MainScene.Children.Where(e => e is Shape).Select(e => ((Shape)e).Tag))
+            IEnumerable<object> components = MainPage.MainScene.Children.Where(e => e is Shape).Select(e => ((Shape)e).Tag).Where(c => !(c is Particle));
+            foreach (object comp in components)
             {
-                if (!(Parent is Particle)) continue;
+                if (!(Parent is Particle)) return newPosition;
+
+                Coord oldPosition = ((Particle)Parent).Position;
+
+                //If position didn't move, no collision
+                if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) return newPosition;
+
 
                 Coord intersection = new Coord(0, 0);
                 bool IsColliding = false;
+
                 //Line Collision
                 if (comp is CompLine && ((CompLine)comp).IsCollisionEnabled)
                 {
                     CompLine line = (CompLine)comp;
-                    Coord oldPosition = ((Particle)Parent).Position;
-
-                    //If position didn't move, lines are parallel and do not collide
-                    if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) continue;
 
                     //Get continueos lines intersection point
                     intersection = GetIntersectionPoint(oldPosition, newPosition, line.PosA, line.PosB);
-
-                    if (intersection.X == double.NaN || intersection.Y == double.NaN)
+                    if (intersection.X is double.NaN || intersection.Y is double.NaN)
                         continue;
-                    //
 
                     //Check if intersection point is within both lines
                     if (intersection.X < Math.Min(oldPosition.X, newPosition.X) || intersection.X > Math.Max(oldPosition.X, newPosition.X) ||
@@ -144,79 +147,29 @@ namespace PhysicsEngine
                         continue; //no collision
                     }
 
-
-                    //Get particle slope
-                    double particleSlope = GetSlope(oldPosition, newPosition);
-
-                    //get line slope
-                    double lineSlope = 0;
-                    if (line.PosA.X < line.PosB.X)
-                        lineSlope = GetSlope(line.PosA, line.PosB);
-                    else
-                        lineSlope = GetSlope(line.PosB, line.PosA);
-
-                    //If slopes equal, lines are parallel and do not collide
-                    if (particleSlope == lineSlope) continue;
-
-                    //Is colliding, guaranteed
+                    //Collision is guarenteed at this point
                     IsColliding = true;
 
-                    //get particle y-intercept
-                    double particleYInt = newPosition.Y - particleSlope * newPosition.X;
-                    //get line y-intercept
-                    double lineYInt = line.PosB.Y - lineSlope * line.PosB.X;
+                    //Set new position to the reflected point
+                    Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, line.PosA, line.PosB, intersection);
+                    if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
 
-
-                    Coord reflectIntersection = new Coord(0, 0);
-                    if (lineSlope == 0)
-                    {
-                        reflectIntersection = intersection;
-                        reflectIntersection.X = newPosition.X;
-                    }
-                    else if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
-                    {
-                        reflectIntersection = intersection;
-                        reflectIntersection.Y = newPosition.Y;
-                    }
-                    else
-                    {
-                        //Get reflection slope
-                        double reflectSlope = -1.0 / lineSlope;
-
-                        //Get reflection y-intercept
-                        double reflectYInt = newPosition.Y - reflectSlope * newPosition.X;
-
-                        //Get reflection intersection point
-                        reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
-                        reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
-                    }
-
-
-                    //Set new position (reflect intersection + (reflect intersection - (former) new postion)
-                    newPosition = new Coord(reflectIntersection.X + (reflectIntersection.X - newPosition.X), reflectIntersection.Y + (reflectIntersection.Y - newPosition.Y));
+                    newPosition = reflectPos;
                 }
                 //Rectangle Collision
                 else if (comp is CompRectangle && ((CompRectangle)comp).IsCollisionEnabled)
                 {
                     CompRectangle rect = (CompRectangle)comp;
-                    Coord oldPosition = ((Particle)Parent).Position;
-
-                    //If position didn't move, lines are parallel and do not collide
-                    if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) continue;
 
                     //check if new position is inside rect
                     //rotate point by rect origin by the amount the rect is rotated
                     Coord rotatedPosition = newPosition;
                     if (rect.RotationAngle != 0)
-                    {
                         rotatedPosition = RotatePointAroundPoint(newPosition, rect.Position, -rect.RotationAngle);
-                    }
 
                     //Check if new position is within the rectangle
                     if (new Rect(new Point(rect.Position.X, rect.Position.Y), rect.Size).Contains(new Point(rotatedPosition.X, rotatedPosition.Y)))
                     {
-                        //point is colliding with rect
-                        IsColliding = true;
 
                         //Get all 4 rect corner points and rotate via ratation angle
                         Coord pointTL = rect.Position;
@@ -224,94 +177,71 @@ namespace PhysicsEngine
                         Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
                         Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
 
-                        //Get all 4 intersection points
+                        //Will be set to the two points connected to the side of the rect the particle intersects with
+                        Coord pointA = new Coord(0, 0);
+                        Coord pointB = new Coord(0, 0);
+
+                        //Get length of particle movement
+                        double moveLength = GetLength(new Coord(oldPosition.X - newPosition.X, oldPosition.Y - newPosition.Y));
+
+                        //Find intersection point that is at less distance than moveLength to find intersected side
+                        bool IntersectFound = false;
                         Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointTR);
-                        Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTR, pointBR);
-                        Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, pointBL, pointBR);
-                        Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointBL);
-
-                        //Get all 4 intersection point distances
                         double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
-                        double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
-                        double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
-                        double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
-
-                        //Find the smallest distance to match with the correct intersection point
-                        Coord pointA, pointB = new Coord(0, 0);
-                        double minDistance = Math.Min(topDist, Math.Min(rightDist, Math.Min(bottomDist, leftDist)));
-                        if (minDistance == topDist)
+                        if (topDist <= moveLength)
                         {
                             intersection = topIntersect;
                             pointA = pointTL;
                             pointB = pointTR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
                         }
-                        else if (minDistance == rightDist)
+
+                        Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTR, pointBR);
+                        double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
+                        if (rightDist <= moveLength)
                         {
                             intersection = rightIntersect;
                             pointA = pointTR;
                             pointB = pointBR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
                         }
-                        else if (minDistance == bottomDist)
+
+                        Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, pointBL, pointBR);
+                        double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
+                        if (bottomDist <= moveLength)
                         {
                             intersection = bottomIntersect;
                             pointA = pointBL;
                             pointB = pointBR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
                         }
-                        else
+
+                        Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointBL);
+                        double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
+                        if (leftDist <= moveLength)
                         {
                             intersection = leftIntersect;
                             pointA = pointTL;
                             pointB = pointBL;
+                            IntersectFound = true;
+                            goto IntersectionFound;
                         }
+                    IntersectionFound:
 
+                        //Set new position to the reflected point
+                        Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
+                        if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
 
-                        //Get reflect slope and position
-                        //Get particle slope
-                        double particleSlope = GetSlope(oldPosition, newPosition);
-
-                        //get line slope
-                        double lineSlope = 0;
-                        if (pointA.X < pointB.X)
-                            lineSlope = GetSlope(pointA, pointB);
-                        else
-                            lineSlope = GetSlope(pointB, pointA);
-
-                        //If slopes equal, lines are parallel and do not collide
-                        if (particleSlope == lineSlope) continue;
-
-                        //get particle y-intercept
-                        double particleYInt = newPosition.Y - particleSlope * newPosition.X;
-                        //get line y-intercept
-                        double lineYInt = pointB.Y - lineSlope * pointB.X;
-
-
-                        Coord reflectIntersection = new Coord(0, 0);
-                        if (lineSlope == 0)
+                        if (IntersectFound)
                         {
-                            reflectIntersection = intersection;
-                            reflectIntersection.X = newPosition.X;
+                            //Collision is guarenteed at this point
+                            IsColliding = true;
+
+                            newPosition = reflectPos;
                         }
-                        else if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
-                        {
-                            reflectIntersection = intersection;
-                            reflectIntersection.Y = newPosition.Y;
-                        }
-                        else
-                        {
-                            //Get reflection slope
-                            double reflectSlope = -1.0 / lineSlope;
-
-                            //Get reflection y-intercept
-                            double reflectYInt = newPosition.Y - reflectSlope * newPosition.X;
-
-                            //Get reflection intersection point
-                            reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
-                            reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
-                        }
-
-
-                        //Set new position (reflect intersection + (reflect intersection - (former) new postion)
-                        newPosition = new Coord(reflectIntersection.X + (reflectIntersection.X - newPosition.X), reflectIntersection.Y + (reflectIntersection.Y - newPosition.Y));
                     }
 
                 }
@@ -358,40 +288,126 @@ namespace PhysicsEngine
         }
 
 
+        /// <summary>
+        /// Gets the slope of a line with two given points
+        /// </summary>
+        /// <param name="pointA"></param>
+        /// <param name="pointB"></param>
+        /// <returns>The line slope</returns>
         private double GetSlope(Coord pointA, Coord pointB)
         {
-            double slope = (pointB.Y - pointA.Y) / (pointB.X - pointA.X);
-            return slope;
+            return (pointB.Y - pointA.Y) / (pointB.X - pointA.X);
         }
 
+        /// <summary>
+        /// Gets the length of the line from point 0,0 to given point
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns>Point distance from (0,0)</returns>
         private double GetLength(Coord point)
         {
             return Math.Sqrt(Math.Pow(point.X, 2.0) + Math.Pow(point.Y, 2.0));
         }
 
+        /// <summary>
+        /// Rotates a point around another given point with a given angle
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="origin"></param>
+        /// <param name="angle"></param>
+        /// <returns>New rotated point</returns>
         private Coord RotatePointAroundPoint(Coord point, Coord origin, double angle)
         {
             double angleRad = angle * Math.PI / 180.0;
-            return new Coord(//WONT WORK INCLUDE ORIGIN POINT CALC
+            return new Coord(
                 (point.X - origin.X) * Math.Cos(angleRad) - (point.Y - origin.Y) * Math.Sin(angleRad) + origin.X,
                 (point.Y - origin.Y) * Math.Cos(-angleRad) - (point.X - origin.X) * Math.Sin(-angleRad) + origin.Y
             );
         }
 
+
+        /// <summary>
+        /// Given a positional movement, collision line, and intersection point 
+        /// between the two, gets a new position that is "newPosition" reflected 
+        /// off the collision line
+        /// </summary>
+        /// <param name="oldPosition"></param>
+        /// <param name="newPosition"></param>
+        /// <param name="linePointA"></param>
+        /// <param name="linePointB"></param>
+        /// <param name="intersection"></param>
+        /// <returns>position reflected off the given line</returns>
+        private Coord GetReflectedPosition(Coord oldPosition, Coord newPosition, Coord linePointA, Coord linePointB, Coord intersection)
+        {
+            //Get reflect slope and position
+            //Get particle slope
+            double particleSlope = GetSlope(oldPosition, newPosition);
+
+            //get line slope
+            double lineSlope = 0;
+            if (linePointA.X < linePointB.X)
+                lineSlope = GetSlope(linePointA, linePointB);
+            else
+                lineSlope = GetSlope(linePointB, linePointA);
+
+            //If slopes equal, lines are parallel and do not collide
+            if (particleSlope == lineSlope)
+                return new Coord(double.NaN, double.NaN);
+
+            //get line y-intercept
+            double lineYInt = linePointB.Y - lineSlope * linePointB.X;
+
+
+            Coord reflectIntersection = new Coord(0, 0);
+            if (lineSlope == 0)
+            {
+                reflectIntersection = intersection;
+                reflectIntersection.X = newPosition.X;
+            }
+            else if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
+            {
+                reflectIntersection = intersection;
+                reflectIntersection.Y = newPosition.Y;
+            }
+            else
+            {
+                //Get reflection slope
+                double reflectSlope = -1.0 / lineSlope;
+
+                //Get reflection y-intercept
+                double reflectYInt = newPosition.Y - reflectSlope * newPosition.X;
+
+                //Get reflection intersection point
+                reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
+                reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
+            }
+            return new Coord(reflectIntersection.X + (reflectIntersection.X - newPosition.X), reflectIntersection.Y + (reflectIntersection.Y - newPosition.Y));
+        }
+
+
+        /// <summary>
+        /// Gets the intersection point between two lines
+        /// </summary>
+        /// <param name="pointA"></param>
+        /// <param name="pointB"></param>
+        /// <param name="pointC"></param>
+        /// <param name="pointD"></param>
+        /// <returns>Intersection point</returns>
         private Coord GetIntersectionPoint(Coord pointA, Coord pointB, Coord pointC, Coord pointD)
         {
             //Get line A slope
             double lineASlope = GetSlope(pointA, pointB);
 
             //get line B slope
-            double lineBSlope = 0;
+            double lineBSlope;
             if (pointC.X < pointD.X)
                 lineBSlope = GetSlope(pointC, pointD);
             else
                 lineBSlope = GetSlope(pointD, pointC);
 
             //If slopes equal, lines are parallel and do not collide
-            if (lineASlope == lineBSlope) return new Coord(double.NaN, double.NaN);
+            if (lineASlope == lineBSlope)
+                return new Coord(double.NaN, double.NaN);
 
             //get particle y-intercept
             double lineAYInt = pointB.Y - lineASlope * pointB.X;

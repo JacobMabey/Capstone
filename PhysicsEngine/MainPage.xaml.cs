@@ -36,9 +36,9 @@ namespace PhysicsEngine
         public static double SnapCellSize { get; set; } = 25.0;
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
-        public static 
 
-        int x = 50;
+        //Global Random Object
+        public static Random Rand = new Random();
         CompRectangle rect;
         Particle p;
         CompLine l;
@@ -52,6 +52,8 @@ namespace PhysicsEngine
         CompLine borderRight;
         CompLine borderBottom;
         CompLine borderLeft;
+
+        TextBlock particleCounter;
 
         public MainPage()
         {
@@ -69,17 +71,23 @@ namespace PhysicsEngine
 
             //ToggleBorderCollision();
 
+            particleCounter = new TextBlock();
+            Canvas.SetLeft(particleCounter, 500);
+            Canvas.SetTop(particleCounter, 10);
+            Canvas.SetZIndex(particleCounter, 100);
+            MainPage.MainScene.Children.Add(particleCounter);
 
-            rect = new CompRectangle(new Coord(300, 50), new Size(50, 80));
+
+            rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
             rect.RotationAngle = 45;
             MainScene.Children.Add(rect.GetUIElement());
 
-            p = new Particle(new Coord(200, 5), 25);
-            p.Phys.Elasticity = 0.9;
-            MainScene.Children.Add(p.GetUIElement());
+            //p = new Particle(new Coord(200, 5), 25);
+            //p.Phys.Elasticity = 0.9;
+            //MainScene.Children.Add(p.GetUIElement());
 
-            l = new CompLine(new Coord(10, 300), new Coord(410, 350));
-            MainScene.Children.Add(l.GetUIElement());
+            //l = new CompLine(new Coord(10, 300), new Coord(410, 300));
+            //MainScene.Children.Add(l.GetUIElement());
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
             MainScene.Children.Add(l2.GetUIElement());
@@ -87,8 +95,10 @@ namespace PhysicsEngine
             l3 = new CompLine(new Coord(410, 10), new Coord(410, 300));
             MainScene.Children.Add(l3.GetUIElement());
 
-            ejector = new ParticleEjector(new Coord(350, 50), 225.0, 1000, 10, 5);
+            ejector = new ParticleEjector(new Coord(350, 50), 225.0, 1000, 6, 5);
             ejector.ParticleElasticity = 0.9;
+            ejector.ParticleFriction = 1.0;
+            ejector.ParticleScatterAngle = 20.0;
             MainScene.Children.Add(ejector.GetUIElement());
 
             ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 5);
@@ -102,6 +112,7 @@ namespace PhysicsEngine
         {
             Update(); //Main Canvas Update To be within Loop
 
+            particleCounter.Text = ""+ejector.ParticlesEjected;
         }
 
         
@@ -132,6 +143,8 @@ namespace PhysicsEngine
         private void PageLoaded(object sender, RoutedEventArgs e)
         {
             CompositionTarget.Rendering += Loop;
+
+
         }
 
         private void Update()
@@ -160,8 +173,8 @@ namespace PhysicsEngine
                         || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainScene.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
                     {
                         //Mark element to be destroyed
-                        elementsToBeDestroyed.Add(MainScene.Children.IndexOf(element));
-                        continue;
+                    //    elementsToBeDestroyed.Add(MainScene.Children.IndexOf(element));
+                    //    continue;
                     }
 
                     //Update Element
