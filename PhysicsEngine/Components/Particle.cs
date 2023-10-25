@@ -59,17 +59,15 @@ namespace PhysicsEngine
         }
 
 
-        public Physics Phys { get; private set; }
 
-
-        private void Initialize()
+        public override void Initialize()
         {
+            base.Initialize();
+
             _ellipse.Tag = this;
             _ellipse.PointerPressed += Ellipse_PointerPressed;
             _ellipse.PointerReleased += Ellipse_PointerReleased;
             _ellipse.PointerMoved += Ellipse_PointerMoved;
-
-            Phys = new Physics(this);
         }
 
         public Particle()
@@ -111,14 +109,14 @@ namespace PhysicsEngine
         {
             if (!IsBeingDragged) return;
 
-            Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
+            if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
             {
-                posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
-                posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+                posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
+                posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             Position = new Coord(posx, posy);
         }
@@ -128,10 +126,6 @@ namespace PhysicsEngine
         public override void Update()
         {
             base.Update();
-
-            if (IsBeingDragged) return;
-
-            Phys.Update();
         }
 
     }

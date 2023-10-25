@@ -24,7 +24,7 @@ namespace PhysicsEngine
             Canvas.SetLeft(fpsText, 10);
             Canvas.SetTop(fpsText, 10);
             Canvas.SetZIndex(fpsText, 100);
-            MainPage.MainScene.Children.Add(fpsText);
+            Scene.MainScene.Children.Add(fpsText);
 #endif
         }
 
@@ -44,7 +44,7 @@ namespace PhysicsEngine
 
         public static void SetBgColor(Color bg)
         {
-            MainPage.MainScene.Background = new SolidColorBrush(bg);
+            Scene.MainScene.Background = new SolidColorBrush(bg);
         }
     }
 }

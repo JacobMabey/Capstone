@@ -71,8 +71,10 @@ namespace PhysicsEngine
             }
         }
 
-        private void Initialize()
+        public override void Initialize()
         {
+            base.Initialize();
+
             _line.Tag = this;
             _line.PointerPressed += Line_PointerPressed;
             _line.PointerReleased += Line_PointerReleased;
@@ -114,7 +116,7 @@ namespace PhysicsEngine
             _line.CapturePointer(e.Pointer);
 
             //Find whether pointA or pointB is closer to the mouse
-            Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
             double pointADistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosA.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosA.Y), 2));
             double pointBDistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosB.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosB.Y), 2));
             PosABeingDragged = pointADistance < pointBDistance;
@@ -137,14 +139,14 @@ namespace PhysicsEngine
         {
             if (!IsBeingDragged) return;
 
-            Point pointerCoord = e.GetCurrentPoint(MainPage.MainScene).Position;
+            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (MainPage.IsSnappableGridEnabled && IsMouseDragMode)
+            if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
             {
-                posx = Math.Round(posx / MainPage.SnapCellSize) * MainPage.SnapCellSize;
-                posy = Math.Round(posy / MainPage.SnapCellSize) * MainPage.SnapCellSize;
+                posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
+                posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             if (PosABeingDragged)
             {

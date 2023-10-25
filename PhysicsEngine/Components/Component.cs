@@ -13,6 +13,9 @@ namespace PhysicsEngine
 {
     public abstract class Component
     {
+        private static long U_Id = 0;
+        public long ID = -1;
+
         public bool IsCollisionEnabled { get; set; } = true;
         protected bool IsBeingDragged { get; set; } = false;
 
@@ -23,11 +26,21 @@ namespace PhysicsEngine
         protected SolidColorBrush StrokeBrush { get; set; }
 
         protected bool HasPhysics { get; set; } = false;
+        public Physics Phys { get; private set; }
 
         public abstract Shape GetUIElement();
+
+        public virtual void Initialize()
+        {
+            ID = U_Id++;
+            Phys = new Physics(this);
+            if (this is Particle)
+                HasPhysics = true;
+        }
         public virtual void Update()
         {
-
+            if (HasPhysics && !IsBeingDragged)
+                Phys.Update();
         }
     }
 }

@@ -122,16 +122,16 @@ namespace PhysicsEngine
             //If position didn't move, no collision
             if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) return newPosition;
 
-            foreach (object element in MainPage.MainScene.Children)
+            foreach (Component comp in Scene.Children.Values)
             {
-                if (!(element is Shape)) continue;
-                object comp = ((Shape)element).Tag;
+                if (!comp.IsCollisionEnabled)
+                    continue;
 
                 Coord intersection = new Coord(0, 0);
                 bool IsColliding = false;
 
                 //Particle Collision
-                if (comp is Particle && ((Particle)comp).IsCollisionEnabled)
+                if (comp is Particle)
                 {
                     Particle parent = ((Particle)Parent);
                     Particle particle = (Particle)comp;
@@ -145,21 +145,25 @@ namespace PhysicsEngine
                     //Collision is guarenteed at this point
                     IsColliding = true;
 
+
+                    double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
+
                     //Set current particle Velocity
-                    Velocity = new Coord(
+                    /*Velocity = new Coord(
                         (Velocity.X * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
                         (Velocity.Y * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
                     );
 
+                    */
                     //Set other particle velocity
-                    ((Particle)(((Shape)element).Tag)).Phys.Velocity = new Coord(
+                    Scene.Children[particle.ID].Phys.Velocity = new Coord(
                         (particle.Phys.Velocity.X * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
                         (particle.Phys.Velocity.Y * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
                     );
 
                 }
                 //Line Collision
-                else if (comp is CompLine && ((CompLine)comp).IsCollisionEnabled)
+                else if (comp is CompLine)
                 {
                     CompLine line = (CompLine)comp;
 
@@ -200,7 +204,7 @@ namespace PhysicsEngine
                     newPosition = reflectPos;
                 }
                 //Rectangle Collision
-                else if (comp is CompRectangle && ((CompRectangle)comp).IsCollisionEnabled)
+                else if (comp is CompRectangle)
                 {
                     CompRectangle rect = (CompRectangle)comp;
 
