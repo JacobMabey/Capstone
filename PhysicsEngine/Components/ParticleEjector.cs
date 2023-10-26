@@ -78,6 +78,7 @@ namespace PhysicsEngine
                 _rect.Height = radius * 2.0;
             }
         }
+        public double ParticleRadiusRange { get; set; }
         public int ParticlesEjected { get; private set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
@@ -111,6 +112,7 @@ namespace PhysicsEngine
             ParticleElasticity = 1.0;
             ParticleFriction = 0.1;
             ParticleRadius = 5.0;
+            ParticleRadiusRange = 0.0;
             ParticlesEjected = 0;
             ParticleTimer = 0;
             FillColor = Colors.Black;
@@ -174,7 +176,11 @@ namespace PhysicsEngine
                 {
                     ParticleTimer = 0;
 
-                    Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), ParticleRadius);
+                    double radius = ParticleRadius;
+                    if (ParticleRadiusRange != 0.0)
+                        radius += ParticleRadiusRange * Scene.Rand.NextDouble();
+
+                    Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), radius);
                     particle.Phys.Elasticity = ParticleElasticity;
                     particle.Phys.Friction = ParticleFriction;
 

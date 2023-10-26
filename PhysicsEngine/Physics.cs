@@ -18,7 +18,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 0;
+        public static double GravityAcceleration { get; set; } = 200;
 
         private static readonly double Epsilon = 0.01;
 
@@ -148,7 +148,7 @@ namespace PhysicsEngine
                     IsColliding = true;
 
 
-                    double p1Velocity = GetLength(Velocity);
+                    /*double p1Velocity = GetLength(Velocity);
                     double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
 
                     double p1MoveAngle = GetAngle(new Coord(0, 0), Velocity);
@@ -172,11 +172,13 @@ namespace PhysicsEngine
                         (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Sin(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
 
                     Velocity = new Coord(p1NewVelX, p1NewVelY);
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);
+                    Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);*/
                     //Scene.Children[particle.ID].IsCollisionEnabled = false;
-                    /*double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
 
-                    double moveDistance = particleCollisionLength / 2.0;
+
+                    double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
+
+                    double moveDistance = Math.Sqrt(particleCollisionLength);
                     double p1Angle = GetAngle(particle.Position, newPosition);
                     Coord p1NewPoint = MovePoint(parent.Position, moveDistance, p1Angle);
                     ApplyForce(new Coord((p1NewPoint.X - newPosition.X) * Elasticity, (p1NewPoint.Y - newPosition.Y) * Elasticity));
@@ -184,9 +186,20 @@ namespace PhysicsEngine
                     double p2Angle = p1Angle + Math.PI;
                     Coord p2NewPoint = MovePoint(particle.Position, moveDistance, p2Angle);
                     Scene.Children[particle.ID].Phys.ApplyForce(new Coord((p2NewPoint.X - particle.Position.X) * Scene.Children[particle.ID].Phys.Elasticity, (p2NewPoint.Y - particle.Position.Y) * Scene.Children[particle.ID].Phys.Elasticity));
+                    
+
+                    /*double moveDistance = Math.Sqrt(particleDistance);
+                    double p1Velocity = GetLength(Velocity);
+                    double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
+                    double p1Radius = parent.Radius;
+                    double p2Radius = particle.Radius;
+                    double delta = p1Radius * (1.0 / (p2Radius + p1Radius)) * p2Radius - moveDistance;
+                    Velocity = new Coord(
+                        ((newPosition.X - particle.Position.X) / moveDistance) * delta + p1Velocity * Elasticity,
+                        ((newPosition.Y - particle.Position.Y) / moveDistance) * delta + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
+                    );
+                    Scene.Children[particle.ID].Phys.Velocity = new Coord(-((newPosition.X - particle.Position.X) / moveDistance) * delta, -((newPosition.Y - particle.Position.Y) / moveDistance) * delta);
                     */
-
-
 
                     //Set current particle Velocity
                     /*Velocity = new Coord(
@@ -501,55 +514,6 @@ namespace PhysicsEngine
             double passedIntersectionLength = GetDistance(intersection, newPosition);
             
             return MovePoint(intersection, passedIntersectionLength, newParticleAngle);
-
-            //double xstep = Math.Cos(newParticleAngle);
-            //double ystep = -Math.Sin(newParticleAngle);
-            //return new Coord(intersection.X + xstep * passedIntersectionLength, intersection.Y + ystep * passedIntersectionLength);
-
-            //Get reflect slope and position
-            //Get particle slope
-            /*double particleSlope = GetSlope(oldPosition, newPosition);
-
-            //get line slope
-            double lineSlope = 0;
-            if (linePointA.X < linePointB.X)
-                lineSlope = GetSlope(linePointA, linePointB);
-            else
-                lineSlope = GetSlope(linePointB, linePointA);
-
-            //If slopes equal, lines are parallel and do not collide
-            if (particleSlope == lineSlope)
-                return new Coord(double.NaN, double.NaN);
-
-            //get line y-intercept
-            double lineYInt = linePointB.Y - lineSlope * linePointB.X;
-
-
-            Coord reflectIntersection = new Coord(0, 0);
-            if (lineSlope == 0)
-            {
-                reflectIntersection = intersection;
-                reflectIntersection.X = newPosition.X;
-            }
-            else if (lineSlope == double.PositiveInfinity || lineSlope == double.NegativeInfinity)
-            {
-                reflectIntersection = intersection;
-                reflectIntersection.Y = newPosition.Y;
-            }
-            else
-            {
-                //Get reflection slope
-                double reflectSlope = -1.0 / lineSlope;
-
-                //Get reflection y-intercept
-                double reflectYInt = newPosition.Y - reflectSlope * newPosition.X;
-
-                //Get reflection intersection point
-                reflectIntersection.X = (reflectYInt - lineYInt) / (lineSlope - reflectSlope);
-                reflectIntersection.Y = reflectSlope * reflectIntersection.X + reflectYInt;
-            }
-            return new Coord(reflectIntersection.X + (reflectIntersection.X - newPosition.X), reflectIntersection.Y + (reflectIntersection.Y - newPosition.Y));
-            */
         }
 
 

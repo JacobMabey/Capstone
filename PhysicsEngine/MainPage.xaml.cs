@@ -81,17 +81,18 @@ namespace PhysicsEngine
             Scene.Add(l);
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
-            Scene.Add(l2);
+            //Scene.Add(l2);
 
             l3 = new CompLine(new Coord(310, 10), new Coord(310, 300));
-            Scene.Add(l3);
+            //Scene.Add(l3);
 
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
-            Scene.Add(l4);
+            //Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(250, 80), 225.0, 20, 0.5, 5);
-            ejector.ParticleElasticity = 0.9;
-            ejector.ParticleRadius = 15;
+            ejector = new ParticleEjector(new Coord(750, 80), 225.0, 1000, 7, 5);
+            ejector.ParticleElasticity = 0.5;
+            ejector.ParticleRadius = 5;
+            ejector.ParticleRadiusRange = 4;
             ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 0.0;
             Scene.Add(ejector);
