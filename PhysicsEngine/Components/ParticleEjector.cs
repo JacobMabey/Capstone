@@ -191,7 +191,7 @@ namespace PhysicsEngine
                         ejectAngle += ParticleScatterAngle * (Scene.Rand.NextDouble() * 2.0 - 1.0);
 
                     double rotationRadians = ejectAngle * Math.PI / 180.0;
-                    particle.Phys.ApplyForce(new Coord(Math.Sin(rotationRadians) * ParticleVelocity, Math.Cos(rotationRadians) * ParticleVelocity));
+                    particle.Phys.ApplyForce(new Coord(Math.Cos(rotationRadians) * ParticleVelocity, Math.Sin(rotationRadians) * ParticleVelocity));
 
                     //Create
                     Scene.AddLater(particle);

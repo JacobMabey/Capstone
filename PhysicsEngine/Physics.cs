@@ -87,11 +87,11 @@ namespace PhysicsEngine
                     ApplyForce(new Coord(-Math.Sign(Velocity.X) * (Friction * Timer.DeltaTime), -Math.Sign(Velocity.Y) * (Friction * Timer.DeltaTime)));
 
                     //Update Velocity & Gravity
-                    Velocity = new Coord(Velocity.X + (Acceleration.X * Timer.DeltaTime), Velocity.Y + ((Acceleration.Y + GravityAcceleration) * Timer.DeltaTime) / Timer.TimeScale);
+                    Acceleration = new Coord(Acceleration.X * Timer.DeltaTime * Timer.DeltaTime, ((Acceleration.Y + GravityAcceleration) * Timer.DeltaTime * Timer.DeltaTime) / Timer.TimeScale);
+                    Velocity = new Coord(Velocity.X + Acceleration.X, Velocity.Y + Acceleration.Y);
 
                     //Update Position
-                    Coord step = new Coord(Velocity.X * Timer.DeltaTime, Velocity.Y * Timer.DeltaTime);
-                    Coord newPosition = new Coord(((Particle)Parent).Position.X + step.X, ((Particle)Parent).Position.Y + step.Y);
+                    Coord newPosition = new Coord(((Particle)Parent).Position.X + Velocity.X, ((Particle)Parent).Position.Y + Velocity.Y);
 
                     //Check for collision in next position
                     newPosition = UpdatePositionOnCollison(newPosition);
@@ -117,44 +117,66 @@ namespace PhysicsEngine
 
         private Coord UpdatePositionOnCollison(Coord newPosition)
         {
-            if (!(Parent is Particle)) return newPosition;
+            if (!(Parent is Particle) || double.IsNaN(Parent.Phys.Velocity.X))
+                return newPosition;
+
+            Particle parent = ((Particle)Parent);
 
             Coord oldPosition = ((Particle)Parent).Position;
+
+            //Used to check for collision with a flat surface (line, rect)
+            bool IsColliding = false;
+
+            //Used to check collision again after collision was detected with a line or rect
+            //Prevents particles clipping through surface intersections
+            bool CheckAgain = true;
 
             //If position didn't move, no collision
             if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) return newPosition;
 
-            foreach (Component comp in Scene.Children.Values)
-            {
-                if (!comp.IsCollisionEnabled)
-                    continue;
 
-                Coord intersection = new Coord(0, 0);
-                bool IsColliding = false;
+
+            /*Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, Scene.MainScene.Height / 2.0);
+            double ConstraintRadius = 300;
+            Coord toCenter = new Coord(newPosition.X - WindowCenter.X, newPosition.Y - WindowCenter.Y);
+            double centerDistance = GetLength(toCenter);
+            if (centerDistance > ConstraintRadius - parent.Radius)
+            {
+                Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
+                Velocity = new Coord(
+                    WindowCenter.X + MoveDirection.X * (ConstraintRadius - parent.Radius) - newPosition.X,
+                    WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parent.Radius) - newPosition.Y
+                );
+                newPosition = oldPosition;
+                //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
+            }*/
+
+
+            foreach (Component comp in Scene.Children.Values.Where(c => c is Particle))
+            {
+                if (!comp.IsCollisionEnabled || double.IsNaN(comp.Phys.Velocity.X))
+                    continue;
 
                 //Particle Collision
                 if (comp is Particle)
                 {
-                    Particle parent = ((Particle)Parent);
                     Particle particle = (Particle)comp;
                     if (particle.Equals(parent)) continue;
 
+
                     //Get particle distance
-                    double particleDistance = GetLength(new Coord(newPosition.X - particle.Position.X, newPosition.Y - particle.Position.Y));
-                    if (particleDistance > parent.Radius + particle.Radius)
+                    double particleDistance = GetDistance(oldPosition, particle.Position);
+                    if (particleDistance > (parent.Radius + particle.Radius))
                         continue;
 
-                    //Collision is guarenteed at this point
-                    IsColliding = true;
-
-
-                    /*double p1Velocity = GetLength(Velocity);
+                    /*
+                    double p1Velocity = GetLength(Velocity);
                     double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
 
                     double p1MoveAngle = GetAngle(new Coord(0, 0), Velocity);
                     double p2MoveAngle = GetAngle(new Coord(0, 0), Scene.Children[particle.ID].Phys.Velocity);
 
-                    double contactAngle = GetAngle(newPosition, Scene.Children[particle.ID].Position);
+                    double contactAngle = GetAngle(oldPosition, Scene.Children[particle.ID].Position);
 
 
                     //Particle 1 new Velocities
@@ -171,34 +193,65 @@ namespace PhysicsEngine
                     double p2NewVelY = ((p2Velocity * Math.Cos(p2MoveAngle - contactAngle) * (Scene.Children[particle.ID].Phys.Mass - Mass) + 2.0 * Mass * p1Velocity * Math.Cos(p1MoveAngle - contactAngle)) /
                         (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Sin(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
 
+                        
                     Velocity = new Coord(p1NewVelX, p1NewVelY);
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);*/
+                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+
+                    //Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);
                     //Scene.Children[particle.ID].IsCollisionEnabled = false;
+                        */
 
 
+
+
+                    /*
                     double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
 
-                    double moveDistance = Math.Sqrt(particleCollisionLength);
-                    double p1Angle = GetAngle(particle.Position, newPosition);
+                    double moveDistance = particleCollisionLength / 2.0;
+                    double p1Angle = GetAngle(particle.Position, oldPosition);
                     Coord p1NewPoint = MovePoint(parent.Position, moveDistance, p1Angle);
-                    ApplyForce(new Coord((p1NewPoint.X - newPosition.X) * Elasticity, (p1NewPoint.Y - newPosition.Y) * Elasticity));
+                    Velocity = new Coord((p1NewPoint.X - oldPosition.X) * Elasticity, (p1NewPoint.Y - oldPosition.Y) * Elasticity);
+                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
 
                     double p2Angle = p1Angle + Math.PI;
                     Coord p2NewPoint = MovePoint(particle.Position, moveDistance, p2Angle);
-                    Scene.Children[particle.ID].Phys.ApplyForce(new Coord((p2NewPoint.X - particle.Position.X) * Scene.Children[particle.ID].Phys.Elasticity, (p2NewPoint.Y - particle.Position.Y) * Scene.Children[particle.ID].Phys.Elasticity));
+                    Scene.Children[particle.ID].Phys.Velocity = new Coord((p2NewPoint.X - particle.Position.X) * Scene.Children[particle.ID].Phys.Elasticity, (p2NewPoint.Y - particle.Position.Y) * Scene.Children[particle.ID].Phys.Elasticity);
+                    */
+
+
+
+
+                    
+                    Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
+                    Coord direction = new Coord(particletoParticle.X / particleDistance, particletoParticle.Y / particleDistance);
+                    double MoveDistance = (parent.Radius + particle.Radius) - particleDistance;
+                    Velocity = new Coord(
+                        ((Velocity.X / GetLength(Velocity)) + MoveDistance * direction.X / 2.0),
+                        ((Velocity.Y / GetLength(Velocity)) + MoveDistance * direction.Y / 2.0)
+                    );
+                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+                    //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
                     
 
+
+
+
                     /*double moveDistance = Math.Sqrt(particleDistance);
-                    double p1Velocity = GetLength(Velocity);
-                    double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
+                    //double p1Velocity = GetLength(Velocity);
+                    //double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
                     double p1Radius = parent.Radius;
                     double p2Radius = particle.Radius;
-                    double delta = p1Radius * (1.0 / (p2Radius + p1Radius)) * p2Radius - moveDistance;
+                    double delta = p1Radius * (1.0 / 20.0) * (p2Radius - moveDistance);
+
                     Velocity = new Coord(
-                        ((newPosition.X - particle.Position.X) / moveDistance) * delta + p1Velocity * Elasticity,
-                        ((newPosition.Y - particle.Position.Y) / moveDistance) * delta + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
+                        ((oldPosition.X - particle.Position.X) / moveDistance) * delta,// + p1Velocity * Elasticity,
+                        ((oldPosition.Y - particle.Position.Y) / moveDistance) * delta// + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
                     );
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord(-((newPosition.X - particle.Position.X) / moveDistance) * delta, -((newPosition.Y - particle.Position.Y) / moveDistance) * delta);
+                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+                    //Scene.Children[particle.ID].Phys.Velocity = new Coord(
+                    //    ((oldPosition.X - particle.Position.X) / moveDistance) * delta,
+                    //    -((oldPosition.Y - particle.Position.Y) / moveDistance) * delta
+                    //);
                     */
 
                     //Set current particle Velocity
@@ -214,184 +267,199 @@ namespace PhysicsEngine
                     );
                     */
                 }
-                //Line Collision
-                else if (comp is CompLine)
-                {
-                    CompLine line = (CompLine)comp;
+            }
 
-                    //Get continueos lines intersection point
-                    //double lineSlope = 0;
-                    //if (line.PosA.X < line.PosB.X)
-                    //    lineSlope = GetSlope(line.PosA, line.PosB);
-                    //else
-                    //    lineSlope = GetSlope(line.PosB, line.PosA);
-                    //double lineSlope = GetAngle(line.PosA, line.PosB);
-                    //double addX = -Math.Sign(Velocity.X) * Math.Cos(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
-                    //double addY = Math.Sign(Velocity.Y) * Math.Sin(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
+            while (CheckAgain) {
+                CheckAgain = false;
+                foreach (Component comp in Scene.Children.Values.Where(c => !(c is Particle))) {
 
+                    Coord intersection = new Coord(0, 0);
+                    IsColliding = false;
 
-                    double addX = 0;
-                    double addY = 0;
-                    Coord pointA = new Coord(line.PosA.X + addX, line.PosA.Y + addY);
-                    Coord pointB = new Coord(line.PosB.X + addX, line.PosB.Y + addY);
-                    intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
-                    if (intersection.X is double.NaN || intersection.Y is double.NaN)
-                        continue;
-
-                    //Check if intersection point is within both lines
-                    if (intersection.X < Math.Min(oldPosition.X, newPosition.X) || intersection.X > Math.Max(oldPosition.X, newPosition.X) ||
-                        intersection.X < Math.Min(pointA.X, pointB.X) || intersection.X > Math.Max(pointA.X, pointB.X) ||
-                        intersection.Y < Math.Min(oldPosition.Y, newPosition.Y) || intersection.Y > Math.Max(oldPosition.Y, newPosition.Y) ||
-                        intersection.Y < Math.Min(pointA.Y, pointB.Y) || intersection.Y > Math.Max(pointA.Y, pointB.Y))
+                    //Line Collision
+                    if (comp is CompLine)
                     {
-                        continue; //no collision
-                    }
+                        CompLine line = (CompLine)comp;
 
-                    //Collision is guarenteed at this point
-                    IsColliding = true;
+                        //Get continueos lines intersection point
+                        //double lineSlope = 0;
+                        //if (line.PosA.X < line.PosB.X)
+                        //    lineSlope = GetSlope(line.PosA, line.PosB);
+                        //else
+                        //    lineSlope = GetSlope(line.PosB, line.PosA);
+                        //double lineSlope = GetAngle(line.PosA, line.PosB);
+                        //double addX = -Math.Sign(Velocity.X) * Math.Cos(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
+                        //double addY = Math.Sign(Velocity.Y) * Math.Sin(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
 
-                    //Set new position to the reflected point
-                    Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
-                    if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN)
-                        continue;
 
-                    newPosition = reflectPos;
-                    oldPosition = intersection;
-                }
-                //Rectangle Collision
-                else if (comp is CompRectangle)
-                {
-                    CompRectangle rect = (CompRectangle)comp;
+                        double addX = 0;
+                        double addY = 0;
+                        Coord pointA = new Coord(line.PosA.X + addX, line.PosA.Y + addY);
+                        Coord pointB = new Coord(line.PosB.X + addX, line.PosB.Y + addY);
+                        intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
+                        if (intersection.X is double.NaN || intersection.Y is double.NaN)
+                            continue;
 
-                    //check if new position is inside rect
-                    //rotate point by rect origin by the amount the rect is rotated
-                    Coord rotatedPosition = newPosition;
-                    if (rect.RotationAngle != 0)
-                        rotatedPosition = RotatePointAroundPoint(newPosition, rect.Position, -rect.RotationAngle);
-
-                    //Check if new position is within the rectangle
-                    if (new Rect(new Point(rect.Position.X, rect.Position.Y), rect.Size).Contains(new Point(rotatedPosition.X, rotatedPosition.Y)))
-                    {
-
-                        //Get all 4 rect corner points and rotate via ratation angle
-                        Coord pointTL = rect.Position;
-                        Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, rect.RotationAngle);
-                        Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
-                        Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
-
-                        //Will be set to the two points connected to the side of the rect the particle intersects with
-                        Coord pointA = new Coord(0, 0);
-                        Coord pointB = new Coord(0, 0);
-
-                        //Get length of particle movement
-                        double moveLength = GetLength(new Coord(oldPosition.X - newPosition.X, oldPosition.Y - newPosition.Y));
-
-                        //Find intersection point that is at less distance than moveLength to find intersected side
-                        bool IntersectFound = false;
-                        Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointTR);
-                        double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
-                        if (topDist <= moveLength)
+                        //Check if intersection point is within both lines
+                        if (intersection.X < Math.Min(oldPosition.X, newPosition.X) || intersection.X > Math.Max(oldPosition.X, newPosition.X) ||
+                            intersection.X < Math.Min(pointA.X, pointB.X) || intersection.X > Math.Max(pointA.X, pointB.X) ||
+                            intersection.Y < Math.Min(oldPosition.Y, newPosition.Y) || intersection.Y > Math.Max(oldPosition.Y, newPosition.Y) ||
+                            intersection.Y < Math.Min(pointA.Y, pointB.Y) || intersection.Y > Math.Max(pointA.Y, pointB.Y))
                         {
-                            intersection = topIntersect;
-                            pointA = pointTL;
-                            pointB = pointTR;
-                            IntersectFound = true;
-                            goto IntersectionFound;
+                            continue; //no collision
                         }
 
-                        Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTR, pointBR);
-                        double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
-                        if (rightDist <= moveLength)
-                        {
-                            intersection = rightIntersect;
-                            pointA = pointTR;
-                            pointB = pointBR;
-                            IntersectFound = true;
-                            goto IntersectionFound;
-                        }
-
-                        Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, pointBL, pointBR);
-                        double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
-                        if (bottomDist <= moveLength)
-                        {
-                            intersection = bottomIntersect;
-                            pointA = pointBL;
-                            pointB = pointBR;
-                            IntersectFound = true;
-                            goto IntersectionFound;
-                        }
-
-                        Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointBL);
-                        double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
-                        if (leftDist <= moveLength)
-                        {
-                            intersection = leftIntersect;
-                            pointA = pointTL;
-                            pointB = pointBL;
-                            IntersectFound = true;
-                            goto IntersectionFound;
-                        }
-                    IntersectionFound:
+                        //Collision is guarenteed at this point
+                        IsColliding = true;
 
                         //Set new position to the reflected point
                         Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
-                        if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
+                        if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN)
+                            continue;
 
-                        if (IntersectFound)
+                        newPosition = reflectPos;
+                        //oldPosition = intersection;
+                    }
+                    //Rectangle Collision
+                    else if (comp is CompRectangle)
+                    {
+                        CompRectangle rect = (CompRectangle)comp;
+
+                        //check if new position is inside rect
+                        //rotate point by rect origin by the amount the rect is rotated
+                        Coord rotatedPosition = newPosition;
+                        if (rect.RotationAngle != 0)
+                            rotatedPosition = RotatePointAroundPoint(newPosition, rect.Position, -rect.RotationAngle);
+
+                        //Check if new position is within the rectangle
+                        if (new Rect(new Point(rect.Position.X, rect.Position.Y), rect.Size).Contains(new Point(rotatedPosition.X, rotatedPosition.Y)))
                         {
-                            //Collision is guarenteed at this point
-                            IsColliding = true;
 
-                            newPosition = reflectPos;
-                            oldPosition = intersection;
+                            //Get all 4 rect corner points and rotate via ratation angle
+                            Coord pointTL = rect.Position;
+                            Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, rect.RotationAngle);
+                            Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
+                            Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
+
+                            //Will be set to the two points connected to the side of the rect the particle intersects with
+                            Coord pointA = new Coord(0, 0);
+                            Coord pointB = new Coord(0, 0);
+
+                            //Get length of particle movement
+                            double moveLength = GetLength(new Coord(oldPosition.X - newPosition.X, oldPosition.Y - newPosition.Y));
+
+                            //Find intersection point that is at less distance than moveLength to find intersected side
+                            bool IntersectFound = false;
+                            Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointTR);
+                            double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
+                            if (topDist <= moveLength)
+                            {
+                                intersection = topIntersect;
+                                pointA = pointTL;
+                                pointB = pointTR;
+                                IntersectFound = true;
+                                goto IntersectionFound;
+                            }
+
+                            Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTR, pointBR);
+                            double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
+                            if (rightDist <= moveLength)
+                            {
+                                intersection = rightIntersect;
+                                pointA = pointTR;
+                                pointB = pointBR;
+                                IntersectFound = true;
+                                goto IntersectionFound;
+                            }
+
+                            Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, pointBL, pointBR);
+                            double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
+                            if (bottomDist <= moveLength)
+                            {
+                                intersection = bottomIntersect;
+                                pointA = pointBL;
+                                pointB = pointBR;
+                                IntersectFound = true;
+                                goto IntersectionFound;
+                            }
+
+                            Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointBL);
+                            double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
+                            if (leftDist <= moveLength)
+                            {
+                                intersection = leftIntersect;
+                                pointA = pointTL;
+                                pointB = pointBL;
+                                IntersectFound = true;
+                                goto IntersectionFound;
+                            }
+                        IntersectionFound:
+
+                            //Set new position to the reflected point
+                            Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
+                            if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
+
+                            if (IntersectFound)
+                            {
+                                //Collision is guarenteed at this point
+                                IsColliding = true;
+
+                                newPosition = reflectPos;
+                                //oldPosition = intersection;
+                            }
                         }
+
                     }
 
-                }
-
-                //If collision is detected, update velocity
-                if (IsColliding && !(comp is Particle))
-                {
-                    //Get new particle slope
-                    double newParticleSlope = GetSlope(intersection, newPosition);
-
-                    //Reset Velocity
-                    //Get velocity length
-                    double velocityLength = GetLength(Velocity);
-                    Coord VelocityDirection = new Coord(Math.Sign(newPosition.X - intersection.X), Math.Sign(newPosition.Y - intersection.Y));
-
-                    //Check for perfectly verticle or horizontal lines
-                    if (newParticleSlope == 0)
+                    //If collision is detected, update velocity
+                    if (IsColliding)
                     {
-                        Velocity = new Coord(
-                            (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Math.Abs(Velocity.X),
-                            (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Velocity.Y
-                        );
-                    }
-                    else if (newParticleSlope == double.PositiveInfinity || newParticleSlope == double.NegativeInfinity)
-                    {
-                        Velocity = new Coord(
-                            (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Velocity.X,
-                            (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Math.Abs(Velocity.Y)
-                        );
-                    }
-                    else
-                    {
-                        double newVelocityY = Math.Sqrt((newParticleSlope * newParticleSlope * velocityLength * velocityLength) / (1.0 + newParticleSlope * newParticleSlope));
-                        Velocity = new Coord(newVelocityY / newParticleSlope, newVelocityY);
+                        //Get new particle slope
+                        double newParticleSlope = GetSlope(intersection, newPosition);
 
-                        //reset velocity direction
-                        Velocity = new Coord(
-                            VelocityDirection.X * Math.Abs(Velocity.X),
-                            VelocityDirection.Y * Math.Abs(Velocity.Y)
-                        );
+                        //Reset Velocity
+                        //Get velocity length
+                        double velocityLength = GetLength(Velocity);
+                        Coord VelocityDirection = new Coord(Math.Sign(newPosition.X - intersection.X), Math.Sign(newPosition.Y - intersection.Y));
+
+                        //Check for perfectly verticle or horizontal lines
+                        if (newParticleSlope == 0)
+                        {
+                            Velocity = new Coord(
+                                (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Math.Abs(Velocity.X),
+                                (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Velocity.Y
+                            );
+                        }
+                        else if (newParticleSlope == double.PositiveInfinity || newParticleSlope == double.NegativeInfinity)
+                        {
+                            Velocity = new Coord(
+                                (VelocityDirection.X == 0 ? 1 : VelocityDirection.X) * Velocity.X,
+                                (VelocityDirection.Y == 0 ? 1 : VelocityDirection.Y) * Math.Abs(Velocity.Y)
+                            );
+                        }
+                        else
+                        {
+                            double newVelocityY = Math.Sqrt((newParticleSlope * newParticleSlope * velocityLength * velocityLength) / (1.0 + newParticleSlope * newParticleSlope));
+                            Velocity = new Coord(newVelocityY / newParticleSlope, newVelocityY);
+
+                            //reset velocity direction
+                            Velocity = new Coord(
+                                VelocityDirection.X * Math.Abs(Velocity.X),
+                                VelocityDirection.Y * Math.Abs(Velocity.Y)
+                            );
+                        }
+
+
+                        //Add collision dampining due to elasticity
+                        Velocity = new Coord(Velocity.X * Elasticity, Velocity.Y * Elasticity);
+
+                        CheckAgain = true;
+                        break;
                     }
-
-
-                    //Add collision dampining due to elasticity
-                    Velocity = new Coord(Velocity.X * Elasticity, Velocity.Y * Elasticity);
                 }
             }
+
+
             return newPosition;
         }
 
