@@ -20,7 +20,7 @@ namespace PhysicsEngine
         private Ellipse _ellipse = new Ellipse();
 
         private Coord pos;
-        public Coord Position
+        public override Coord Position
         {
             get => pos;
             set

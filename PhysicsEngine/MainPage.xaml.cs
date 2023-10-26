@@ -60,9 +60,9 @@ namespace PhysicsEngine
             Scene.MainScene.Children.Add(particleCounter);
 
 
-            //rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
-            //rect.RotationAngle = 45;
-            //MainScene.Children.Add(rect.GetUIElement());
+            rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
+            rect.RotationAngle = 45;
+            Scene.Add(rect);
 
             //p1 = new Particle(new Coord(300, 15), 25);
             //p1.Phys.Elasticity = 0.9;
@@ -89,11 +89,11 @@ namespace PhysicsEngine
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
             Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(250, 80), 225.0, 3, 1, 5);
-            ejector.ParticleElasticity = 1.0;
-            ejector.ParticleRadius = 5;
+            ejector = new ParticleEjector(new Coord(250, 80), 225.0, 20, 0.5, 5);
+            ejector.ParticleElasticity = 0.9;
+            ejector.ParticleRadius = 15;
             ejector.ParticleFriction = 0.0;
-            ejector.ParticleScatterAngle = 20.0;
+            ejector.ParticleScatterAngle = 0.0;
             Scene.Add(ejector);
 
             //ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 0.05);

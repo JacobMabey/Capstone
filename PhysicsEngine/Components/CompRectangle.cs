@@ -21,7 +21,7 @@ namespace PhysicsEngine
         private RotateTransform RotationTransform { get; set; }
 
         private Coord pos;
-        public Coord Position
+        public override Coord Position
         {
             get => pos;
             set

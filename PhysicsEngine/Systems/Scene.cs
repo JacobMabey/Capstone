@@ -78,7 +78,7 @@ namespace PhysicsEngine
                     || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainScene.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
                 {
                     //Mark element to be destroyed
-                        Remove(comp.ID);
+                        RemoveLater(comp.ID);
                         continue;
                 }
 

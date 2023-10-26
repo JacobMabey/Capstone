@@ -23,7 +23,7 @@ namespace PhysicsEngine
         public bool IsPaused { get; set; } = false;
 
         private Coord posiiton;
-        public Coord Position
+        public override Coord Position
         {
             get => posiiton;
             set

@@ -16,6 +16,7 @@ namespace PhysicsEngine
         private static long U_Id = 0;
         public long ID = -1;
 
+        public virtual Coord Position { get; set; }
         public bool IsCollisionEnabled { get; set; } = true;
         protected bool IsBeingDragged { get; set; } = false;
 
