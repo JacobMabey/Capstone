@@ -18,7 +18,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 200;
+        public static double GravityAcceleration { get; set; } = 0;
 
         private static readonly double Epsilon = 0.01;
 
@@ -221,7 +221,7 @@ namespace PhysicsEngine
 
 
 
-                    
+                    /***********************************
                     Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
                     Coord direction = new Coord(particletoParticle.X / particleDistance, particletoParticle.Y / particleDistance);
                     double MoveDistance = (parent.Radius + particle.Radius) - particleDistance;
@@ -231,7 +231,7 @@ namespace PhysicsEngine
                     );
                     newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
                     //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
-                    
+                    */
 
 
 
@@ -292,18 +292,22 @@ namespace PhysicsEngine
                         //double addY = Math.Sign(Velocity.Y) * Math.Sin(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
 
 
-                        double addX = 0;
-                        double addY = 0;
-                        Coord pointA = new Coord(line.PosA.X + addX, line.PosA.Y + addY);
-                        Coord pointB = new Coord(line.PosB.X + addX, line.PosB.Y + addY);
-                        intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
+                        //double addX = 0;
+                        //double addY = 0;
+                        //double angle = GetAngle(line.PosA, newPosition) - Math.PI / 2.0;
+                        //if (Velocity.Y >= 0.0)
+                        //    angle += Math.PI;
+                        Coord pointA = line.PosA; // MovePoint(line.PosA, parent.Radius, angle); // new Coord(line.PosA.X + addX, line.PosA.Y + addY);
+                        Coord pointB = line.PosB; // MovePoint(line.PosB, parent.Radius, angle); // new Coord(line.PosB.X + addX, line.PosB.Y + addY);
+                        Coord movedPosition = newPosition;// MovePoint(newPosition, parent.Radius, GetAngle(oldPosition, newPosition));
+                        intersection = GetIntersectionPoint(oldPosition, movedPosition, pointA, pointB);
                         if (intersection.X is double.NaN || intersection.Y is double.NaN)
                             continue;
 
                         //Check if intersection point is within both lines
-                        if (intersection.X < Math.Min(oldPosition.X, newPosition.X) || intersection.X > Math.Max(oldPosition.X, newPosition.X) ||
+                        if (intersection.X < Math.Min(oldPosition.X, movedPosition.X) || intersection.X > Math.Max(oldPosition.X, movedPosition.X) ||
                             intersection.X < Math.Min(pointA.X, pointB.X) || intersection.X > Math.Max(pointA.X, pointB.X) ||
-                            intersection.Y < Math.Min(oldPosition.Y, newPosition.Y) || intersection.Y > Math.Max(oldPosition.Y, newPosition.Y) ||
+                            intersection.Y < Math.Min(oldPosition.Y, movedPosition.Y) || intersection.Y > Math.Max(oldPosition.Y, movedPosition.Y) ||
                             intersection.Y < Math.Min(pointA.Y, pointB.Y) || intersection.Y > Math.Max(pointA.Y, pointB.Y))
                         {
                             continue; //no collision
@@ -313,7 +317,7 @@ namespace PhysicsEngine
                         IsColliding = true;
 
                         //Set new position to the reflected point
-                        Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
+                        Coord reflectPos = GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection);
                         if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN)
                             continue;
 
