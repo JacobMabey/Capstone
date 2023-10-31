@@ -37,6 +37,9 @@ namespace PhysicsEngine
         private static CompLine borderBottom;
         private static CompLine borderLeft;
 
+        private static double circleBorderRadius = 300;
+        public static bool IsCircleBorderActive { get; set; } = false;
+
 
         public static void Initialize()
         {
@@ -141,6 +144,19 @@ namespace PhysicsEngine
             borderRight.IsCollisionEnabled = !borderRight.IsCollisionEnabled;
             borderBottom.IsCollisionEnabled = !borderBottom.IsCollisionEnabled;
             borderLeft.IsCollisionEnabled = !borderLeft.IsCollisionEnabled;
+        }
+
+        public static void ToggleCircleBorderCollision()
+        {
+            IsCircleBorderActive = !IsCircleBorderActive;
+        }
+        public static void SetCircleBorderRadius(double radius)
+        {
+            circleBorderRadius = radius;
+        }
+        public static double GetCircleBorderRadius()
+        {
+            return circleBorderRadius;
         }
     }
 }

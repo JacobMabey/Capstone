@@ -78,20 +78,20 @@ namespace PhysicsEngine
             //MainScene.Children.Add(p2.GetUIElement());
 
             l = new CompLine(new Coord(10, 300), new Coord(310, 300));
-            Scene.Add(l);
+            //Scene.Add(l);
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
-            Scene.Add(l2);
+            //Scene.Add(l2);
 
             l3 = new CompLine(new Coord(310, 10), new Coord(310, 300));
-            Scene.Add(l3);
+            //Scene.Add(l3);
 
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
-            Scene.Add(l4);
+            //Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(250, 80), 225.0, 50, 2, 10);
-            ejector.ParticleElasticity = 0.9;
-            ejector.ParticleRadius = 15;
+            ejector = new ParticleEjector(new Coord(450, 120), 225.0, 300, 7, 10);
+            ejector.ParticleElasticity = 0.6;
+            ejector.ParticleRadius = 5;
             ejector.ParticleRadiusRange = 0;
             ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 0.0;
@@ -101,6 +101,8 @@ namespace PhysicsEngine
             //Scene.Add(ejector2);
 
             Timer.TimeScale = 1;
+
+            Scene.ToggleCircleBorderCollision();
         }
 
 

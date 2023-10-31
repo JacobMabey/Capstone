@@ -18,7 +18,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 0;
+        public static double GravityAcceleration { get; set; } = 200;
 
         private static readonly double Epsilon = 0.01;
 
@@ -136,22 +136,12 @@ namespace PhysicsEngine
 
 
 
-            /*Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, Scene.MainScene.Height / 2.0);
-            double ConstraintRadius = 300;
-            Coord toCenter = new Coord(newPosition.X - WindowCenter.X, newPosition.Y - WindowCenter.Y);
-            double centerDistance = GetLength(toCenter);
-            if (centerDistance > ConstraintRadius - parent.Radius)
-            {
-                Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
-                Velocity = new Coord(
-                    WindowCenter.X + MoveDirection.X * (ConstraintRadius - parent.Radius) - newPosition.X,
-                    WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parent.Radius) - newPosition.Y
-                );
-                newPosition = oldPosition;
-                //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
-            }*/
+            //If scene has a circle border constraint, update position with it first
+            if (Scene.IsCircleBorderActive)
+                UpdatePositionWithCircleBorderConstraint(oldPosition, newPosition, parent.Radius);
 
 
+            //Loop through all particles and Update Position
             foreach (Component comp in Scene.Children.Values.Where(c => c is Particle))
             {
                 if (!comp.IsCollisionEnabled || double.IsNaN(comp.Phys.Velocity.X))
@@ -204,8 +194,8 @@ namespace PhysicsEngine
 
 
 
-                    /*
-                    double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
+
+                    /*double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
 
                     double moveDistance = particleCollisionLength / 2.0;
                     double p1Angle = GetAngle(particle.Position, oldPosition);
@@ -220,39 +210,48 @@ namespace PhysicsEngine
 
 
 
-
-                    /***********************************
-                    Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
+                    
+                    /*Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
                     Coord direction = new Coord(particletoParticle.X / particleDistance, particletoParticle.Y / particleDistance);
                     double MoveDistance = (parent.Radius + particle.Radius) - particleDistance;
                     Velocity = new Coord(
-                        ((Velocity.X / GetLength(Velocity)) + MoveDistance * direction.X / 2.0),
-                        ((Velocity.Y / GetLength(Velocity)) + MoveDistance * direction.Y / 2.0)
+                        (MoveDistance * direction.X / 2.0),
+                        (MoveDistance * direction.Y / 2.0) + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale)
                     );
                     newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
                     //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
                     */
 
+                    /*
+                    Velocity = new Coord(
+                        2.0 * (Mass * Velocity.X + particle.Phys.Mass * particle.Phys.Velocity.X) / (Mass + particle.Phys.Mass),
+                        2.0 * (Mass * Velocity.Y + particle.Phys.Mass * particle.Phys.Velocity.Y) / (Mass + particle.Phys.Mass)
+                    );
 
+                    Scene.Children[particle.ID].Phys.Velocity = new Coord(
+                        2.0 * (particle.Phys.Mass * particle.Phys.Velocity.X + Mass * Velocity.X) / (Mass + particle.Phys.Mass),
+                        2.0 * (particle.Phys.Mass * particle.Phys.Velocity.Y + Mass * Velocity.Y) / (Mass + particle.Phys.Mass)
+                    );
+                    */
 
-
-                    /*double moveDistance = Math.Sqrt(particleDistance);
+                    
+                    double moveDistance = Math.Sqrt(particleDistance);
                     //double p1Velocity = GetLength(Velocity);
                     //double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
                     double p1Radius = parent.Radius;
                     double p2Radius = particle.Radius;
-                    double delta = p1Radius * (1.0 / 20.0) * (p2Radius - moveDistance);
+                    double delta = p1Radius * (1.0 / (p1Radius * p2Radius)) * (p2Radius - moveDistance);
 
                     Velocity = new Coord(
-                        ((oldPosition.X - particle.Position.X) / moveDistance) * delta,// + p1Velocity * Elasticity,
-                        ((oldPosition.Y - particle.Position.Y) / moveDistance) * delta// + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
+                        (Velocity.X + ((oldPosition.X - particle.Position.X) / moveDistance) * delta) * Elasticity,// + p1Velocity * Elasticity,
+                        (Velocity.Y + ((oldPosition.Y - particle.Position.Y) / moveDistance) * delta) * Elasticity// + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
                     );
-                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);// + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale));
                     //Scene.Children[particle.ID].Phys.Velocity = new Coord(
                     //    ((oldPosition.X - particle.Position.X) / moveDistance) * delta,
                     //    -((oldPosition.Y - particle.Position.Y) / moveDistance) * delta
                     //);
-                    */
+                    
 
                     //Set current particle Velocity
                     /*Velocity = new Coord(
@@ -269,6 +268,8 @@ namespace PhysicsEngine
                 }
             }
 
+
+            //Loop through all lines and rectangles and Update Position
             while (CheckAgain) {
                 CheckAgain = false;
                 foreach (Component comp in Scene.Children.Values.Where(c => !(c is Particle))) {
@@ -426,6 +427,11 @@ namespace PhysicsEngine
                         double velocityLength = GetLength(Velocity);
                         Coord VelocityDirection = new Coord(Math.Sign(newPosition.X - intersection.X), Math.Sign(newPosition.Y - intersection.Y));
 
+                        if (velocityLength < 1)
+                        {
+                            Velocity = new Coord(0, 0);
+                        }
+
                         //Check for perfectly verticle or horizontal lines
                         if (newParticleSlope == 0)
                         {
@@ -449,7 +455,7 @@ namespace PhysicsEngine
                             //reset velocity direction
                             Velocity = new Coord(
                                 VelocityDirection.X * Math.Abs(Velocity.X),
-                                VelocityDirection.Y * Math.Abs(Velocity.Y)
+                                VelocityDirection.Y * Math.Abs(Velocity.Y) + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale)
                             );
                         }
 
@@ -464,6 +470,25 @@ namespace PhysicsEngine
             }
 
 
+            return newPosition;
+        }
+
+
+        private Coord UpdatePositionWithCircleBorderConstraint(Coord oldPosition, Coord newPosition, double parentRadius)
+        {
+            Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, Scene.MainScene.Height / 2.0);
+            double ConstraintRadius = Scene.GetCircleBorderRadius();
+            Coord toCenter = new Coord(newPosition.X - WindowCenter.X, newPosition.Y - WindowCenter.Y);
+            double centerDistance = GetLength(toCenter);
+            if (centerDistance > ConstraintRadius - parentRadius)
+            {
+                Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
+                Velocity = new Coord(
+                    Velocity.X + WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X,
+                    Velocity.Y + WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y
+                );
+                newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+            }
             return newPosition;
         }
 
