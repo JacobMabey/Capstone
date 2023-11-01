@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Windows.Devices.Geolocation;
+using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -18,7 +19,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 200;
+        public static double GravityAcceleration { get; set; } = 300;
 
         private static readonly double Epsilon = 0.01;
 
@@ -80,8 +81,8 @@ namespace PhysicsEngine
             {
                 if (Parent is Particle)
                 {
-                    if (Math.Abs(Velocity.X) < Epsilon) Velocity = new Coord(0, Velocity.Y);
-                    if (Math.Abs(Velocity.Y) < Epsilon) Velocity = new Coord(Velocity.X, 0);
+                    //if (Math.Abs(Velocity.X) < Epsilon) Velocity = new Coord(0, Velocity.Y);
+                    //if (Math.Abs(Velocity.Y) < Epsilon) Velocity = new Coord(Velocity.X, 0);
 
                     //Update Friction
                     ApplyForce(new Coord(-Math.Sign(Velocity.X) * (Friction * Timer.DeltaTime), -Math.Sign(Velocity.Y) * (Friction * Timer.DeltaTime)));
@@ -98,7 +99,6 @@ namespace PhysicsEngine
 
                     //Set new Position
                     ((Particle)Parent).Position = newPosition;
-
 
                     //Update Acceleration
                     Acceleration = new Coord(0, 0);
@@ -142,138 +142,137 @@ namespace PhysicsEngine
 
 
             //Loop through all particles and Update Position
-            foreach (Component comp in Scene.Children.Values.Where(c => c is Particle))
+            foreach (Component comp in Scene.Children.Values)
             {
                 if (!comp.IsCollisionEnabled || double.IsNaN(comp.Phys.Velocity.X))
                     continue;
 
                 //Particle Collision
-                if (comp is Particle)
-                {
-                    Particle particle = (Particle)comp;
-                    if (particle.Equals(parent)) continue;
+                if (!(comp is Particle))
+                    continue;
+                Particle particle = (Particle)comp;
+                if (particle.Equals(parent))
+                    continue;
 
 
-                    //Get particle distance
-                    double particleDistance = GetDistance(oldPosition, particle.Position);
-                    if (particleDistance > (parent.Radius + particle.Radius))
-                        continue;
+                //Get particle distance
+                double particleDistance = GetDistance(oldPosition, particle.Position);
+                if (particleDistance > (parent.Radius + particle.Radius))
+                    continue;
 
-                    /*
-                    double p1Velocity = GetLength(Velocity);
-                    double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
+                /*
+                double p1Velocity = GetLength(Velocity);
+                double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
 
-                    double p1MoveAngle = GetAngle(new Coord(0, 0), Velocity);
-                    double p2MoveAngle = GetAngle(new Coord(0, 0), Scene.Children[particle.ID].Phys.Velocity);
+                double p1MoveAngle = GetAngle(new Coord(0, 0), Velocity);
+                double p2MoveAngle = GetAngle(new Coord(0, 0), Scene.Children[particle.ID].Phys.Velocity);
 
-                    double contactAngle = GetAngle(oldPosition, Scene.Children[particle.ID].Position);
+                double contactAngle = GetAngle(oldPosition, Scene.Children[particle.ID].Position);
 
 
-                    //Particle 1 new Velocities
-                    double p1NewVelX = ((p1Velocity * Math.Cos(p1MoveAngle - contactAngle) * (Mass - Scene.Children[particle.ID].Phys.Mass) + 2.0 * Scene.Children[particle.ID].Phys.Mass * p2Velocity * Math.Cos(p2MoveAngle - contactAngle)) /
-                        (Mass + Scene.Children[particle.ID].Phys.Mass)) * Math.Cos(contactAngle) + p1Velocity * Math.Sin(p1MoveAngle - contactAngle) * Math.Cos(contactAngle + Math.PI / 2.0);
+                //Particle 1 new Velocities
+                double p1NewVelX = ((p1Velocity * Math.Cos(p1MoveAngle - contactAngle) * (Mass - Scene.Children[particle.ID].Phys.Mass) + 2.0 * Scene.Children[particle.ID].Phys.Mass * p2Velocity * Math.Cos(p2MoveAngle - contactAngle)) /
+                    (Mass + Scene.Children[particle.ID].Phys.Mass)) * Math.Cos(contactAngle) + p1Velocity * Math.Sin(p1MoveAngle - contactAngle) * Math.Cos(contactAngle + Math.PI / 2.0);
 
-                    double p1NewVelY = ((p1Velocity * Math.Cos(p1MoveAngle - contactAngle) * (Mass - Scene.Children[particle.ID].Phys.Mass) + 2.0 * Scene.Children[particle.ID].Phys.Mass * p2Velocity * Math.Cos(p2MoveAngle - contactAngle)) /
-                        (Mass + Scene.Children[particle.ID].Phys.Mass)) * Math.Sin(contactAngle) + p1Velocity * Math.Sin(p1MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
+                double p1NewVelY = ((p1Velocity * Math.Cos(p1MoveAngle - contactAngle) * (Mass - Scene.Children[particle.ID].Phys.Mass) + 2.0 * Scene.Children[particle.ID].Phys.Mass * p2Velocity * Math.Cos(p2MoveAngle - contactAngle)) /
+                    (Mass + Scene.Children[particle.ID].Phys.Mass)) * Math.Sin(contactAngle) + p1Velocity * Math.Sin(p1MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
 
-                    //Particle 2 new Velocities
-                    double p2NewVelX = ((p2Velocity * Math.Cos(p2MoveAngle - contactAngle) * (Scene.Children[particle.ID].Phys.Mass - Mass) + 2.0 * Mass * p1Velocity * Math.Cos(p1MoveAngle - contactAngle)) /
-                        (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Cos(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Cos(contactAngle + Math.PI / 2.0);
+                //Particle 2 new Velocities
+                double p2NewVelX = ((p2Velocity * Math.Cos(p2MoveAngle - contactAngle) * (Scene.Children[particle.ID].Phys.Mass - Mass) + 2.0 * Mass * p1Velocity * Math.Cos(p1MoveAngle - contactAngle)) /
+                    (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Cos(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Cos(contactAngle + Math.PI / 2.0);
 
-                    double p2NewVelY = ((p2Velocity * Math.Cos(p2MoveAngle - contactAngle) * (Scene.Children[particle.ID].Phys.Mass - Mass) + 2.0 * Mass * p1Velocity * Math.Cos(p1MoveAngle - contactAngle)) /
-                        (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Sin(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
+                double p2NewVelY = ((p2Velocity * Math.Cos(p2MoveAngle - contactAngle) * (Scene.Children[particle.ID].Phys.Mass - Mass) + 2.0 * Mass * p1Velocity * Math.Cos(p1MoveAngle - contactAngle)) /
+                    (Scene.Children[particle.ID].Phys.Mass + Mass)) * Math.Sin(contactAngle) + p2Velocity * Math.Sin(p2MoveAngle - contactAngle) * Math.Sin(contactAngle + Math.PI / 2.0);
 
                         
-                    Velocity = new Coord(p1NewVelX, p1NewVelY);
-                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+                Velocity = new Coord(p1NewVelX, p1NewVelY);
+                newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
 
-                    //Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);
-                    //Scene.Children[particle.ID].IsCollisionEnabled = false;
-                        */
-
-
-
-
-
-                    /*double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
-
-                    double moveDistance = particleCollisionLength / 2.0;
-                    double p1Angle = GetAngle(particle.Position, oldPosition);
-                    Coord p1NewPoint = MovePoint(parent.Position, moveDistance, p1Angle);
-                    Velocity = new Coord((p1NewPoint.X - oldPosition.X) * Elasticity, (p1NewPoint.Y - oldPosition.Y) * Elasticity);
-                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
-
-                    double p2Angle = p1Angle + Math.PI;
-                    Coord p2NewPoint = MovePoint(particle.Position, moveDistance, p2Angle);
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord((p2NewPoint.X - particle.Position.X) * Scene.Children[particle.ID].Phys.Elasticity, (p2NewPoint.Y - particle.Position.Y) * Scene.Children[particle.ID].Phys.Elasticity);
+                //Scene.Children[particle.ID].Phys.Velocity = new Coord(p2NewVelX, p2NewVelY);
+                //Scene.Children[particle.ID].IsCollisionEnabled = false;
                     */
+
+
+
+
+
+                /*double particleCollisionLength = (parent.Radius + particle.Radius) - particleDistance;
+
+                double moveDistance = particleCollisionLength / 2.0;
+                double p1Angle = GetAngle(particle.Position, oldPosition);
+                Coord p1NewPoint = MovePoint(parent.Position, moveDistance, p1Angle);
+                Velocity = new Coord((p1NewPoint.X - oldPosition.X) * Elasticity, (p1NewPoint.Y - oldPosition.Y) * Elasticity);
+                newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+
+                double p2Angle = p1Angle + Math.PI;
+                Coord p2NewPoint = MovePoint(particle.Position, moveDistance, p2Angle);
+                Scene.Children[particle.ID].Phys.Velocity = new Coord((p2NewPoint.X - particle.Position.X) * Scene.Children[particle.ID].Phys.Elasticity, (p2NewPoint.Y - particle.Position.Y) * Scene.Children[particle.ID].Phys.Elasticity);
+                */
 
 
 
                     
-                    /*Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
-                    Coord direction = new Coord(particletoParticle.X / particleDistance, particletoParticle.Y / particleDistance);
-                    double MoveDistance = (parent.Radius + particle.Radius) - particleDistance;
-                    Velocity = new Coord(
-                        (MoveDistance * direction.X / 2.0),
-                        (MoveDistance * direction.Y / 2.0) + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale)
-                    );
-                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
-                    //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
-                    */
+                /*Coord particletoParticle = new Coord(oldPosition.X - particle.Position.X, oldPosition.Y - particle.Position.Y);
+                Coord direction = new Coord(particletoParticle.X / particleDistance, particletoParticle.Y / particleDistance);
+                double MoveDistance = (parent.Radius + particle.Radius) - particleDistance;
+                Velocity = new Coord(
+                    (MoveDistance * direction.X / 2.0),
+                    (MoveDistance * direction.Y / 2.0) + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale)
+                );
+                newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
+                //Velocity = new Coord(newPosition.X - oldPosition.X, newPosition.Y - oldPosition.Y);
+                */
 
-                    /*
-                    Velocity = new Coord(
-                        2.0 * (Mass * Velocity.X + particle.Phys.Mass * particle.Phys.Velocity.X) / (Mass + particle.Phys.Mass),
-                        2.0 * (Mass * Velocity.Y + particle.Phys.Mass * particle.Phys.Velocity.Y) / (Mass + particle.Phys.Mass)
-                    );
+                /*
+                Velocity = new Coord(
+                    2.0 * (Mass * Velocity.X + particle.Phys.Mass * particle.Phys.Velocity.X) / (Mass + particle.Phys.Mass),
+                    2.0 * (Mass * Velocity.Y + particle.Phys.Mass * particle.Phys.Velocity.Y) / (Mass + particle.Phys.Mass)
+                );
 
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord(
-                        2.0 * (particle.Phys.Mass * particle.Phys.Velocity.X + Mass * Velocity.X) / (Mass + particle.Phys.Mass),
-                        2.0 * (particle.Phys.Mass * particle.Phys.Velocity.Y + Mass * Velocity.Y) / (Mass + particle.Phys.Mass)
-                    );
-                    */
+                Scene.Children[particle.ID].Phys.Velocity = new Coord(
+                    2.0 * (particle.Phys.Mass * particle.Phys.Velocity.X + Mass * Velocity.X) / (Mass + particle.Phys.Mass),
+                    2.0 * (particle.Phys.Mass * particle.Phys.Velocity.Y + Mass * Velocity.Y) / (Mass + particle.Phys.Mass)
+                );
+                */
 
                     
-                    double moveDistance = Math.Sqrt(particleDistance);
-                    //double p1Velocity = GetLength(Velocity);
-                    //double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
-                    double p1Radius = parent.Radius;
-                    double p2Radius = particle.Radius;
-                    double delta = p1Radius * (1.0 / (p1Radius * p2Radius)) * (p2Radius - moveDistance);
+                double moveDistance = Math.Sqrt(particleDistance);
+                //double p1Velocity = GetLength(Velocity);
+                //double p2Velocity = GetLength(Scene.Children[particle.ID].Phys.Velocity);
+                double p1Radius = parent.Radius;
+                double p2Radius = particle.Radius;
+                double delta = p1Radius * (1.0 / (p1Radius * p2Radius)) * (p2Radius - moveDistance);
 
-                    Velocity = new Coord(
-                        (Velocity.X + ((oldPosition.X - particle.Position.X) / moveDistance) * delta) * Elasticity,// + p1Velocity * Elasticity,
-                        (Velocity.Y + ((oldPosition.Y - particle.Position.Y) / moveDistance) * delta) * Elasticity// + p1Velocity * Scene.Children[particle.ID].Phys.Elasticity
-                    );
-                    newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);// + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale));
-                    //Scene.Children[particle.ID].Phys.Velocity = new Coord(
-                    //    ((oldPosition.X - particle.Position.X) / moveDistance) * delta,
-                    //    -((oldPosition.Y - particle.Position.Y) / moveDistance) * delta
-                    //);
+                Velocity = new Coord(
+                    (Velocity.X * Elasticity + ((oldPosition.X - particle.Position.X) / moveDistance) * delta),
+                    (Velocity.Y * Elasticity + ((oldPosition.Y - particle.Position.Y) / moveDistance) * delta)
+                );
+                newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);// + (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime / Timer.TimeScale));
+                //Scene.Children[particle.ID].Phys.Velocity = new Coord(
+                //    ((oldPosition.X - particle.Position.X) / moveDistance) * delta,
+                //    -((oldPosition.Y - particle.Position.Y) / moveDistance) * delta
+                //);
                     
 
-                    //Set current particle Velocity
-                    /*Velocity = new Coord(
-                        (Velocity.X * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
-                        (Velocity.Y * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
-                    );
+                //Set current particle Velocity
+                /*Velocity = new Coord(
+                    (Velocity.X * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
+                    (Velocity.Y * (parent.Phys.Mass - particle.Phys.Mass) + 2.0 * particle.Phys.Mass * particle.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
+                );
 
-                    //Set other particle velocity
-                    Scene.Children[particle.ID].Phys.Velocity = new Coord(
-                        (particle.Phys.Velocity.X * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
-                        (particle.Phys.Velocity.Y * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
-                    );
-                    */
-                }
+                //Set other particle velocity
+                Scene.Children[particle.ID].Phys.Velocity = new Coord(
+                    (particle.Phys.Velocity.X * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.X) / (parent.Phys.Mass + particle.Phys.Mass),
+                    (particle.Phys.Velocity.Y * (particle.Phys.Mass - parent.Phys.Mass) + 2.0 * parent.Phys.Mass * parent.Phys.Velocity.Y) / (parent.Phys.Mass + particle.Phys.Mass)
+                );
+                */
             }
 
 
             //Loop through all lines and rectangles and Update Position
             while (CheckAgain) {
                 CheckAgain = false;
-                foreach (Component comp in Scene.Children.Values.Where(c => !(c is Particle))) {
-
+                foreach (Component comp in Scene.Children.Values.Where(c => !(c is Particle) && (c is CompLine ? GetDistance(newPosition, ((CompLine)c).PosA, ((CompLine)c).PosB) : GetDistance(newPosition, c.Position)) <= parent.Radius * 2.0)) {
                     Coord intersection = new Coord(0, 0);
                     IsColliding = false;
 
@@ -283,28 +282,14 @@ namespace PhysicsEngine
                         CompLine line = (CompLine)comp;
 
                         //Get continueos lines intersection point
-                        //double lineSlope = 0;
-                        //if (line.PosA.X < line.PosB.X)
-                        //    lineSlope = GetSlope(line.PosA, line.PosB);
-                        //else
-                        //    lineSlope = GetSlope(line.PosB, line.PosA);
-                        //double lineSlope = GetAngle(line.PosA, line.PosB);
-                        //double addX = -Math.Sign(Velocity.X) * Math.Cos(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
-                        //double addY = Math.Sign(Velocity.Y) * Math.Sin(Math.Atan(-1 / lineSlope)) * ((Particle)Parent).Radius;
-
-
-                        //double addX = 0;
-                        //double addY = 0;
-                        //double angle = GetAngle(line.PosA, newPosition) - Math.PI / 2.0;
-                        //if (Velocity.Y >= 0.0)
-                        //    angle += Math.PI;
-                        Coord pointA = line.PosA; // MovePoint(line.PosA, parent.Radius, angle); // new Coord(line.PosA.X + addX, line.PosA.Y + addY);
-                        Coord pointB = line.PosB; // MovePoint(line.PosB, parent.Radius, angle); // new Coord(line.PosB.X + addX, line.PosB.Y + addY);
-                        Coord movedPosition = newPosition;// MovePoint(newPosition, parent.Radius, GetAngle(oldPosition, newPosition));
-                        intersection = GetIntersectionPoint(oldPosition, movedPosition, pointA, pointB);
+                        Coord pointA = line.PosA;
+                        Coord pointB = line.PosB;
+                        intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
                         if (intersection.X is double.NaN || intersection.Y is double.NaN)
                             continue;
 
+                        //Coord movedPosition = MovePoint(newPosition, parent.Radius, GetAngle(oldPosition, newPosition));
+                        Coord movedPosition = newPosition;
                         //Check if intersection point is within both lines
                         if (intersection.X < Math.Min(oldPosition.X, movedPosition.X) || intersection.X > Math.Max(oldPosition.X, movedPosition.X) ||
                             intersection.X < Math.Min(pointA.X, pointB.X) || intersection.X > Math.Max(pointA.X, pointB.X) ||
@@ -318,6 +303,7 @@ namespace PhysicsEngine
                         IsColliding = true;
 
                         //Set new position to the reflected point
+                        //Coord reflectPos = MovePoint(GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection), parent.Radius, GetAngle(newPosition, oldPosition));
                         Coord reflectPos = GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection);
                         if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN)
                             continue;
@@ -332,9 +318,11 @@ namespace PhysicsEngine
 
                         //check if new position is inside rect
                         //rotate point by rect origin by the amount the rect is rotated
-                        Coord rotatedPosition = newPosition;
+                        //Coord movedPosition = MovePoint(newPosition, parent.Radius, GetAngle(oldPosition, newPosition));
+                        Coord movedPosition = newPosition;
+                        Coord rotatedPosition = movedPosition;
                         if (rect.RotationAngle != 0)
-                            rotatedPosition = RotatePointAroundPoint(newPosition, rect.Position, -rect.RotationAngle);
+                            rotatedPosition = RotatePointAroundPoint(movedPosition, rect.Position, -rect.RotationAngle);
 
                         //Check if new position is within the rectangle
                         if (new Rect(new Point(rect.Position.X, rect.Position.Y), rect.Size).Contains(new Point(rotatedPosition.X, rotatedPosition.Y)))
@@ -351,11 +339,11 @@ namespace PhysicsEngine
                             Coord pointB = new Coord(0, 0);
 
                             //Get length of particle movement
-                            double moveLength = GetLength(new Coord(oldPosition.X - newPosition.X, oldPosition.Y - newPosition.Y));
+                            double moveLength = GetLength(new Coord(oldPosition.X - movedPosition.X, oldPosition.Y - movedPosition.Y));
 
                             //Find intersection point that is at less distance than moveLength to find intersected side
                             bool IntersectFound = false;
-                            Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointTR);
+                            Coord topIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTL, pointTR);
                             double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
                             if (topDist <= moveLength)
                             {
@@ -366,7 +354,7 @@ namespace PhysicsEngine
                                 goto IntersectionFound;
                             }
 
-                            Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTR, pointBR);
+                            Coord rightIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTR, pointBR);
                             double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
                             if (rightDist <= moveLength)
                             {
@@ -377,7 +365,7 @@ namespace PhysicsEngine
                                 goto IntersectionFound;
                             }
 
-                            Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, pointBL, pointBR);
+                            Coord bottomIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointBL, pointBR);
                             double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
                             if (bottomDist <= moveLength)
                             {
@@ -388,7 +376,7 @@ namespace PhysicsEngine
                                 goto IntersectionFound;
                             }
 
-                            Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, pointTL, pointBL);
+                            Coord leftIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTL, pointBL);
                             double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
                             if (leftDist <= moveLength)
                             {
@@ -401,7 +389,8 @@ namespace PhysicsEngine
                         IntersectionFound:
 
                             //Set new position to the reflected point
-                            Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
+                            //Coord reflectPos = MovePoint(GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection), parent.Radius, GetAngle(newPosition, oldPosition));
+                            Coord reflectPos = GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection);
                             if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
 
                             if (IntersectFound)
@@ -484,11 +473,12 @@ namespace PhysicsEngine
             {
                 Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
                 Velocity = new Coord(
-                    Velocity.X + WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X,
-                    Velocity.Y + WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y
+                    Velocity.X * Elasticity + (WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X),
+                    Velocity.Y * Elasticity + (WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y)
                 );
                 newPosition = new Coord(oldPosition.X + Velocity.X, oldPosition.Y + Velocity.Y);
             }
+
             return newPosition;
         }
 
@@ -557,6 +547,13 @@ namespace PhysicsEngine
         {
             return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2.0) + Math.Pow(pointB.Y - pointA.Y, 2.0));
         }
+
+        private double GetDistance(Coord point, Coord pointA, Coord pointB)
+        {
+            double dist = Math.Abs((pointB.X - pointA.X) * (pointA.Y - point.Y) - (pointA.X - point.X) * (pointB.Y - pointA.Y)) / Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
+            return dist;
+        }
+
 
         /// <summary>
         /// Moves a point at a given distance at a given angle

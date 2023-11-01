@@ -7,6 +7,7 @@ using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace PhysicsEngine
@@ -37,6 +38,7 @@ namespace PhysicsEngine
         private static CompLine borderBottom;
         private static CompLine borderLeft;
 
+        private static Ellipse circleBorder;
         private static double circleBorderRadius = 300;
         public static bool IsCircleBorderActive { get; set; } = false;
 
@@ -57,6 +59,17 @@ namespace PhysicsEngine
             Add(borderRight);
             Add(borderBottom);
             Add(borderLeft);
+
+            circleBorder = new Ellipse();
+            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - circleBorderRadius);
+            Canvas.SetTop(circleBorder, MainScene.Height / 2.0 - circleBorderRadius);
+            circleBorder.Width = circleBorderRadius * 2.0;
+            circleBorder.Height = circleBorderRadius * 2.0;
+            circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
+            circleBorder.Stroke = new SolidColorBrush(Colors.Black);
+            circleBorder.StrokeThickness = 1;
+            circleBorder.Opacity = 0;
+            MainScene.Children.Add(circleBorder);
         }
 
         public static void Update()
@@ -149,6 +162,7 @@ namespace PhysicsEngine
         public static void ToggleCircleBorderCollision()
         {
             IsCircleBorderActive = !IsCircleBorderActive;
+            circleBorder.Opacity = IsCircleBorderActive ? 1 : 0;
         }
         public static void SetCircleBorderRadius(double radius)
         {

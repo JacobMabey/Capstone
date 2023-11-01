@@ -78,31 +78,31 @@ namespace PhysicsEngine
             //MainScene.Children.Add(p2.GetUIElement());
 
             l = new CompLine(new Coord(10, 300), new Coord(310, 300));
-            //Scene.Add(l);
+            Scene.Add(l);
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
-            //Scene.Add(l2);
+            Scene.Add(l2);
 
             l3 = new CompLine(new Coord(310, 10), new Coord(310, 300));
-            //Scene.Add(l3);
+            Scene.Add(l3);
 
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
-            //Scene.Add(l4);
+            Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(450, 120), 225.0, 300, 7, 10);
+            ejector = new ParticleEjector(new Coord(250, 80), 200.0, 1000, 7, 15);
             ejector.ParticleElasticity = 0.6;
-            ejector.ParticleRadius = 5;
+            ejector.ParticleRadius = 4;
             ejector.ParticleRadiusRange = 0;
             ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 0.0;
             Scene.Add(ejector);
 
-            //ejector2 = new ParticleEjector(new Coord(50, 50), 135.0, 1000, 10, 0.05);
+            ejector2 = new ParticleEjector(new Coord(100, 50), 135.0, 1000, 10, 20);
             //Scene.Add(ejector2);
 
             Timer.TimeScale = 1;
 
-            Scene.ToggleCircleBorderCollision();
+            //Scene.ToggleCircleBorderCollision();
         }
 
 
@@ -110,7 +110,7 @@ namespace PhysicsEngine
         {
             Update(); //Main Canvas Update To be within Loop
 
-            particleCounter.Text = "" + ejector.ParticlesEjected;
+            particleCounter.Text = "" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString();
         }
 
         

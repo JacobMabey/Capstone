@@ -34,17 +34,6 @@ namespace PhysicsEngine
 #if DEBUG
             fpsText.Text = "FPS: "+Timer.FPS;
 #endif
-
-            //If Scene has a circle border constraint, render a circle
-            if (Scene.IsCircleBorderActive)
-            {
-                double radius = Scene.GetCircleBorderRadius();
-
-                Ellipse circle = new Ellipse();
-                circle.Width = radius;
-                circle.Height = radius;
-                Scene.MainScene.Children.Add(circle);
-            }
         }
 
         public static void Shutdown()

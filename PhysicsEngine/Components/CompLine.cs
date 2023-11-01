@@ -168,5 +168,10 @@ namespace PhysicsEngine
 
         }
 
+
+        public Coord GetMidPoint()
+        {
+            return new Coord((posA.X + posB.X) / 2.0, (posA.Y + posB.Y) / 2.0);
+        }
     }
 }
