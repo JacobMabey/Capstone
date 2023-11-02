@@ -31,6 +31,10 @@ namespace PhysicsEngine
         public static double SnapCellSize { get; set; } = 25.0;
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
+        //Main Space Partitioning Grid Global Values
+        public static double SpacePartitionCellSize = 10.0;
+        public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
+        public static Coord CurrentCell = new Coord(0, 0);
 
 
         private static CompLine borderTop;
@@ -82,6 +86,7 @@ namespace PhysicsEngine
             else elementsToBeDestroyed.Clear();
 
             //Update all Children
+            ClearSpacePartitionGrid();
             foreach (Component comp in Children.Values)
             {
                 //Update all components
@@ -98,11 +103,33 @@ namespace PhysicsEngine
                         continue;
                 }
 
-                //Update Element
+                //Add element to space partition grid
+                if (comp is Particle)
+                {
+                    int row = (int)((comp.Position.Y - ((Particle)comp).Radius) / SpacePartitionCellSize);
+                    int col = (int)((comp.Position.X - ((Particle)comp).Radius) / SpacePartitionCellSize);
+
+                    Coord pos = new Coord(col, row);
+                    if (!SpacePartitionGrid.ContainsKey(pos) || (SpacePartitionGrid.ContainsKey(pos) && !SpacePartitionGrid[pos].Contains(comp)))
+                        AddToSpacePartitionGrid(pos, (Particle)comp);
+                }
+            }
+            //Loop through all partitioned spaces in the main space partitioning grid
+            foreach (KeyValuePair<Coord, List<Particle>> cell in Scene.SpacePartitionGrid)
+            {
+                CurrentCell = cell.Key;
+                foreach (Particle p in cell.Value)
+                {
+                    //Update Element
+                    p.Update();
+                }
+            }
+            foreach (Component comp in Children.Values.Where(c => !(c is Particle)))
+            {
                 comp.Update();
             }
 
-            //Destroy and remove all marked elements
+                //Destroy and remove all marked elements
             for (int i = 0; i < elementsToBeDestroyed.Count; i++)
             {
                 MainScene.Children.Remove(Children[elementsToBeDestroyed[i]].GetUIElement());
@@ -119,6 +146,18 @@ namespace PhysicsEngine
             elementsToBeAdded.Clear();
         }
 
+        private static void AddToSpacePartitionGrid(Coord pos, Particle particle)
+        {
+            if (!SpacePartitionGrid.ContainsKey(pos))
+                SpacePartitionGrid[pos] = new List<Particle>();
+            SpacePartitionGrid[pos].Add(particle);
+        }
+        private static void ClearSpacePartitionGrid()
+        {
+            foreach (var cell in SpacePartitionGrid)
+                cell.Value.Clear();
+            SpacePartitionGrid.Clear();
+        }
 
         public static void Add(Component comp)
         {
