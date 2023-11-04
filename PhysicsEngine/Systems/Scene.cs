@@ -32,7 +32,7 @@ namespace PhysicsEngine
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
         //Main Space Partitioning Grid Global Values
-        public static double SpacePartitionCellSize = 10.0;
+        public static double SpacePartitionCellSize = 20.0;
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
 

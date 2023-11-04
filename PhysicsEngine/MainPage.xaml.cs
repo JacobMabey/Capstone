@@ -102,7 +102,7 @@ namespace PhysicsEngine
 
             Timer.TimeScale = 1.0;
 
-            //Scene.ToggleBorderCollision();
+            Scene.ToggleBorderCollision();
             //Scene.ToggleCircleBorderCollision();
         }
 

@@ -34,7 +34,7 @@ namespace PhysicsEngine
             }
         }
 
-        private Size EJECTOR_SIZE { get; set; } = new Size(50, 20);
+        private Size EJECTOR_SIZE { get; set; } = new Size(20, 50);
 
         private Color fill;
         public Color FillColor
@@ -58,7 +58,7 @@ namespace PhysicsEngine
             set
             {
                 rotationAngle = value;
-                RotationTransform.Angle = rotationAngle;
+                RotationTransform.Angle = rotationAngle + 90.0;
             }
         }
 
@@ -75,13 +75,17 @@ namespace PhysicsEngine
             set
             {
                 radius = value;
-                _rect.Height = radius * 2.0;
+                _rect.Width = radius * 3.0;
             }
         }
         public double ParticleRadiusRange { get; set; }
         public int ParticlesEjected { get; private set; }
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
+
+
+        private Ellipse _grabToken;
+
 
         public override void Initialize()
         {
@@ -125,10 +129,17 @@ namespace PhysicsEngine
 
             //Get position of pointer relative to shape movement center for smoother pickups
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+
+            //Get position of pointer relative to shape movement center for smoother pickups
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
 
+            //Rotate mode on if user hold shift
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseRotateMode = true;
+            }
             //Drag mode on if user hold control
-            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            else if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseDragMode = true;
                 _rect.Opacity = 0.6;
@@ -138,6 +149,7 @@ namespace PhysicsEngine
         {
             IsBeingDragged = false;
             _rect.ReleasePointerCapture(e.Pointer);
+            IsMouseRotateMode = false;
             IsMouseDragMode = false;
             _rect.Opacity = 1.0;
         }
@@ -145,8 +157,34 @@ namespace PhysicsEngine
         {
             if (!IsBeingDragged) return;
 
+            //Rotate mode on if user hold shift
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseRotateMode = true;
+            } else
+            {
+                IsMouseRotateMode = false;
+            }
+            //Drag mode on if user hold control
+            if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseDragMode = true;
+                _rect.Opacity = 0.6;
+            } else
+            {
+                IsMouseDragMode = false;
+                _rect.Opacity = 1.0;
+            }
+
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
+            //If rotation mode is active, only rotate
+            if (IsMouseRotateMode)
+            {
+                RotationAngle = -Physics.GetAngle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), Coord.FromPoint(pointerCoord)) * 180.0 / Math.PI + 180.0;
+                return;
+            }
+            
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
             if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
@@ -176,29 +214,34 @@ namespace PhysicsEngine
                 {
                     ParticleTimer = 0;
 
-                    double radius = ParticleRadius;
-                    if (ParticleRadiusRange != 0.0)
-                        radius += ParticleRadiusRange * Scene.Rand.NextDouble();
-
-                    Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), radius);
-                    particle.Phys.Elasticity = ParticleElasticity;
-                    particle.Phys.Friction = ParticleFriction;
-
-
-                    //Set Eject Velocity
-                    double ejectAngle = RotationAngle;
-                    if (ParticleScatterAngle != 0)
-                        ejectAngle += ParticleScatterAngle * (Scene.Rand.NextDouble() * 2.0 - 1.0);
-
-                    double rotationRadians = ejectAngle * Math.PI / 180.0;
-                    particle.Phys.ApplyForce(new Coord(Math.Cos(rotationRadians) * ParticleVelocity, Math.Sin(rotationRadians) * ParticleVelocity));
-
-                    //Create
-                    Scene.AddLater(particle);
-
-                    ParticlesEjected++;
+                    EjectParticle();
                 }
             }
+        }
+
+        public void EjectParticle()
+        {
+            double radius = ParticleRadius;
+            if (ParticleRadiusRange != 0.0)
+                radius += ParticleRadiusRange * Scene.Rand.NextDouble();
+
+            Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), radius);
+            particle.Phys.Elasticity = ParticleElasticity;
+            particle.Phys.Friction = ParticleFriction;
+
+
+            //Set Eject Velocity
+            double ejectAngle = RotationAngle;
+            if (ParticleScatterAngle != 0)
+                ejectAngle += ParticleScatterAngle * (Scene.Rand.NextDouble() * 2.0 - 1.0);
+
+            double rotationRadians = ejectAngle * Math.PI / 180.0;
+            particle.Phys.ApplyForce(new Coord(Math.Cos(rotationRadians) * ParticleVelocity, Math.Sin(rotationRadians) * ParticleVelocity));
+
+            //Create
+            Scene.AddLater(particle);
+
+            ParticlesEjected++;
         }
     }
 }

@@ -129,9 +129,6 @@ namespace PhysicsEngine
             //Prevents particles clipping through surface intersections
             bool CheckAgain = true;
 
-            //If position didn't move, no collision
-            //if (oldPosition.X == newPosition.X && oldPosition.Y == newPosition.Y) return newPosition;
-
 
             //foreach (Component comp in Scene.Children.Values)
             List<Particle> checkList = new List<Particle>();
@@ -178,10 +175,9 @@ namespace PhysicsEngine
                     newPosition.X + moveVector.X,
                     newPosition.Y + moveVector.Y
                 );
-                double velLength = GetLength(new Coord(Velocity.X, Velocity.Y));
                 Velocity = new Coord(
-                    velLength * Elasticity * moveVector.X / moveDistance,
-                    velLength * Elasticity * moveVector.Y / moveDistance
+                    Velocity.X + moveVector.X,
+                    Velocity.Y + moveVector.Y
                 );
             }
             
@@ -210,12 +206,45 @@ namespace PhysicsEngine
                     {
                         CompLine line = (CompLine)comp;
 
+                        //Check for far away particles
                         if (GetDistance(newPosition, line.PosA, line.PosB) > 50)
                             continue;
 
+
+                        //Check for collision on the end points of the line
+                        double particleToLinePointDistance = GetDistance(newPosition, line.PosA);
+                        Coord collidingPoint = line.PosA;
+                        if (particleToLinePointDistance > (parent.Radius + 1.0))
+                        {
+                            particleToLinePointDistance = GetDistance(newPosition, line.PosB);
+                            collidingPoint = line.PosB;
+                        }
+
+                        if (particleToLinePointDistance <= (parent.Radius + 1.0))
+                        {
+                            double moveDistance = ((parent.Radius + 1.0) - particleToLinePointDistance) / 2.0;
+                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
+                            newPosition = new Coord(
+                                newPosition.X + moveVector.X,
+                                newPosition.Y + moveVector.Y
+                            );
+                            Velocity = new Coord(
+                                Velocity.X + moveVector.X,
+                                Velocity.Y + moveVector.Y
+                            );
+                        }
+
+                        //Get new virtual line position based on the particles radius
+                        double lineToParticleAngle = GetAngle(line.PosA, line.PosB) + Math.PI / 2.0;
+                        Coord pointA = MovePoint(line.PosA, parent.Radius + line.Thickness / 2.0, lineToParticleAngle);
+                        Coord pointB = MovePoint(line.PosB, parent.Radius + line.Thickness / 2.0, lineToParticleAngle);
+                        if (GetDistance(oldPosition, pointA, pointB) > GetDistance(oldPosition, line.PosA, line.PosB))
+                        {
+                            pointA = MovePoint(line.PosA, parent.Radius, lineToParticleAngle + Math.PI);
+                            pointB = MovePoint(line.PosB, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
+
                         //Get continueos lines intersection point
-                        Coord pointA = line.PosA;
-                        Coord pointB = line.PosB;
                         intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
                         if (intersection.X is double.NaN || intersection.Y is double.NaN)
                             continue;
@@ -241,98 +270,156 @@ namespace PhysicsEngine
                             continue;
 
                         newPosition = reflectPos;
-                        oldPosition = intersection;
+                        //oldPosition = intersection;
                     }
                     //Rectangle Collision
                     else if (comp is CompRectangle)
                     {
                         CompRectangle rect = (CompRectangle)comp;
 
-                        //check if new position is inside rect
-                        //rotate point by rect origin by the amount the rect is rotated
-                        //Coord movedPosition = MovePoint(newPosition, parent.Radius, GetAngle(oldPosition, newPosition));
-                        Coord movedPosition = newPosition;
-                        Coord rotatedPosition = movedPosition;
-                        if (rect.RotationAngle != 0)
-                            rotatedPosition = RotatePointAroundPoint(movedPosition, rect.Position, -rect.RotationAngle);
+                        //Get all 4 rect corner points and rotate via ratation angle
+                        Coord pointTL = rect.Position;
+                        Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, rect.RotationAngle);
+                        Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
+                        Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
 
-                        //Check if new position is within the rectangle
-                        if (new Rect(new Point(rect.Position.X, rect.Position.Y), rect.Size).Contains(new Point(rotatedPosition.X, rotatedPosition.Y)))
+                        //Check for collision on the corners of the rect
+                        double particleToLinePointDistance = GetDistance(newPosition, pointTL);
+                        Coord collidingPoint = pointTL;
+                        if (particleToLinePointDistance > (parent.Radius + 1.0))
                         {
-
-                            //Get all 4 rect corner points and rotate via ratation angle
-                            Coord pointTL = rect.Position;
-                            Coord pointTR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y), rect.Position, rect.RotationAngle);
-                            Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
-                            Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
-
-                            //Will be set to the two points connected to the side of the rect the particle intersects with
-                            Coord pointA = new Coord(0, 0);
-                            Coord pointB = new Coord(0, 0);
-
-                            //Get length of particle movement
-                            double moveLength = GetLength(new Coord(oldPosition.X - movedPosition.X, oldPosition.Y - movedPosition.Y));
-
-                            //Find intersection point that is at less distance than moveLength to find intersected side
-                            bool IntersectFound = false;
-                            Coord topIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTL, pointTR);
-                            double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
-                            if (topDist <= moveLength)
+                            particleToLinePointDistance = GetDistance(newPosition, pointTR);
+                            collidingPoint = pointTR;
+                            if (particleToLinePointDistance > (parent.Radius + 1.0))
                             {
-                                intersection = topIntersect;
-                                pointA = pointTL;
-                                pointB = pointTR;
-                                IntersectFound = true;
-                                goto IntersectionFound;
+                                particleToLinePointDistance = GetDistance(newPosition, pointBR);
+                                collidingPoint = pointBR;
+                                if (particleToLinePointDistance > (parent.Radius + 1.0))
+                                {
+                                    particleToLinePointDistance = GetDistance(newPosition, pointBL);
+                                    collidingPoint = pointBL;
+                                }
                             }
+                        }
+                        if (particleToLinePointDistance <= (parent.Radius + 1.0))
+                        {
+                            double moveDistance = ((parent.Radius + 1.0) - particleToLinePointDistance) / 2.0;
+                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
+                            newPosition = new Coord(
+                                newPosition.X + moveVector.X,
+                                newPosition.Y + moveVector.Y
+                            );
+                            Velocity = new Coord(
+                                Velocity.X + moveVector.X,
+                                Velocity.Y + moveVector.Y
+                            );
+                        }
 
-                            Coord rightIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTR, pointBR);
-                            double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
-                            if (rightDist <= moveLength)
-                            {
-                                intersection = rightIntersect;
-                                pointA = pointTR;
-                                pointB = pointBR;
-                                IntersectFound = true;
-                                goto IntersectionFound;
-                            }
+                        //Will be set to the two points connected to the side of the rect the particle intersects with
+                        Coord pointA = new Coord(0, 0);
+                        Coord pointB = new Coord(0, 0);
 
-                            Coord bottomIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointBL, pointBR);
-                            double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
-                            if (bottomDist <= moveLength)
-                            {
-                                intersection = bottomIntersect;
-                                pointA = pointBL;
-                                pointB = pointBR;
-                                IntersectFound = true;
-                                goto IntersectionFound;
-                            }
+                        //Get length of particle movement
+                        double moveLength = GetLength(new Coord(oldPosition.X - newPosition.X, oldPosition.Y - newPosition.Y));
 
-                            Coord leftIntersect = GetIntersectionPoint(oldPosition, movedPosition, pointTL, pointBL);
-                            double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
-                            if (leftDist <= moveLength)
+                        //Find intersection point that is at less distance than moveLength to find intersected side
+                        bool IntersectFound = false;
+                        double lineToParticleAngle = GetAngle(pointTL, pointTR) + Math.PI / 2.0;
+                        Coord movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle);
+                        Coord movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTL, movedPointTR) > GetDistance(oldPosition, pointTL, pointTR))
+                        {
+                            movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
+                        Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTL, movedPointTR);
+                        double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
+                        if (topDist <= moveLength)
+                        {
+                            intersection = topIntersect;
+                            pointA = movedPointTL;
+                            pointB = movedPointTR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
+                        }
+
+                        lineToParticleAngle = GetAngle(pointTR, pointBR) + Math.PI / 2.0;
+                        movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle);
+                        Coord movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTR, movedPointBR) > GetDistance(oldPosition, pointTR, pointBR))
+                        {
+                            movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
+                        Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTR, movedPointBR);
+                        double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
+                        if (rightDist <= moveLength)
+                        {
+                            intersection = rightIntersect;
+                            pointA = movedPointTR;
+                            pointB = movedPointBR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
+                        }
+
+                        lineToParticleAngle = GetAngle(pointBL, pointBR) + Math.PI / 2.0;
+                        Coord movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle);
+                        movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointBL, movedPointBR) > GetDistance(oldPosition, pointBL, pointBR))
+                        {
+                            movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
+                        Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointBL, movedPointBR);
+                        double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
+                        if (bottomDist <= moveLength)
+                        {
+                            intersection = bottomIntersect;
+                            pointA = movedPointBL;
+                            pointB = movedPointBR;
+                            IntersectFound = true;
+                            goto IntersectionFound;
+                        }
+
+                        lineToParticleAngle = GetAngle(pointTL, pointBL) + Math.PI / 2.0;
+                        movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle);
+                        movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTL, movedPointBL) > GetDistance(oldPosition, pointTL, pointBL))
+                        {
+                            movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
+                        Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTL, movedPointBL);
+                        double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
+                        if (leftDist <= moveLength)
+                        {
+                            intersection = leftIntersect;
+                            pointA = movedPointTL;
+                            pointB = movedPointBL;
+                            IntersectFound = true;
+                            goto IntersectionFound;
+                        }
+                    IntersectionFound:
+                        if (IntersectFound)
+                        {
+                            //Check if intersection point is within both lines
+                            if (intersection.X < GetEpsilonRounded(Math.Min(oldPosition.X, newPosition.X)) || intersection.X > GetEpsilonRounded(Math.Max(oldPosition.X, newPosition.X)) ||
+                                intersection.X < GetEpsilonRounded(Math.Min(pointA.X, pointB.X)) || intersection.X > GetEpsilonRounded(Math.Max(pointA.X, pointB.X)) ||
+                                intersection.Y < GetEpsilonRounded(Math.Min(oldPosition.Y, newPosition.Y)) || intersection.Y > GetEpsilonRounded(Math.Max(oldPosition.Y, newPosition.Y)) ||
+                                intersection.Y < GetEpsilonRounded(Math.Min(pointA.Y, pointB.Y)) || intersection.Y > GetEpsilonRounded(Math.Max(pointA.Y, pointB.Y)))
                             {
-                                intersection = leftIntersect;
-                                pointA = pointTL;
-                                pointB = pointBL;
-                                IntersectFound = true;
-                                goto IntersectionFound;
+                                continue; //no collision
                             }
-                        IntersectionFound:
 
                             //Set new position to the reflected point
-                            //Coord reflectPos = MovePoint(GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection), parent.Radius, GetAngle(newPosition, oldPosition));
-                            Coord reflectPos = GetReflectedPosition(oldPosition, movedPosition, pointA, pointB, intersection);
+                            Coord reflectPos = GetReflectedPosition(oldPosition, newPosition, pointA, pointB, intersection);
                             if (reflectPos.X is double.NaN || reflectPos.Y is double.NaN) continue;
 
-                            if (IntersectFound)
-                            {
-                                //Collision is guarenteed at this point
-                                IsColliding = true;
+                            //Collision is guarenteed at this point
+                            IsColliding = true;
 
-                                newPosition = reflectPos;
-                                oldPosition = intersection;
-                            }
+                            newPosition = reflectPos;
+                            //oldPosition = intersection;
                         }
 
                     }
@@ -429,7 +516,7 @@ namespace PhysicsEngine
         /// <param name="pointA"></param>
         /// <param name="pointB"></param>
         /// <returns>The line slope</returns>
-        private double GetSlope(Coord pointA, Coord pointB)
+        public static double GetSlope(Coord pointA, Coord pointB)
         {
             return (pointB.Y - pointA.Y) / (pointB.X - pointA.X);
         }
@@ -448,7 +535,7 @@ namespace PhysicsEngine
         /// <param name="pointA"></param>
         /// <param name="pointB"></param>
         /// <returns>The line slope</returns>
-        private double GetAngle(Coord pointA, Coord pointB)
+        public static double GetAngle(Coord pointA, Coord pointB)
         {
             double slope = GetSlope(pointA, pointB);
             if (slope == 0) return Math.PI;
@@ -479,7 +566,7 @@ namespace PhysicsEngine
         /// </summary>
         /// <param name="point"></param>
         /// <returns>Point distance from (0,0)</returns>
-        private double GetLength(Coord point)
+        public static double GetLength(Coord point)
         {
             return Math.Sqrt(Math.Pow(point.X, 2.0) + Math.Pow(point.Y, 2.0));
         }
@@ -489,12 +576,12 @@ namespace PhysicsEngine
         /// <param name="pointA"></param>
         /// <param name="pointB"></param>
         /// <returns>Point distance from each other</returns>
-        private double GetDistance(Coord pointA, Coord pointB)
+        public static double GetDistance(Coord pointA, Coord pointB)
         {
             return Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2.0) + Math.Pow(pointB.Y - pointA.Y, 2.0));
         }
 
-        private double GetDistance(Coord point, Coord pointA, Coord pointB)
+        public static double GetDistance(Coord point, Coord pointA, Coord pointB)
         {
             double dist = Math.Abs((pointB.X - pointA.X) * (pointA.Y - point.Y) - (pointA.X - point.X) * (pointB.Y - pointA.Y)) / Math.Sqrt(Math.Pow(pointB.X - pointA.X, 2) + Math.Pow(pointB.Y - pointA.Y, 2));
             return dist;

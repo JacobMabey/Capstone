@@ -160,8 +160,13 @@ namespace PhysicsEngine
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
 
+            //Rotate mode on if user hold shift
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseRotateMode = true;
+            }
             //Drag mode on if user hold control
-            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            else if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseDragMode = true;
                 _rect.Opacity = 0.6;
@@ -178,7 +183,35 @@ namespace PhysicsEngine
         {
             if (!IsBeingDragged) return;
 
+            //Rotate mode on if user hold shift
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseRotateMode = true;
+            }
+            else
+            {
+                IsMouseRotateMode = false;
+            }
+            //Drag mode on if user hold control
+            if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseDragMode = true;
+                _rect.Opacity = 0.6;
+            }
+            else
+            {
+                IsMouseDragMode = false;
+                _rect.Opacity = 1.0;
+            }
+
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+
+            //If rotation mode is active, only rotate
+            if (IsMouseRotateMode)
+            {
+                RotationAngle = -Physics.GetAngle(new Coord(Position.X, Position.Y), Coord.FromPoint(pointerCoord)) * 180.0 / Math.PI + 180.0;
+                return;
+            }
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
