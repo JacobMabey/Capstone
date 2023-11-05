@@ -209,7 +209,7 @@ namespace PhysicsEngine
             //If rotation mode is active, only rotate
             if (IsMouseRotateMode)
             {
-                RotationAngle = -Physics.GetAngle(new Coord(Position.X, Position.Y), Coord.FromPoint(pointerCoord)) * 180.0 / Math.PI + 180.0;
+                RotationAngle = -Physics.GetAngle(new Coord(Position.X, Position.Y), Coord.FromPoint(pointerCoord)) * 180.0 / Math.PI - 90.0;
                 return;
             }
 

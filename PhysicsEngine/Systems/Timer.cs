@@ -13,6 +13,8 @@ namespace PhysicsEngine
         private static double DeltaTimeRaw { get; set; } = 0.0;
         public static double DeltaTime { get; private set; } = 0.0;
 
+        public static double MovementMultiplier => DeltaTime / (1.0 / 60.0);
+
         private static double timeScale = 1.0;
         public static double TimeScale
         {

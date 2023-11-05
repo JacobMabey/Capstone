@@ -20,6 +20,8 @@ namespace PhysicsEngine
         private Rectangle _rect = new Rectangle();
         private RotateTransform RotationTransform { get; set; }
 
+        private SolidColorBrush ParticleFillBrush { get; set; }
+
         public bool IsPaused { get; set; } = false;
 
         private Coord posiiton;
@@ -48,6 +50,18 @@ namespace PhysicsEngine
                 FillBrush.Color = fill;
                 if (_rect.Fill != FillBrush)
                     _rect.Fill = FillBrush;
+            }
+        }
+
+        private bool fillColorIsBasedOnParticle = false;
+        public bool FillColorIsBasedOnParticle
+        {
+            get => fillColorIsBasedOnParticle;
+            set
+            {
+                fillColorIsBasedOnParticle = value;
+                if (fillColorIsBasedOnParticle)
+                    FillColor = ParticleColor;
             }
         }
 
@@ -83,8 +97,21 @@ namespace PhysicsEngine
         public int ParticleLimit { get; private set; }
         private double ParticleTimer { get; set; }
 
+        private Color particleFill;
+        public Color ParticleColor
+        {
+            get => particleFill;
+            set
+            {
+                particleFill = value;
+                if (ParticleFillBrush == null)
+                    ParticleFillBrush = new SolidColorBrush();
+                ParticleFillBrush.Color = particleFill;
+            }
+        }
 
-        private Ellipse _grabToken;
+        public double ParticleColorChangeRate { get; set; } = 0.0;
+
 
 
         public override void Initialize()
@@ -99,6 +126,8 @@ namespace PhysicsEngine
             RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
             RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
             _rect.RenderTransform = RotationTransform;
+            _rect.Stroke = new SolidColorBrush(Colors.Black);
+            _rect.StrokeThickness = 2.0;
         }
 
         public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 0.5)
@@ -119,7 +148,9 @@ namespace PhysicsEngine
             ParticleRadiusRange = 0.0;
             ParticlesEjected = 0;
             ParticleTimer = 0;
+            FillColorIsBasedOnParticle = true;
             FillColor = Colors.Black;
+            ParticleColor = Colors.Red;
         }
 
         private void Rect_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -221,13 +252,29 @@ namespace PhysicsEngine
 
         public void EjectParticle()
         {
+            //Get particle radius
             double radius = ParticleRadius;
             if (ParticleRadiusRange != 0.0)
                 radius += ParticleRadiusRange * Scene.Rand.NextDouble();
 
+            //Create Particle
             Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), radius);
             particle.Phys.Elasticity = ParticleElasticity;
             particle.Phys.Friction = ParticleFriction;
+
+            //Set Particle Color
+            particle.Fill = ParticleColor;
+            if (ParticleColorChangeRate != 0.0)
+            {
+                double[] HsvParticleColor = RgbToHsv(ParticleColor.R, ParticleColor.G, ParticleColor.B);
+                HsvParticleColor[0] = (HsvParticleColor[0] + ParticleColorChangeRate) % 360.0;
+                double[] newColor = HsvToRgb(HsvParticleColor[0], HsvParticleColor[1], HsvParticleColor[2]);
+                ParticleColor = Color.FromArgb(255, (byte)newColor[0], (byte)newColor[1], (byte)newColor[2]);
+                //if (ParticleColor == Colors.Black)
+                //    ParticleColor = Colors.Black;
+            }
+            if (FillColorIsBasedOnParticle)
+                FillColor = ParticleColor;
 
 
             //Set Eject Velocity
@@ -242,6 +289,88 @@ namespace PhysicsEngine
             Scene.AddLater(particle);
 
             ParticlesEjected++;
+        }
+
+        private double[] RgbToHsv(double r, double g, double b)
+        {
+            //I used the math from the following link to program this
+            //https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+
+            r = r / 255.0;
+            g = g / 255.0;
+            b = b / 255.0;
+
+            double max = Math.Max(r, Math.Max(g, b));
+            double min = Math.Min(r, Math.Min(g, b));
+            double delta = max - min;
+
+            double hue = 0;
+            if (delta == 0)
+                hue = 0;
+            else if (max == r)
+                hue = 60.0 * (((g - b) / delta) % 6.0);
+            else if (max == g)
+                hue = 60.0 * ((b - r) / delta + 2);
+            else if (max == b)
+                hue = 60.0 * ((r - g) / delta + 4);
+
+
+            double saturation = 0;
+            if (max != 0)
+                saturation = delta / max;
+                
+
+            double value = max;
+
+            while (hue < 0) hue += 360;
+
+            return new double[] { hue, saturation, value };
+        }
+
+        private double[] HsvToRgb(double h, double s, double v)
+        {
+            //I used the math from the following link to program this
+            //https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+
+            double col = v * s;
+            double sec = col * (1 - Math.Abs((h / 60.0) % 2.0 - 1));
+            double dif = v - col;
+
+            double r = 0;
+            double g = 0;
+            double b = 0;
+            if (h >= 0 && h < 60)
+            {
+                r = col;
+                g = sec;
+            }
+            else if (h >= 60 && h < 120)
+            {
+                r = sec;
+                g = col;
+            }
+            else if (h >= 120 && h < 180)
+            {
+                g = col;
+                b = sec;
+            }
+            else if (h >= 180 && h < 240)
+            {
+                g = sec;
+                b = col;
+            }
+            else if (h >= 240 && h < 300)
+            {
+                r = sec;
+                b = col;
+            }
+            else if (h >= 300 && h < 360)
+            {
+                r = col;
+                b = sec;
+            }
+
+            return new double[] {r * 255, g * 255, b * 255 };
         }
     }
 }
