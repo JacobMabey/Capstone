@@ -133,6 +133,7 @@
     <Compile Include="Systems\Scene.cs" />
     <Compile Include="Systems\Renderer.cs" />
     <Compile Include="Systems\Timer.cs" />
+    <Compile Include="UI Menus\Toolbar.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

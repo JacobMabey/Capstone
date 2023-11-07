@@ -19,7 +19,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
-        public static double GravityAcceleration { get; set; } = 0;
+        public static double GravityAcceleration { get; set; } = 10;
 
         private static readonly double Epsilon = 0.01;
 
@@ -83,11 +83,12 @@ namespace PhysicsEngine
                 {
 
                     //Update Friction
-                    ApplyForce(new Coord(-Math.Sign(Velocity.X) * (Friction * Timer.DeltaTime), -Math.Sign(Velocity.Y) * (Friction * Timer.DeltaTime)));
+                    ApplyForce(new Coord(-Math.Sign(Velocity.X) * (Friction), -Math.Sign(Velocity.Y) * (Friction)));
 
                     //Update Velocity & Gravity
-                    Acceleration = new Coord(Acceleration.X, ((Acceleration.Y + GravityAcceleration)) / Timer.TimeScale);
-                    Velocity = new Coord(Velocity.X + Acceleration.X / 100.0, Velocity.Y + Acceleration.Y / 100.0);
+                    double grav = GravityAcceleration / 100.0;
+                    Acceleration = new Coord(Acceleration.X * Timer.TimeScale, ((Acceleration.Y + grav)) * Timer.TimeScale);
+                    Velocity = new Coord(Velocity.X + Acceleration.X, Velocity.Y + Acceleration.Y);
 
                     //Update Position
                     Coord newPosition = new Coord(((Particle)Parent).Position.X + Velocity.X * Timer.MovementMultiplier, ((Particle)Parent).Position.Y + Velocity.Y * Timer.MovementMultiplier);
@@ -106,10 +107,19 @@ namespace PhysicsEngine
             
         }
 
-        public void ApplyForce(Coord force)
+        public void ApplyForce(Coord force, eForceType forceType = eForceType.IMPULSE)
         {
-            force = new Coord(force.X * 1000.0, force.Y * 1000.0);
-            Acceleration = new Coord(Acceleration.X + force.X / (Mass * Timer.TimeScale), Acceleration.Y + force.Y / (Mass * Timer.TimeScale));
+            switch (forceType)
+            {
+                default:
+                case eForceType.IMPULSE:
+                    force = new Coord(force.X, force.Y);
+                    Acceleration = new Coord(Acceleration.X + force.X / Mass, Acceleration.Y + force.Y / Mass);
+                    break;
+                case eForceType.DIRECT:
+                    Velocity = new Coord(Velocity.X + force.X, Velocity.Y + force.Y);
+                    break;
+            }
         }
 
 
@@ -175,10 +185,11 @@ namespace PhysicsEngine
                     newPosition.X + moveVector.X,
                     newPosition.Y + moveVector.Y
                 );
-                Velocity = new Coord(
-                    Velocity.X / Timer.MovementMultiplier + moveVector.X,
-                    Velocity.Y / Timer.MovementMultiplier + moveVector.Y
-                );
+                ApplyForce(moveVector, eForceType.DIRECT);
+                /*Velocity = new Coord(
+                    Velocity.X + moveVector.X,
+                    Velocity.Y + moveVector.Y
+                );*/
             }
             
 
@@ -228,10 +239,11 @@ namespace PhysicsEngine
                                 newPosition.X + moveVector.X,
                                 newPosition.Y + moveVector.Y
                             );
-                            Velocity = new Coord(
-                                Velocity.X / Timer.MovementMultiplier + moveVector.X,
-                                Velocity.Y / Timer.MovementMultiplier + moveVector.Y
-                            );
+                            ApplyForce(moveVector, eForceType.DIRECT);
+                            /*Velocity = new Coord(
+                                Velocity.X + moveVector.X,
+                                Velocity.Y + moveVector.Y
+                            );*/
                         }
 
                         //Get new virtual line position based on the particles radius
@@ -242,10 +254,10 @@ namespace PhysicsEngine
                         {
                             pointA = MovePoint(line.PosA, parent.Radius, lineToParticleAngle + Math.PI);
                             pointB = MovePoint(line.PosB, parent.Radius, lineToParticleAngle + Math.PI);
-
-                            if (GetDistance(line.PosA, pointA) > GetDistance(oldPosition, line.PosA, line.PosB))
-                                continue;
                         }
+
+                        if (GetDistance(line.PosA, pointA) >= GetDistance(oldPosition, line.PosA, line.PosB))
+                            continue;
 
                         //Get continueos lines intersection point
                         intersection = GetIntersectionPoint(oldPosition, newPosition, pointA, pointB);
@@ -312,10 +324,11 @@ namespace PhysicsEngine
                                 newPosition.X + moveVector.X,
                                 newPosition.Y + moveVector.Y
                             );
-                            Velocity = new Coord(
-                                Velocity.X / Timer.MovementMultiplier + moveVector.X,
-                                Velocity.Y / Timer.MovementMultiplier + moveVector.Y
-                            );
+                            ApplyForce(moveVector, eForceType.DIRECT);
+                            /*Velocity = new Coord(
+                                Velocity.X + moveVector.X,
+                                Velocity.Y + moveVector.Y
+                            );*/
                         }
 
                         //Will be set to the two points connected to the side of the rect the particle intersects with
@@ -671,5 +684,12 @@ namespace PhysicsEngine
             intersection = new Coord(GetEpsilonRounded(intersection.X), GetEpsilonRounded(intersection.Y));
             return intersection;
         }
+    }
+
+
+    public enum eForceType
+    {
+        IMPULSE,
+        DIRECT
     }
 }

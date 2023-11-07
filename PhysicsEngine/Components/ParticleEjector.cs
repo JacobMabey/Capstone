@@ -122,6 +122,7 @@ namespace PhysicsEngine
             _rect.PointerPressed += Rect_PointerPressed;
             _rect.PointerReleased += Rect_PointerReleased;
             _rect.PointerMoved += Rect_PointerMoved;
+            _rect.RightTapped += Rect_RightTapped;
             RotationTransform = new RotateTransform();
             RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
             RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
@@ -224,6 +225,10 @@ namespace PhysicsEngine
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             Position = new Coord(posx, posy);
+        }
+        private void Rect_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            IsPaused = !IsPaused;
         }
 
 

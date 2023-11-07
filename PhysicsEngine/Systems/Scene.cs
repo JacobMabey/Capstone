@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PhysicsEngine.UI_Menus;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,11 +33,16 @@ namespace PhysicsEngine
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
         //Main Space Partitioning Grid Global Values
-        public static double SpacePartitionCellSize = 20.0;
+        public static double MaxParticleRadius { get; private set; } = 5.0;
+        public static double SpacePartitionCellSize => MaxParticleRadius * 2.0;
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
 
 
+        //Main global toolbar
+        public static Toolbar Toolbar { get; set; }
+
+        //Border Objects
         private static CompLine borderTop;
         private static CompLine borderRight;
         private static CompLine borderBottom;
@@ -50,15 +56,21 @@ namespace PhysicsEngine
         public static void Initialize()
         {
             MainScene = new Canvas();
+
+            //Add Toolbar
+            Toolbar = new Toolbar();
+            MainScene.Children.Add(Toolbar);
+
+            //Set Size
             MainPage.WindowSize = new Size(1080, 720);
             Children = new Dictionary<long, Component>();
 
 
             //Add collision border lines
             borderTop = new CompLine(new Coord(0, 0), new Coord(MainScene.Width, 0), Colors.Black, 1.0);
-            borderRight = new CompLine(new Coord(MainScene.Width, 0), new Coord(MainScene.Width, MainScene.Height), Colors.Black, 1.0);
-            borderBottom = new CompLine(new Coord(0, MainScene.Height), new Coord(MainScene.Width, MainScene.Height), Colors.Black, 1.0);
-            borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainScene.Height), Colors.Black, 1.0);
+            borderRight = new CompLine(new Coord(MainScene.Width, 0), new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
+            borderBottom = new CompLine(new Coord(0, MainScene.Height - Toolbar.ToolbarHeight), new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
+            borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
             Add(borderTop);
             Add(borderRight);
             Add(borderBottom);
@@ -66,7 +78,7 @@ namespace PhysicsEngine
 
             circleBorder = new Ellipse();
             Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - circleBorderRadius);
-            Canvas.SetTop(circleBorder, MainScene.Height / 2.0 - circleBorderRadius);
+            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - circleBorderRadius);
             circleBorder.Width = circleBorderRadius * 2.0;
             circleBorder.Height = circleBorderRadius * 2.0;
             circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
@@ -165,6 +177,10 @@ namespace PhysicsEngine
 
             Children.Add(comp.ID, comp);
             MainScene.Children.Add(comp.GetUIElement());
+
+            //check radius for max radius spawned to set grid partion size
+            if (comp is Particle && ((Particle)comp).Radius > MaxParticleRadius)
+                MaxParticleRadius = ((Particle)comp).Radius;
         }
 
         public static void AddLater(Component comp)
@@ -172,6 +188,10 @@ namespace PhysicsEngine
             if (comp == null) return;
 
             elementsToBeAdded.Add(comp);
+
+            //check radius for max radius spawned to set grid partion size
+            if (comp is Particle && ((Particle)comp).Radius > MaxParticleRadius)
+                MaxParticleRadius = ((Particle)comp).Radius;
         }
 
         public static void Remove(long id)

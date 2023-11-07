@@ -33,6 +33,7 @@ namespace PhysicsEngine
                 windowSize = value;
                 Scene.MainScene.Width = windowSize.Width;
                 Scene.MainScene.Height = windowSize.Height;
+                Scene.Toolbar.ResetPosition();
             }
         }
 
@@ -78,27 +79,30 @@ namespace PhysicsEngine
             //MainScene.Children.Add(p2.GetUIElement());
 
             l = new CompLine(new Coord(10, 300), new Coord(310, 300));
-            //Scene.Add(l);
+            Scene.Add(l);
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
-            //Scene.Add(l2);
+            Scene.Add(l2);
 
             l3 = new CompLine(new Coord(310, 10), new Coord(310, 300));
             //Scene.Add(l3);
 
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
-            //Scene.Add(l4);
+            Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(250, 80), 200.0, 1000, 10, 0.6);
+            ejector = new ParticleEjector(new Coord(450, 80), 200.0, 1000, 6, 6);
             ejector.ParticleElasticity = 0.8;
-            ejector.ParticleRadius = 5;
-            ejector.ParticleRadiusRange = 0;
+            ejector.ParticleRadius = 20;
+            ejector.ParticleRadiusRange = 15;
             ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 0.0;
+            ejector.ParticleColor = Colors.Blue;
             ejector.ParticleColorChangeRate = 1;
             Scene.Add(ejector);
 
-            ejector2 = new ParticleEjector(new Coord(100, 50), 135.0, 3, 2, 20);
+            ejector2 = new ParticleEjector(new Coord(400, 50), -45.0, 1000, 5, 0.6);
+            ejector2.ParticleColor = Colors.AliceBlue;
+            ejector2.ParticleRadius = 10;
             //Scene.Add(ejector2);
 
             Timer.TimeScale = 1.0;
