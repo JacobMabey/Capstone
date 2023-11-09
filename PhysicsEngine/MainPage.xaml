@@ -9,12 +9,12 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" d:DesignHeight="720" d:DesignWidth="1080">
 
-    <Canvas Name="MainCanvas" Width="1080" Height="720">
+    <!--<Canvas Name="MainCanvas" Width="1080" Height="720">
 
-    </Canvas>
+    </Canvas>-->
 
 
-    <!--<canvas:CanvasAnimatedControl Name="MainCanvas" Width="1080" Height="720" />-->
+    <canvas:CanvasAnimatedControl Name="MainCanvas" Width="1080" Height="720" />
 
 
 </Page>

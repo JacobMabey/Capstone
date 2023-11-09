@@ -1,4 +1,5 @@
-﻿using PhysicsEngine.UI_Menus;
+﻿using Microsoft.Graphics.Canvas;
+using PhysicsEngine.UI_Menus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace PhysicsEngine
         public static Dictionary<long, Component> Children { get; set; }
 
         //Main Global Canvas
-        public static Canvas MainScene { get; private set; }
+        //public static Canvas MainScene { get; private set; }
 
         public static readonly Thickness OUT_OF_BOUNDS_MARGIN = new Thickness(100);
 
@@ -55,11 +56,11 @@ namespace PhysicsEngine
 
         public static void Initialize()
         {
-            MainScene = new Canvas();
+            //MainScene = new Canvas();
 
             //Add Toolbar
-            Toolbar = new Toolbar();
-            MainScene.Children.Add(Toolbar);
+            //Toolbar = new Toolbar();
+            //MainScene.Children.Add(Toolbar);
 
             //Set Size
             MainPage.WindowSize = new Size(1080, 720);
@@ -67,25 +68,14 @@ namespace PhysicsEngine
 
 
             //Add collision border lines
-            borderTop = new CompLine(new Coord(0, 0), new Coord(MainScene.Width, 0), Colors.Black, 1.0);
-            borderRight = new CompLine(new Coord(MainScene.Width, 0), new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
-            borderBottom = new CompLine(new Coord(0, MainScene.Height - Toolbar.ToolbarHeight), new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
-            borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainScene.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
+            borderTop = new CompLine(new Coord(0, 0), new Coord(MainPage.WindowSize.Width, 0), Colors.Black, 1.0);
+            borderRight = new CompLine(new Coord(MainPage.WindowSize.Width, 0), new Coord(MainPage.WindowSize.Width, MainPage.WindowSize.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
+            borderBottom = new CompLine(new Coord(0, MainPage.WindowSize.Height - Toolbar.ToolbarHeight), new Coord(MainPage.WindowSize.Width, MainPage.WindowSize.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
+            borderLeft = new CompLine(new Coord(0, 0), new Coord(0, MainPage.WindowSize.Height - Toolbar.ToolbarHeight), Colors.Black, 1.0);
             Add(borderTop);
             Add(borderRight);
             Add(borderBottom);
             Add(borderLeft);
-
-            circleBorder = new Ellipse();
-            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
-            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
-            circleBorder.Width = CircleBorderRadius * 2.0;
-            circleBorder.Height = CircleBorderRadius * 2.0;
-            circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
-            circleBorder.Stroke = new SolidColorBrush(Colors.Black);
-            circleBorder.StrokeThickness = 1;
-            circleBorder.Opacity = 0;
-            MainScene.Children.Add(circleBorder);
         }
 
         public static void Update()
@@ -104,11 +94,11 @@ namespace PhysicsEngine
                 //Update all components
 
                 //Check for out of bounds elements
-                double x = Canvas.GetLeft(comp.GetUIElement());
-                double y = Canvas.GetTop(comp.GetUIElement());
+                double x = comp.Position.X;
+                double y = comp.Position.Y;
 
-                if (x < -OUT_OF_BOUNDS_MARGIN.Left || x > MainScene.Width + OUT_OF_BOUNDS_MARGIN.Right
-                    || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainScene.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
+                if (x < -OUT_OF_BOUNDS_MARGIN.Left || x > MainPage.WindowSize.Width + OUT_OF_BOUNDS_MARGIN.Right
+                    || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainPage.WindowSize.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
                 {
                     //Mark element to be destroyed
                         RemoveLater(comp.ID);
@@ -141,10 +131,11 @@ namespace PhysicsEngine
                 comp.Update();
             }
 
-                //Destroy and remove all marked elements
+
+            //Destroy and remove all marked elements
             for (int i = 0; i < elementsToBeDestroyed.Count; i++)
             {
-                MainScene.Children.Remove(Children[elementsToBeDestroyed[i]].GetUIElement());
+                //MainScene.Children.Remove(Children[elementsToBeDestroyed[i]].GetUIElement());
                 Children.Remove(elementsToBeDestroyed[i]);
             }
             elementsToBeDestroyed.Clear();
@@ -153,9 +144,21 @@ namespace PhysicsEngine
             for (int i = 0; i < elementsToBeAdded.Count; i++)
             {
                 Children.Add(elementsToBeAdded[i].ID, elementsToBeAdded[i]);
-                MainScene.Children.Add(elementsToBeAdded[i].GetUIElement());
+                //MainScene.Children.Add(elementsToBeAdded[i].GetUIElement());
             }
             elementsToBeAdded.Clear();
+        }
+
+        public static void Draw(CanvasDrawingSession session)
+        {
+            foreach (Component comp in Children.Values)
+                comp.Draw(session);
+
+            //Draw Circle Border
+            if (IsCircleBorderActive)
+            {
+                session.DrawCircle(new System.Numerics.Vector2((float)MainPage.WindowSize.Width / 2.0f, (float)MainPage.WindowSize.Height / 2.0f), (float)CircleBorderRadius, Colors.Black);
+            }
         }
 
         private static void AddToSpacePartitionGrid(Coord pos, Particle particle)
@@ -176,7 +179,7 @@ namespace PhysicsEngine
             if (comp == null) return;
 
             Children.Add(comp.ID, comp);
-            MainScene.Children.Add(comp.GetUIElement());
+            //MainScene.Children.Add(comp.GetUIElement());
 
             //check radius for max radius spawned to set grid partion size
             if (comp is Particle && ((Particle)comp).Radius > MaxParticleRadius)
@@ -198,7 +201,7 @@ namespace PhysicsEngine
         {
             if (!Children.ContainsKey(id)) return;
 
-            MainScene.Children.Remove(Children[id].GetUIElement());
+            //MainScene.Children.Remove(Children[id].GetUIElement());
             Children.Remove(id);
         }
         public static void RemoveLater(long id)
@@ -210,7 +213,7 @@ namespace PhysicsEngine
 
         public static void ClearScene()
         {
-            Children.Clear();
+            /*Children.Clear();
             for (int i = MainScene.Children.Count - 1; i >= 0; i--)
             {
                 if (MainScene.Children[i] is Shape && ((Shape)MainScene.Children[i]).Tag is Component)
@@ -219,7 +222,7 @@ namespace PhysicsEngine
             Add(borderTop);
             Add(borderRight);
             Add(borderBottom);
-            Add(borderLeft);
+            Add(borderLeft);*/
         }
 
 
@@ -242,8 +245,8 @@ namespace PhysicsEngine
             circleBorder.Width = radius * 2.0;
             circleBorder.Height = radius * 2.0;
 
-            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
-            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
+            //Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
+            //Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
         }
         public static double GetCircleBorderRadius()
         {

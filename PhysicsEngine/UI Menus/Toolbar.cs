@@ -15,7 +15,7 @@ namespace PhysicsEngine.UI_Menus
 {
     public class Toolbar : Canvas
     {
-        public readonly double ToolbarHeight = 30.0;
+        public static readonly double ToolbarHeight = 30.0;
 
         //Toobar border
         private Rectangle rectBorder;
@@ -124,7 +124,7 @@ namespace PhysicsEngine.UI_Menus
 
         public void ResetPosition()
         {
-            Canvas.SetTop(this, Scene.MainScene.Height - ToolbarHeight);
+            Canvas.SetTop(this, MainPage.WindowSize.Height - ToolbarHeight);
             Width = MainPage.WindowSize.Width;
 
             Canvas.SetLeft(ClearButton, Width - ToolbarHeight - 1.0);

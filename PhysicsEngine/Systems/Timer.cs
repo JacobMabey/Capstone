@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 using Windows.UI.Xaml.Media;
 
 namespace PhysicsEngine
@@ -48,6 +50,13 @@ namespace PhysicsEngine
             DeltaTime = DeltaTimeRaw * TimeScale;
             PrevTime = now;
             Ticks++;
+        }
+
+        public static void Draw(CanvasDrawingSession session)
+        {
+#if DEBUG
+            session.DrawText("FPS: " + Timer.FPS, new System.Numerics.Vector2(10f, 10f), Colors.Black);
+#endif
         }
 
         public static void Shutdown()

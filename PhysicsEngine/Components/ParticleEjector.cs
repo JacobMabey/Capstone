@@ -1,7 +1,9 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +21,7 @@ namespace PhysicsEngine
 {
     public class ParticleEjector : Component
     {
-        private Rectangle _rect = new Rectangle();
+        //private Rectangle _rect = new Rectangle();
         private RotateTransform RotationTransform { get; set; }
 
         private SolidColorBrush ParticleFillBrush { get; set; }
@@ -33,12 +35,12 @@ namespace PhysicsEngine
             set
             {
                 posiiton = value;
-                Canvas.SetLeft(_rect, posiiton.X);
-                Canvas.SetTop(_rect, posiiton.Y);
+                //Canvas.SetLeft(_rect, posiiton.X);
+                //Canvas.SetTop(_rect, posiiton.Y);
             }
         }
 
-        private Size EJECTOR_SIZE { get; set; } = new Size(20, 50);
+        private Size EjectorSize { get; set; } = new Size(20, 50);
 
         private Color fill;
         public Color FillColor
@@ -47,11 +49,11 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillBrush == null)
-                    FillBrush = new SolidColorBrush();
-                FillBrush.Color = fill;
-                if (_rect.Fill != FillBrush)
-                    _rect.Fill = FillBrush;
+                //if (FillBrush == null)
+                //    FillBrush = new SolidColorBrush();
+                //FillBrush.Color = fill;
+                //if (_rect.Fill != FillBrush)
+                //    _rect.Fill = FillBrush;
             }
         }
 
@@ -74,7 +76,7 @@ namespace PhysicsEngine
             set
             {
                 rotationAngle = value;
-                RotationTransform.Angle = rotationAngle + 90.0;
+                //RotationTransform.Angle = rotationAngle + 90.0;
             }
         }
 
@@ -91,8 +93,8 @@ namespace PhysicsEngine
             set
             {
                 radius = value;
-                _rect.Width = radius * 3.0;
-                RotationTransform.CenterX = _rect.Width / 2.0;
+                EjectorSize = new Size(radius * 3.0, EjectorSize.Height);
+                //RotationTransform.CenterX = _rect.Width / 2.0;
             }
         }
         public double ParticleRadiusRange { get; set; }
@@ -117,34 +119,43 @@ namespace PhysicsEngine
         public double ParticleColorChangeRate { get; set; } = 0.0;
 
 
+        private double opacity = 1.0;
+        public double Opacity
+        {
+            get => opacity;
+            set
+            {
+                opacity = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+                FillColor = Color.FromArgb((byte)(opacity * 255), FillColor.R, FillColor.G, FillColor.B);
+            }
+        }
+
 
         public override void Initialize()
         {
             base.Initialize();
 
-            _rect.Tag = this;
-            _rect.PointerPressed += Rect_PointerPressed;
-            _rect.PointerReleased += Rect_PointerReleased;
-            _rect.PointerMoved += Rect_PointerMoved;
-            _rect.RightTapped += Rect_RightTapped;
-            RotationTransform = new RotateTransform();
-            RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
-            RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
-            _rect.RenderTransform = RotationTransform;
-            _rect.Stroke = new SolidColorBrush(Colors.Black);
-            _rect.StrokeThickness = 2.0;
+            //_rect.Tag = this;
+            //_rect.PointerPressed += Rect_PointerPressed;
+            //_rect.PointerReleased += Rect_PointerReleased;
+            //_rect.PointerMoved += Rect_PointerMoved;
+            //_rect.RightTapped += Rect_RightTapped;
+            //RotationTransform = new RotateTransform();
+            //RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
+            //RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
+            //_rect.RenderTransform = RotationTransform;
+            //_rect.Stroke = new SolidColorBrush(Colors.Black);
+            //_rect.StrokeThickness = 2.0;
         }
 
-        public override void Draw(CanvasDrawingSession session)
-        { }
 
         public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 5.0)
         {
             Initialize();
             Position = position;
-            Canvas.SetZIndex(_rect, 1);
-            _rect.Width = EJECTOR_SIZE.Width;
-            _rect.Height = EJECTOR_SIZE.Height;
+            //Canvas.SetZIndex(_rect, 1);
+            //_rect.Width = EJECTOR_SIZE.Width;
+            //_rect.Height = EJECTOR_SIZE.Height;
             RotationAngle = rotationAngle;
             ParticleLimit = particleLimit;
             ParticleRate = ratePerSecond;
@@ -164,10 +175,10 @@ namespace PhysicsEngine
         private void Rect_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _rect.CapturePointer(e.Pointer);
+            //_rect.CapturePointer(e.Pointer);
 
             //Get position of pointer relative to shape movement center for smoother pickups
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             //Get position of pointer relative to shape movement center for smoother pickups
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
@@ -182,15 +193,15 @@ namespace PhysicsEngine
             {
                 IsMouseDragMode = true;
                 _rect.Opacity = 0.6;
-            }
+            }*/
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _rect.ReleasePointerCapture(e.Pointer);
+            //_rect.ReleasePointerCapture(e.Pointer);
             IsMouseRotateMode = false;
             IsMouseDragMode = false;
-            _rect.Opacity = 1.0;
+            Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -208,14 +219,14 @@ namespace PhysicsEngine
             if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseDragMode = true;
-                _rect.Opacity = 0.6;
+                Opacity = 0.6;
             } else
             {
                 IsMouseDragMode = false;
-                _rect.Opacity = 1.0;
+                Opacity = 1.0;
             }
 
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             //If rotation mode is active, only rotate
             if (IsMouseRotateMode)
@@ -231,7 +242,7 @@ namespace PhysicsEngine
                 posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
-            Position = new Coord(posx, posy);
+            Position = new Coord(posx, posy);*/
         }
         private void Rect_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
@@ -240,7 +251,7 @@ namespace PhysicsEngine
 
 
 
-        public override Shape GetUIElement() => _rect;
+        //public override Shape GetUIElement() => _rect;
 
         public override void Update()
         {
@@ -262,6 +273,13 @@ namespace PhysicsEngine
             }
         }
 
+        public override void Draw(CanvasDrawingSession session)
+        {
+            session.FillRectangle((float)Position.X, (float)Position.Y, (float)EjectorSize.Width, (float)EjectorSize.Height, new CanvasSolidColorBrush(session, FillColor));
+            session.DrawRectangle((float)Position.X, (float)Position.Y, (float)EjectorSize.Width, (float)EjectorSize.Height, new CanvasSolidColorBrush(session, Colors.Black), 2.0f);
+        }
+
+
         public void EjectParticle()
         {
             //Get particle radius
@@ -270,7 +288,7 @@ namespace PhysicsEngine
                 radius += ParticleRadiusRange * Scene.Rand.NextDouble();
 
             //Create Particle
-            Particle particle = new Particle(new Coord(Position.X + EJECTOR_SIZE.Width / 2.0, Position.Y + EJECTOR_SIZE.Height / 2.0), radius);
+            Particle particle = new Particle(new Coord(Position.X + EjectorSize.Width / 2.0, Position.Y + EjectorSize.Height / 2.0), radius);
             particle.Phys.Elasticity = ParticleElasticity;
             particle.Phys.Friction = ParticleFriction;
             particle.ColorChangeRate = ParticleColorChangeRate;

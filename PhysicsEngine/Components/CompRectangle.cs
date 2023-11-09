@@ -1,4 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
+using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,7 @@ namespace PhysicsEngine
 {
     public class CompRectangle : Component
     {
-        private Rectangle _rect = new Rectangle();
+        //private Rectangle _rect = new Rectangle();
         private RotateTransform RotationTransform { get; set; }
 
         private Coord pos;
@@ -29,12 +31,10 @@ namespace PhysicsEngine
             set
             {
                 pos = value;
-                Canvas.SetLeft(_rect, pos.X);
-                Canvas.SetTop(_rect, pos.Y);
+                //Canvas.SetLeft(_rect, pos.X);
+                //Canvas.SetTop(_rect, pos.Y);
             }
         }
-        public override void Draw(CanvasDrawingSession session)
-        { }
 
         private Size size;
         public Size Size
@@ -43,8 +43,8 @@ namespace PhysicsEngine
             set
             {
                 size = value;
-                _rect.Width = size.Width;
-                _rect.Height = size.Height;
+                //_rect.Width = size.Width;
+                //_rect.Height = size.Height;
             }
         }
 
@@ -55,11 +55,11 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillBrush == null)
-                    FillBrush = new SolidColorBrush();
-                FillBrush.Color = fill;
-                if (_rect.Fill != FillBrush)
-                    _rect.Fill = FillBrush;
+                //if (FillBrush == null)
+                //    FillBrush = new SolidColorBrush();
+                //FillBrush.Color = fill;
+                //if (_rect.Fill != FillBrush)
+                //    _rect.Fill = FillBrush;
             }
         }
 
@@ -70,11 +70,11 @@ namespace PhysicsEngine
             set
             {
                 stroke = value;
-                if (StrokeBrush == null)
-                    StrokeBrush = new SolidColorBrush();
-                StrokeBrush.Color = stroke;
-                if (_rect.Stroke != StrokeBrush)
-                    _rect.Stroke = StrokeBrush;
+                //if (StrokeBrush == null)
+                //    StrokeBrush = new SolidColorBrush();
+                //StrokeBrush.Color = stroke;
+                //if (_rect.Stroke != StrokeBrush)
+                //    _rect.Stroke = StrokeBrush;
             }
         }
 
@@ -85,7 +85,19 @@ namespace PhysicsEngine
             set
             {
                 strokeThickness = value;
-                _rect.StrokeThickness = strokeThickness;
+                //_rect.StrokeThickness = strokeThickness;
+            }
+        }
+
+        private double opacity = 1.0;
+        public double Opacity
+        {
+            get => opacity;
+            set
+            {
+                opacity = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+                FillColor = Color.FromArgb((byte)(opacity * 255), FillColor.R, FillColor.G, FillColor.B);
+                StrokeColor = Color.FromArgb((byte)(opacity * 255), FillColor.R, FillColor.G, FillColor.B);
             }
         }
 
@@ -108,7 +120,7 @@ namespace PhysicsEngine
             set
             {
                 rotationAngle = value;
-                RotationTransform.Angle = rotationAngle;
+                //RotationTransform.Angle = rotationAngle;
             }
         }
 
@@ -116,12 +128,12 @@ namespace PhysicsEngine
         {
             base.Initialize();
 
-            _rect.Tag = this;
-            _rect.PointerPressed += Rect_PointerPressed;
-            _rect.PointerReleased += Rect_PointerReleased;
-            _rect.PointerMoved += Rect_PointerMoved;
-            RotationTransform = new RotateTransform();
-            _rect.RenderTransform = RotationTransform;
+            //_rect.Tag = this;
+            //_rect.PointerPressed += Rect_PointerPressed;
+            //_rect.PointerReleased += Rect_PointerReleased;
+            //_rect.PointerMoved += Rect_PointerMoved;
+            //RotationTransform = new RotateTransform();
+            //_rect.RenderTransform = RotationTransform;
         }
 
         public CompRectangle()
@@ -131,7 +143,7 @@ namespace PhysicsEngine
             Size = new Size(0,0);
             FillColor = Colors.LightGray;
             StrokeColor = Colors.Black;
-            _rect.StrokeThickness = 1.0;
+            StrokeThickness = 1.0;
         }
         public CompRectangle(Coord position, Size size)
         {
@@ -140,7 +152,7 @@ namespace PhysicsEngine
             Size = size;
             FillColor = Colors.LightGray;
             StrokeColor = Colors.Black;
-            _rect.StrokeThickness = 1.0;
+            StrokeThickness = 1.0;
 
         }
         public CompRectangle(Coord position, Size size, Color fill, Color stroke, double strokeThickness)
@@ -150,7 +162,7 @@ namespace PhysicsEngine
             Size = size;
             FillColor = fill;
             StrokeColor = stroke;
-            _rect.StrokeThickness = strokeThickness;
+            StrokeThickness = strokeThickness;
 
         }
 
@@ -158,10 +170,10 @@ namespace PhysicsEngine
         private void Rect_PointerPressed( object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _rect.CapturePointer(e.Pointer);
+            //_rect.CapturePointer(e.Pointer);
             
             //Get position of pointer relative to shape movement center for smoother pickups
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
 
             //Rotate mode on if user hold shift
@@ -173,15 +185,15 @@ namespace PhysicsEngine
             else if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseDragMode = true;
-                _rect.Opacity = 0.6;
-            }
+                Opacity = 0.6;
+            }*/
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _rect.ReleasePointerCapture(e.Pointer);
+            //_rect.ReleasePointerCapture(e.Pointer);
             IsMouseDragMode = false;
-            _rect.Opacity = 1.0;
+            Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -200,15 +212,15 @@ namespace PhysicsEngine
             if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseDragMode = true;
-                _rect.Opacity = 0.6;
+                Opacity = 0.6;
             }
             else
             {
                 IsMouseDragMode = false;
-                _rect.Opacity = 1.0;
+                Opacity = 1.0;
             }
 
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             //If rotation mode is active, only rotate
             if (IsMouseRotateMode)
@@ -224,12 +236,12 @@ namespace PhysicsEngine
                 posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
-            Position = new Coord(posx, posy);
+            Position = new Coord(posx, posy);*/
         }
 
 
 
-        public override Shape GetUIElement() => _rect;
+        //public override Shape GetUIElement() => _rect;
 
         public override void Update()
         {
@@ -238,5 +250,10 @@ namespace PhysicsEngine
             if (IsBeingDragged) return;
         }
 
+        public override void Draw(CanvasDrawingSession session)
+        {
+            session.FillRectangle((float)Position.X, (float)Position.Y, (float)Size.Width, (float)Size.Height, new CanvasSolidColorBrush(session, FillColor));
+            session.DrawRectangle((float)Position.X, (float)Position.Y, (float)Size.Width, (float)Size.Height, new CanvasSolidColorBrush(session, StrokeColor), (float)StrokeThickness);
+        }
     }
 }

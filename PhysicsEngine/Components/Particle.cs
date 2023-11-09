@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace PhysicsEngine
 {
     public class Particle : Component
     {
-        private Ellipse _ellipse = new Ellipse();
+        //private Ellipse _ellipse = new Ellipse();
 
         private Coord pos;
         public override Coord Position
@@ -28,8 +29,8 @@ namespace PhysicsEngine
             set
             {
                 pos = value;
-                Canvas.SetLeft(_ellipse, pos.X - radius);
-                Canvas.SetTop(_ellipse, pos.Y - radius);
+                //Canvas.SetLeft(_ellipse, pos.X - radius);
+                //Canvas.SetTop(_ellipse, pos.Y - radius);
             }
         }
 
@@ -40,8 +41,8 @@ namespace PhysicsEngine
             set
             {
                 radius = value;
-                _ellipse.Width = radius * 2.0;
-                _ellipse.Height = radius * 2.0;
+                //_ellipse.Width = radius * 2.0;
+                //_ellipse.Height = radius * 2.0;
             }
         }
 
@@ -52,15 +53,26 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillBrush == null)
-                    FillBrush = new SolidColorBrush();
-                FillBrush.Color = fill;
-                if (_ellipse.Fill != FillBrush)
-                    _ellipse.Fill = FillBrush;
+                //if (FillBrush == null)
+                //    FillBrush = new SolidColorBrush();
+                //FillBrush.Color = fill;
+                //if (_ellipse.Fill != FillBrush)
+                //    _ellipse.Fill = FillBrush;
+            }
+        }
+        public double ColorChangeRate { get; set; } = 0.0;
+
+        private double opacity = 1.0;
+        public double Opacity
+        {
+            get => opacity;
+            set
+            {
+                opacity = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+                Fill = Color.FromArgb((byte)(opacity * 255), Fill.R, Fill.G, Fill.B);
             }
         }
 
-        public double ColorChangeRate { get; set; } = 0.0;
 
 
 
@@ -68,10 +80,10 @@ namespace PhysicsEngine
         {
             base.Initialize();
 
-            _ellipse.Tag = this;
-            _ellipse.PointerPressed += Ellipse_PointerPressed;
-            _ellipse.PointerReleased += Ellipse_PointerReleased;
-            _ellipse.PointerMoved += Ellipse_PointerMoved;
+            //_ellipse.Tag = this;
+            //_ellipse.PointerPressed += Ellipse_PointerPressed;
+            //_ellipse.PointerReleased += Ellipse_PointerReleased;
+            //_ellipse.PointerMoved += Ellipse_PointerMoved;
         }
 
         public Particle()
@@ -93,27 +105,27 @@ namespace PhysicsEngine
         private void Ellipse_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _ellipse.CapturePointer(e.Pointer);
+            //_ellipse.CapturePointer(e.Pointer);
 
             //Drag mode on if user hold control
             if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
             {
                 IsMouseDragMode = true;
-                _ellipse.Opacity = 0.6;
+                Opacity = 0.6;
             }
         }
         private void Ellipse_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _ellipse.ReleasePointerCapture(e.Pointer);
+            //_ellipse.ReleasePointerCapture(e.Pointer);
             IsMouseDragMode = false;
-            _ellipse.Opacity = 1.0;
+            Opacity = 1.0;
         }
         private void Ellipse_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (!IsBeingDragged) return;
 
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
@@ -122,15 +134,11 @@ namespace PhysicsEngine
                 posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
-            Position = new Coord(posx, posy);
+            Position = new Coord(posx, posy);*/
         }
 
 
-        public override Shape GetUIElement() => _ellipse;
-        public override void Draw(CanvasDrawingSession session)
-        {
-            session.DrawEllipse(new System.Numerics.Vector2((float)pos.X, (float)pos.Y), (float)radius, (float)radius, Colors.Red);
-        }
+        //public override Shape GetUIElement() => _ellipse;
 
         public override void Update()
         {
@@ -145,5 +153,11 @@ namespace PhysicsEngine
             }
         }
 
+        public override void Draw(CanvasDrawingSession session)
+        {
+            base.Draw(session);
+
+            session.FillCircle(new System.Numerics.Vector2((float)Position.X, (float)Position.Y), (float)Radius, new CanvasSolidColorBrush(session, Fill));
+        }
     }
 }

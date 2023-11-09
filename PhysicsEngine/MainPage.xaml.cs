@@ -35,9 +35,9 @@ namespace PhysicsEngine
             set
             {
                 windowSize = value;
-                Scene.MainScene.Width = windowSize.Width;
-                Scene.MainScene.Height = windowSize.Height;
-                Scene.Toolbar.ResetPosition();
+                //Scene.MainScene.Width = windowSize.Width;
+                //Scene.MainScene.Height = windowSize.Height;
+                //Scene.Toolbar.ResetPosition();
             }
         }
 
@@ -58,11 +58,11 @@ namespace PhysicsEngine
             Initialize(Color.FromArgb(255, 230, 230, 230)); //Main Initial Canvas Initialization
 
 
-            particleCounter = new TextBlock();
-            Canvas.SetLeft(particleCounter, 500);
-            Canvas.SetTop(particleCounter, 10);
-            Canvas.SetZIndex(particleCounter, 100);
-            Scene.MainScene.Children.Add(particleCounter);
+            //particleCounter = new TextBlock();
+            //Canvas.SetLeft(particleCounter, 500);
+            //Canvas.SetTop(particleCounter, 10);
+            //Canvas.SetZIndex(particleCounter, 100);
+            //Scene.MainScene.Children.Add(particleCounter);
 
 
             rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
@@ -83,7 +83,7 @@ namespace PhysicsEngine
             //MainScene.Children.Add(p2.GetUIElement());
 
             l = new CompLine(new Coord(10, 300), new Coord(310, 300));
-            //Scene.Add(l);
+            Scene.Add(l);
 
             l2 = new CompLine(new Coord(10, 10), new Coord(10, 300));
             //Scene.Add(l2);
@@ -94,7 +94,7 @@ namespace PhysicsEngine
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
             //Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(450, 80), 200.0, 1000, 6, 6);
+            ejector = new ParticleEjector(new Coord(500, 80), 200.0, 1000, 6, 6);
             ejector.ParticleElasticity = 0.8;
             ejector.ParticleRadius = 12;
             ejector.ParticleRadiusRange = 6;
@@ -118,14 +118,26 @@ namespace PhysicsEngine
         }
 
 
-        private void Loop(object sender, object e) 
+        private void Loop(object sender, CanvasAnimatedUpdateEventArgs args) 
         {
             Update(); //Main Canvas Update To be within Loop
 
-            particleCounter.Text = "" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString();
+            //particleCounter.Text = "" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString();
         }
 
-        private void drawdraw(CanvasDrawingSession session)
+        private void Render(ICanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
+        {
+            CanvasDrawingSession session = args.DrawingSession;
+            //Draw Systems
+            Timer.Draw(session);
+            Renderer.Draw(session);
+            Scene.Draw(session);
+            //
+
+            session.DrawText("" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString(), new System.Numerics.Vector2(500.0f, 10.0f), Colors.Black);
+        }
+
+        /*private void drawdraw(CanvasDrawingSession session)
         {
             session.DrawRectangle(new Rect(new Point(0f, 0f), new Point(10f, 10f)), Colors.Red);
             foreach (Component c in Scene.Children.Values)
@@ -135,8 +147,8 @@ namespace PhysicsEngine
 
                 Debug.WriteLine("DRAW");
             }
-        }
-        
+        }*/
+
 
 
         private void Initialize(Color bgColor)
@@ -145,8 +157,7 @@ namespace PhysicsEngine
             this.InitializeComponent();
 
             Scene.Initialize();
-            MainCanvas.Children.Add(Scene.MainScene);
-
+            //MainCanvas.Children.Add(Scene.MainScene);
 
             /*MainCanvas.Draw += (ICanvasAnimatedControl canvas, CanvasAnimatedDrawEventArgs args) =>
             {
@@ -173,23 +184,19 @@ namespace PhysicsEngine
             //Window.Current.Content.KeyDown += HandleKeyDown;
 
             //Initialize Systems
-            this.Loaded += PageLoaded;
-
             Timer.Initialize();
             Renderer.Initialize(bgColor);
+
+            this.Loaded += PageLoaded;
             //
         }
 
-        private void CanvasAnimatedControl_Draw(ICanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
-        {
-            throw new NotImplementedException();
-        }
 
         private void PageLoaded(object sender, RoutedEventArgs e)
         {
-            CompositionTarget.Rendering += Loop;
-
-
+            //CompositionTarget.Rendering += Loop;
+            MainCanvas.Update += Loop;
+            MainCanvas.Draw += Render;
         }
 
         private void Update()
@@ -200,8 +207,6 @@ namespace PhysicsEngine
             Scene.Update();
             //
         }
-
-
 
     }
 }

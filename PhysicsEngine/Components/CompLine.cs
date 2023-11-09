@@ -19,7 +19,7 @@ namespace PhysicsEngine
 {
     public class CompLine : Component
     {
-        private Line _line = new Line();
+        //private Line _line = new Line();
 
         private bool PosABeingDragged { get; set; } = false;
 
@@ -30,8 +30,8 @@ namespace PhysicsEngine
             set
             {
                 posA = value;
-                _line.X1 = posA.X;
-                _line.Y1 = posA.Y;
+                //_line.X1 = posA.X;
+                //_line.Y1 = posA.Y;
             }
         }
 
@@ -42,8 +42,8 @@ namespace PhysicsEngine
             set
             {
                 posB = value;
-                _line.X2 = posB.X;
-                _line.Y2 = posB.Y;
+                //_line.X2 = posB.X;
+                //_line.Y2 = posB.Y;
             }
         }
 
@@ -54,7 +54,7 @@ namespace PhysicsEngine
             set
             {
                 thickness = value;
-                _line.StrokeThickness = thickness;
+                //_line.StrokeThickness = thickness;
             }
         }
 
@@ -65,22 +65,34 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillBrush == null)
-                    FillBrush = new SolidColorBrush();
-                FillBrush.Color = fill;
-                if (_line.Stroke != FillBrush)
-                    _line.Stroke = FillBrush;
+                //if (FillBrush == null)
+                //    FillBrush = new SolidColorBrush();
+                //FillBrush.Color = fill;
+                //if (_line.Stroke != FillBrush)
+                //    _line.Stroke = FillBrush;
             }
         }
+
+        private double opacity = 1.0;
+        public double Opacity
+        {
+            get => opacity;
+            set
+            {
+                opacity = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+                Fill = Color.FromArgb((byte)(opacity * 255), Fill.R, Fill.G, Fill.B);
+            }
+        }
+
 
         public override void Initialize()
         {
             base.Initialize();
 
-            _line.Tag = this;
-            _line.PointerPressed += Line_PointerPressed;
-            _line.PointerReleased += Line_PointerReleased;
-            _line.PointerMoved += Line_PointerMoved;
+            //_line.Tag = this;
+            //_line.PointerPressed += Line_PointerPressed;
+            //_line.PointerReleased += Line_PointerReleased;
+            //_line.PointerMoved += Line_PointerMoved;
         }
 
         public CompLine()
@@ -111,17 +123,14 @@ namespace PhysicsEngine
             
         }
 
-        public override void Draw(CanvasDrawingSession session)
-        { }
-
 
         private void Line_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = true;
-            _line.CapturePointer(e.Pointer);
+            //_line.CapturePointer(e.Pointer);
 
             //Find whether pointA or pointB is closer to the mouse
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
             double pointADistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosA.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosA.Y), 2));
             double pointBDistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosB.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosB.Y), 2));
             PosABeingDragged = pointADistance < pointBDistance;
@@ -131,20 +140,20 @@ namespace PhysicsEngine
             {
                 IsMouseDragMode = true;
                 _line.Opacity = 0.6;
-            }
+            }*/
         }
         private void Line_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
-            _line.ReleasePointerCapture(e.Pointer);
+            //_line.ReleasePointerCapture(e.Pointer);
             IsMouseDragMode = false;
-            _line.Opacity = 1.0;
+            Opacity = 1.0;
         }
         private void Line_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (!IsBeingDragged) return;
 
-            Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+            /*Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
@@ -159,11 +168,11 @@ namespace PhysicsEngine
             } else
             {
                 PosB = new Coord(posx, posy);
-            }
+            }*/
         }
 
 
-        public override Shape GetUIElement() => _line;
+        //public override Shape GetUIElement() => _line;
 
 
         public override void Update()
@@ -172,6 +181,10 @@ namespace PhysicsEngine
 
             if (IsBeingDragged) return;
 
+        }
+        public override void Draw(CanvasDrawingSession session)
+        {
+            session.DrawLine(new System.Numerics.Vector2((float)PosA.X, (float)PosA.Y), new System.Numerics.Vector2((float)PosB.X, (float)PosB.Y), Fill, (float)Thickness);
         }
 
 

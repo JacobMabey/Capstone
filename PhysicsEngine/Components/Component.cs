@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
@@ -26,14 +27,17 @@ namespace PhysicsEngine
         protected bool IsMouseDragMode { get; set; } = false;
         protected bool IsMouseRotateMode { get; set; } = false;
         protected Coord PointerDragPoint { get; set; } = new Coord(0, 0);
-        protected SolidColorBrush FillBrush { get; set; }
-        protected SolidColorBrush StrokeBrush { get; set; }
+        //protected SolidColorBrush FillBrush { get; set; }
+        //protected SolidColorBrush StrokeBrush { get; set; }
+
+#if DEBUG
+        protected CanvasSolidColorBrush DebugBrush { get; set; }
+#endif
 
         protected bool HasPhysics { get; set; } = false;
         public Physics Phys { get; private set; }
 
-        public abstract Shape GetUIElement();
-        public abstract void Draw(CanvasDrawingSession session);
+        //public abstract Shape GetUIElement();
 
         public virtual void Initialize()
         {
@@ -46,6 +50,23 @@ namespace PhysicsEngine
         {
             if (HasPhysics && !IsBeingDragged)
                 Phys.Update();
+        }
+
+        public virtual void Draw(CanvasDrawingSession session)
+        {
+#if DEBUG
+            DebugBrush = new CanvasSolidColorBrush(session, Colors.Red);
+            session.DrawLine(
+                new System.Numerics.Vector2((float)Position.X - 1, (float)Position.Y), 
+                new System.Numerics.Vector2((float)Position.X + 1, (float)Position.Y), 
+                DebugBrush
+            );
+            session.DrawLine(
+                new System.Numerics.Vector2((float)Position.X, (float)Position.Y - 1),
+                new System.Numerics.Vector2((float)Position.X, (float)Position.Y + 1),
+                DebugBrush
+            );
+#endif
         }
     }
 }

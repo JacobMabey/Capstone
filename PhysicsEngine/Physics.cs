@@ -508,7 +508,7 @@ namespace PhysicsEngine
 
         private Coord UpdatePositionWithCircleBorderConstraint(Coord oldPosition, Coord newPosition, double parentRadius)
         {
-            Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, Scene.MainScene.Height / 2.0);
+            Coord WindowCenter = new Coord(MainPage.WindowSize.Width / 2.0, MainPage.WindowSize.Height / 2.0);
             double ConstraintRadius = Scene.GetCircleBorderRadius();
             Coord toCenter = new Coord(newPosition.X - WindowCenter.X, newPosition.Y - WindowCenter.Y);
             double centerDistance = GetLength(toCenter);

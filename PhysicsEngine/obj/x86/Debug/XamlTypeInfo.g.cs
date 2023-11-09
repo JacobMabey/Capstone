@@ -189,15 +189,33 @@ namespace PhysicsEngine.PhysicsEngine_XamlTypeInfo
 
         private void InitTypeTables()
         {
-            _typeNameTable = new string[3];
-            _typeNameTable[0] = "PhysicsEngine.MainPage";
-            _typeNameTable[1] = "Windows.UI.Xaml.Controls.Page";
-            _typeNameTable[2] = "Windows.UI.Xaml.Controls.UserControl";
+            _typeNameTable = new string[12];
+            _typeNameTable[0] = "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl";
+            _typeNameTable[1] = "Windows.UI.Xaml.Controls.UserControl";
+            _typeNameTable[2] = "Microsoft.Graphics.Canvas.CanvasDevice";
+            _typeNameTable[3] = "Object";
+            _typeNameTable[4] = "Single";
+            _typeNameTable[5] = "Boolean";
+            _typeNameTable[6] = "TimeSpan";
+            _typeNameTable[7] = "System.ValueType";
+            _typeNameTable[8] = "Windows.UI.Color";
+            _typeNameTable[9] = "Windows.Foundation.Size";
+            _typeNameTable[10] = "PhysicsEngine.MainPage";
+            _typeNameTable[11] = "Windows.UI.Xaml.Controls.Page";
 
-            _typeTable = new global::System.Type[3];
-            _typeTable[0] = typeof(global::PhysicsEngine.MainPage);
-            _typeTable[1] = typeof(global::Windows.UI.Xaml.Controls.Page);
-            _typeTable[2] = typeof(global::Windows.UI.Xaml.Controls.UserControl);
+            _typeTable = new global::System.Type[12];
+            _typeTable[0] = typeof(global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl);
+            _typeTable[1] = typeof(global::Windows.UI.Xaml.Controls.UserControl);
+            _typeTable[2] = typeof(global::Microsoft.Graphics.Canvas.CanvasDevice);
+            _typeTable[3] = typeof(global::System.Object);
+            _typeTable[4] = typeof(global::System.Single);
+            _typeTable[5] = typeof(global::System.Boolean);
+            _typeTable[6] = typeof(global::System.TimeSpan);
+            _typeTable[7] = typeof(global::System.ValueType);
+            _typeTable[8] = typeof(global::Windows.UI.Color);
+            _typeTable[9] = typeof(global::Windows.Foundation.Size);
+            _typeTable[10] = typeof(global::PhysicsEngine.MainPage);
+            _typeTable[11] = typeof(global::Windows.UI.Xaml.Controls.Page);
         }
 
         private int LookupTypeIndexByName(string typeName)
@@ -232,7 +250,9 @@ namespace PhysicsEngine.PhysicsEngine_XamlTypeInfo
             return -1;
         }
 
-        private object Activate_0_MainPage() { return new global::PhysicsEngine.MainPage(); }
+        private object Activate_0_CanvasAnimatedControl() { return new global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl(); }
+        private object Activate_2_CanvasDevice() { return new global::Microsoft.Graphics.Canvas.CanvasDevice(); }
+        private object Activate_10_MainPage() { return new global::PhysicsEngine.MainPage(); }
 
         private global::Windows.UI.Xaml.Markup.IXamlType CreateXamlType(int typeIndex)
         {
@@ -244,18 +264,76 @@ namespace PhysicsEngine.PhysicsEngine_XamlTypeInfo
             switch (typeIndex)
             {
 
-            case 0:   //  PhysicsEngine.MainPage
+            case 0:   //  Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl
+                userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Windows.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_0_CanvasAnimatedControl;
+                userType.AddMemberName("Device");
+                userType.AddMemberName("Dpi");
+                userType.AddMemberName("UseSharedDevice");
+                userType.AddMemberName("TargetElapsedTime");
+                userType.AddMemberName("Paused");
+                userType.AddMemberName("IsFixedTimeStep");
+                userType.AddMemberName("ForceSoftwareRenderer");
+                userType.AddMemberName("DpiScale");
+                userType.AddMemberName("CustomDevice");
+                userType.AddMemberName("ClearColor");
+                userType.AddMemberName("HasGameLoopThreadAccess");
+                userType.AddMemberName("ReadyToDraw");
+                userType.AddMemberName("Size");
+                xamlType = userType;
+                break;
+
+            case 1:   //  Windows.UI.Xaml.Controls.UserControl
+                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 2:   //  Microsoft.Graphics.Canvas.CanvasDevice
+                userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 3:   //  Object
+                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 4:   //  Single
+                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 5:   //  Boolean
+                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 6:   //  TimeSpan
+                userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 7:   //  System.ValueType
+                userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                xamlType = userType;
+                break;
+
+            case 8:   //  Windows.UI.Color
+                userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 9:   //  Windows.Foundation.Size
+                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 10:   //  PhysicsEngine.MainPage
                 userType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Windows.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_0_MainPage;
+                userType.Activator = Activate_10_MainPage;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 1:   //  Windows.UI.Xaml.Controls.Page
-                xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 2:   //  Windows.UI.Xaml.Controls.UserControl
+            case 11:   //  Windows.UI.Xaml.Controls.Page
                 xamlType = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
             }
@@ -263,11 +341,198 @@ namespace PhysicsEngine.PhysicsEngine_XamlTypeInfo
         }
 
 
+        private object get_0_CanvasAnimatedControl_Device(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.Device;
+        }
+        private object get_1_CanvasAnimatedControl_Dpi(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.Dpi;
+        }
+        private object get_2_CanvasAnimatedControl_UseSharedDevice(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.UseSharedDevice;
+        }
+        private void set_2_CanvasAnimatedControl_UseSharedDevice(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.UseSharedDevice = (global::System.Boolean)Value;
+        }
+        private object get_3_CanvasAnimatedControl_TargetElapsedTime(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.TargetElapsedTime;
+        }
+        private void set_3_CanvasAnimatedControl_TargetElapsedTime(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.TargetElapsedTime = (global::System.TimeSpan)Value;
+        }
+        private object get_4_CanvasAnimatedControl_Paused(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.Paused;
+        }
+        private void set_4_CanvasAnimatedControl_Paused(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.Paused = (global::System.Boolean)Value;
+        }
+        private object get_5_CanvasAnimatedControl_IsFixedTimeStep(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.IsFixedTimeStep;
+        }
+        private void set_5_CanvasAnimatedControl_IsFixedTimeStep(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.IsFixedTimeStep = (global::System.Boolean)Value;
+        }
+        private object get_6_CanvasAnimatedControl_ForceSoftwareRenderer(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.ForceSoftwareRenderer;
+        }
+        private void set_6_CanvasAnimatedControl_ForceSoftwareRenderer(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.ForceSoftwareRenderer = (global::System.Boolean)Value;
+        }
+        private object get_7_CanvasAnimatedControl_DpiScale(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.DpiScale;
+        }
+        private void set_7_CanvasAnimatedControl_DpiScale(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.DpiScale = (global::System.Single)Value;
+        }
+        private object get_8_CanvasAnimatedControl_CustomDevice(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.CustomDevice;
+        }
+        private void set_8_CanvasAnimatedControl_CustomDevice(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.CustomDevice = (global::Microsoft.Graphics.Canvas.CanvasDevice)Value;
+        }
+        private object get_9_CanvasAnimatedControl_ClearColor(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.ClearColor;
+        }
+        private void set_9_CanvasAnimatedControl_ClearColor(object instance, object Value)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            that.ClearColor = (global::Windows.UI.Color)Value;
+        }
+        private object get_10_CanvasAnimatedControl_HasGameLoopThreadAccess(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.HasGameLoopThreadAccess;
+        }
+        private object get_11_CanvasAnimatedControl_ReadyToDraw(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.ReadyToDraw;
+        }
+        private object get_12_CanvasAnimatedControl_Size(object instance)
+        {
+            var that = (global::Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl)instance;
+            return that.Size;
+        }
 
         private global::Windows.UI.Xaml.Markup.IXamlMember CreateXamlMember(string longMemberName)
         {
             global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember xamlMember = null;
-            // No Local Properties
+            global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType userType;
+
+            switch (longMemberName)
+            {
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.Device":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "Device", "Microsoft.Graphics.Canvas.CanvasDevice");
+                xamlMember.Getter = get_0_CanvasAnimatedControl_Device;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.Dpi":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "Dpi", "Single");
+                xamlMember.Getter = get_1_CanvasAnimatedControl_Dpi;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.UseSharedDevice":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "UseSharedDevice", "Boolean");
+                xamlMember.Getter = get_2_CanvasAnimatedControl_UseSharedDevice;
+                xamlMember.Setter = set_2_CanvasAnimatedControl_UseSharedDevice;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.TargetElapsedTime":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "TargetElapsedTime", "TimeSpan");
+                xamlMember.Getter = get_3_CanvasAnimatedControl_TargetElapsedTime;
+                xamlMember.Setter = set_3_CanvasAnimatedControl_TargetElapsedTime;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.Paused":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "Paused", "Boolean");
+                xamlMember.Getter = get_4_CanvasAnimatedControl_Paused;
+                xamlMember.Setter = set_4_CanvasAnimatedControl_Paused;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.IsFixedTimeStep":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "IsFixedTimeStep", "Boolean");
+                xamlMember.Getter = get_5_CanvasAnimatedControl_IsFixedTimeStep;
+                xamlMember.Setter = set_5_CanvasAnimatedControl_IsFixedTimeStep;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.ForceSoftwareRenderer":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "ForceSoftwareRenderer", "Boolean");
+                xamlMember.Getter = get_6_CanvasAnimatedControl_ForceSoftwareRenderer;
+                xamlMember.Setter = set_6_CanvasAnimatedControl_ForceSoftwareRenderer;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.DpiScale":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "DpiScale", "Single");
+                xamlMember.Getter = get_7_CanvasAnimatedControl_DpiScale;
+                xamlMember.Setter = set_7_CanvasAnimatedControl_DpiScale;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.CustomDevice":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "CustomDevice", "Microsoft.Graphics.Canvas.CanvasDevice");
+                xamlMember.Getter = get_8_CanvasAnimatedControl_CustomDevice;
+                xamlMember.Setter = set_8_CanvasAnimatedControl_CustomDevice;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.ClearColor":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "ClearColor", "Windows.UI.Color");
+                xamlMember.Getter = get_9_CanvasAnimatedControl_ClearColor;
+                xamlMember.Setter = set_9_CanvasAnimatedControl_ClearColor;
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.HasGameLoopThreadAccess":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "HasGameLoopThreadAccess", "Boolean");
+                xamlMember.Getter = get_10_CanvasAnimatedControl_HasGameLoopThreadAccess;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.ReadyToDraw":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "ReadyToDraw", "Boolean");
+                xamlMember.Getter = get_11_CanvasAnimatedControl_ReadyToDraw;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl.Size":
+                userType = (global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedControl");
+                xamlMember = new global::PhysicsEngine.PhysicsEngine_XamlTypeInfo.XamlMember(this, "Size", "Windows.Foundation.Size");
+                xamlMember.Getter = get_12_CanvasAnimatedControl_Size;
+                xamlMember.SetIsReadOnly();
+                break;
+            }
             return xamlMember;
         }
     }
