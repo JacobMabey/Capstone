@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2GWSyLAc4SjxoZaPG91frNCQC4Dty+ES8Dp9p2qy0mHANaWkUh/cWEu7FooQlP+ty8aea9E4gR13FlVy9S/B3w==",
+  "dgSpecHash": "1H/pggDpgzaRMBHO+yhVn2BpARnrlJZ0rYkApogIyDLTRH/Qgtvwt6Qpplu0iylY55I4JA6u3GcelQOZsc4QdA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Jacob Mabey\\Documents\\1_Neumont\\Capstone\\PhysicsEngine\\PhysicsEngine\\PhysicsEngine.csproj",
   "expectedPackageFiles": [
@@ -176,7 +176,8 @@
     "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\system.xml.readerwriter\\4.0.11\\system.xml.readerwriter.4.0.11.nupkg.sha512",
     "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\system.xml.xdocument\\4.0.11\\system.xml.xdocument.4.0.11.nupkg.sha512",
     "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\system.xml.xmldocument\\4.0.1\\system.xml.xmldocument.4.0.1.nupkg.sha512",
-    "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\system.xml.xmlserializer\\4.0.11\\system.xml.xmlserializer.4.0.11.nupkg.sha512"
+    "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\system.xml.xmlserializer\\4.0.11\\system.xml.xmlserializer.4.0.11.nupkg.sha512",
+    "C:\\Users\\Jacob Mabey\\.nuget\\packages\\win2d.uwp\\1.27.0\\win2d.uwp.1.27.0.nupkg.sha512"
   ],
   "logs": []
 }

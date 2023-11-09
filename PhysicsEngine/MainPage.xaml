@@ -2,6 +2,7 @@
     x:Class="PhysicsEngine.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     xmlns:local="using:PhysicsEngine"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,6 +10,11 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" d:DesignHeight="720" d:DesignWidth="1080">
 
     <Canvas Name="MainCanvas" Width="1080" Height="720">
-        
+
     </Canvas>
+
+
+    <!--<canvas:CanvasAnimatedControl Name="MainCanvas" Width="1080" Height="720" />-->
+
+
 </Page>

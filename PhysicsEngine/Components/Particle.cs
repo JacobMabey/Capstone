@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -125,6 +127,11 @@ namespace PhysicsEngine
 
 
         public override Shape GetUIElement() => _ellipse;
+        public override void Draw(CanvasDrawingSession session)
+        {
+            session.DrawEllipse(new System.Numerics.Vector2((float)pos.X, (float)pos.Y), (float)radius, (float)radius, Colors.Red);
+        }
+
         public override void Update()
         {
             base.Update();

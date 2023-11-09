@@ -12,6 +12,8 @@ using Windows.UI.Xaml.Input;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using Microsoft.Graphics.Canvas;
 
 namespace PhysicsEngine
 {
@@ -109,6 +111,9 @@ namespace PhysicsEngine
             
         }
 
+        public override void Draw(CanvasDrawingSession session)
+        { }
+
 
         private void Line_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
@@ -159,6 +164,7 @@ namespace PhysicsEngine
 
 
         public override Shape GetUIElement() => _line;
+
 
         public override void Update()
         {

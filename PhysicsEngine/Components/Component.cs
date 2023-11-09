@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,6 +33,7 @@ namespace PhysicsEngine
         public Physics Phys { get; private set; }
 
         public abstract Shape GetUIElement();
+        public abstract void Draw(CanvasDrawingSession session);
 
         public virtual void Initialize()
         {

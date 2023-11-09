@@ -1,5 +1,9 @@
-﻿using System;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.UI;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Linq;
@@ -121,6 +125,17 @@ namespace PhysicsEngine
             particleCounter.Text = "" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString();
         }
 
+        private void drawdraw(CanvasDrawingSession session)
+        {
+            session.DrawRectangle(new Rect(new Point(0f, 0f), new Point(10f, 10f)), Colors.Red);
+            foreach (Component c in Scene.Children.Values)
+            {
+
+                c.Draw(session);
+
+                Debug.WriteLine("DRAW");
+            }
+        }
         
 
 
@@ -131,6 +146,27 @@ namespace PhysicsEngine
 
             Scene.Initialize();
             MainCanvas.Children.Add(Scene.MainScene);
+
+
+            /*MainCanvas.Draw += (ICanvasAnimatedControl canvas, CanvasAnimatedDrawEventArgs args) =>
+            {
+                try
+                {
+
+                
+                //CanvasCommandList cl = new CanvasCommandList(canvas);
+                using (CanvasDrawingSession session = args.DrawingSession) // cl.CreateDrawingSession())
+                {
+                        //session.Clear(Colors.White);
+                        drawdraw(session);
+                   
+                }
+                } catch (Exception e)
+                {
+                    Debug.WriteLine("e");
+                }
+            };*/
+          
             //
 
             //For testing
@@ -142,6 +178,11 @@ namespace PhysicsEngine
             Timer.Initialize();
             Renderer.Initialize(bgColor);
             //
+        }
+
+        private void CanvasAnimatedControl_Draw(ICanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
+        {
+            throw new NotImplementedException();
         }
 
         private void PageLoaded(object sender, RoutedEventArgs e)

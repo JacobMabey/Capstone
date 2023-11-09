@@ -42,6 +42,10 @@
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",
               "version": "[6.2.14, )"
+            },
+            "Win2D.uwp": {
+              "target": "Package",
+              "version": "[1.27.0, )"
             }
           }
         }
