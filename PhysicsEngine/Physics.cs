@@ -77,6 +77,8 @@ namespace PhysicsEngine
 
         public void Update()
         {
+            if (Timer.TimeScale == 0.0) return;
+
             try
             {
                 if (Parent is Particle)
@@ -114,7 +116,7 @@ namespace PhysicsEngine
                 default:
                 case eForceType.IMPULSE:
                     force = new Coord(force.X, force.Y);
-                    Acceleration = new Coord(Acceleration.X + force.X / Mass, Acceleration.Y + force.Y / Mass);
+                    Acceleration = new Coord(Acceleration.X + force.X / (Mass * Timer.TimeScale), Acceleration.Y + force.Y / (Mass * Timer.TimeScale));
                     break;
                 case eForceType.DIRECT:
                     Velocity = new Coord(Velocity.X + force.X, Velocity.Y + force.Y);
@@ -512,12 +514,16 @@ namespace PhysicsEngine
             double centerDistance = GetLength(toCenter);
             if (centerDistance > ConstraintRadius - parentRadius)
             {
-                double grav = (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime) / Timer.TimeScale;
+                //double grav = (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime) / Timer.TimeScale;
                 Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
-                Velocity = new Coord(
+                /*Velocity = new Coord(
                     Velocity.X * Elasticity + (WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X),
                     (Velocity.Y - grav) * Elasticity + grav + (WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y)
-                );
+                );*/
+                ApplyForce(new Coord(
+                    (WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X),
+                    (WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y)
+                ), eForceType.DIRECT);
                 newPosition = new Coord(WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius), WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius));
             }
 

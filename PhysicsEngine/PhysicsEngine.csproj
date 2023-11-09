@@ -119,6 +119,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ColorFunctions.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\CompLine.cs" />
     <Compile Include="Coord.cs" />

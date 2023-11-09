@@ -49,7 +49,7 @@ namespace PhysicsEngine
         private static CompLine borderLeft;
 
         private static Ellipse circleBorder;
-        private static double circleBorderRadius = 300;
+        public static double CircleBorderRadius { get; private set; } = 300;
         public static bool IsCircleBorderActive { get; set; } = false;
 
 
@@ -77,10 +77,10 @@ namespace PhysicsEngine
             Add(borderLeft);
 
             circleBorder = new Ellipse();
-            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - circleBorderRadius);
-            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - circleBorderRadius);
-            circleBorder.Width = circleBorderRadius * 2.0;
-            circleBorder.Height = circleBorderRadius * 2.0;
+            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
+            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
+            circleBorder.Width = CircleBorderRadius * 2.0;
+            circleBorder.Height = CircleBorderRadius * 2.0;
             circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
             circleBorder.Stroke = new SolidColorBrush(Colors.Black);
             circleBorder.StrokeThickness = 1;
@@ -208,6 +208,19 @@ namespace PhysicsEngine
             elementsToBeDestroyed.Add(id);
         }
 
+        public static void ClearScene()
+        {
+            Children.Clear();
+            for (int i = MainScene.Children.Count - 1; i >= 0; i--)
+            {
+                if (MainScene.Children[i] is Shape && ((Shape)MainScene.Children[i]).Tag is Component)
+                    MainScene.Children.RemoveAt(i);
+            }
+            Add(borderTop);
+            Add(borderRight);
+            Add(borderBottom);
+            Add(borderLeft);
+        }
 
 
         public static void ToggleBorderCollision()
@@ -225,11 +238,16 @@ namespace PhysicsEngine
         }
         public static void SetCircleBorderRadius(double radius)
         {
-            circleBorderRadius = radius;
+            CircleBorderRadius = radius;
+            circleBorder.Width = radius * 2.0;
+            circleBorder.Height = radius * 2.0;
+
+            Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
+            Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
         }
         public static double GetCircleBorderRadius()
         {
-            return circleBorderRadius;
+            return CircleBorderRadius;
         }
     }
 }

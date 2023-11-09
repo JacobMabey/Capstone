@@ -58,6 +58,8 @@ namespace PhysicsEngine
             }
         }
 
+        public double ColorChangeRate { get; set; } = 0.0;
+
 
 
         public override void Initialize()
@@ -126,6 +128,14 @@ namespace PhysicsEngine
         public override void Update()
         {
             base.Update();
+
+            if (ColorChangeRate != 0.0)
+            {
+                double[] HsvParticleColor = ColorFunctions.RgbToHsv(Fill.R, Fill.G, Fill.B);
+                HsvParticleColor[0] = (HsvParticleColor[0] + ColorChangeRate * Timer.TimeScale) % 360.0;
+                double[] newColor = ColorFunctions.HsvToRgb(HsvParticleColor[0], HsvParticleColor[1], HsvParticleColor[2]);
+                Fill = Color.FromArgb(255, (byte)newColor[0], (byte)newColor[1], (byte)newColor[2]);
+            }
         }
 
     }
