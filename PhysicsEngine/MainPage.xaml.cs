@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using PhysicsEngine.UI_Menus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,7 +38,8 @@ namespace PhysicsEngine
                 windowSize = value;
                 Scene.MainScene.Width = windowSize.Width;
                 Scene.MainScene.Height = windowSize.Height;
-                Scene.Toolbar.ResetPosition();
+                if (Scene.Toolbar != null)
+                    Scene.Toolbar.ResetPosition();
             }
         }
 

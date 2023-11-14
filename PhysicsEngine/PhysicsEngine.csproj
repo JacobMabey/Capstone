@@ -134,6 +134,9 @@
     <Compile Include="Systems\Scene.cs" />
     <Compile Include="Systems\Renderer.cs" />
     <Compile Include="Systems\Timer.cs" />
+    <Compile Include="UI Menus\AddComponentMenu.cs" />
+    <Compile Include="UI Menus\AddCompOptions\AddCompPanel.cs" />
+    <Compile Include="UI Menus\HorizontalMenu.cs" />
     <Compile Include="UI Menus\Toolbar.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +171,9 @@
     <PackageReference Include="Win2D.uwp">
       <Version>1.27.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Icons\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

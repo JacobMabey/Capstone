@@ -26,7 +26,7 @@ namespace PhysicsEngine
                 if (timeScale > TIMESCALE_MAX) timeScale = TIMESCALE_MAX;
             }
         }
-        private static readonly double TIMESCALE_MAX = 2.0;
+        public static readonly double TIMESCALE_MAX = 1.0;
 
         public static bool IsPaused { get; set; } = false;
 

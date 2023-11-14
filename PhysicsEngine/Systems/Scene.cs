@@ -38,11 +38,14 @@ namespace PhysicsEngine
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
 
-        public static int MAX_PARTICLE_COUNT => 500;
+        public static int MAX_PARTICLE_COUNT => 400;
         public static int ParticleCount { get; private set; } = 0;
 
         //Main global toolbar
         public static Toolbar Toolbar { get; set; }
+
+        //Main Menus
+        public static AddComponentMenu AddMenu { get; set; }
 
         //Border Objects
         private static CompLine borderTop;
@@ -59,14 +62,16 @@ namespace PhysicsEngine
         {
             MainScene = new Canvas();
 
-            //Add Toolbar
-            Toolbar = new Toolbar();
-            MainScene.Children.Add(Toolbar);
-
             //Set Size
             MainPage.WindowSize = new Size(1080, 720);
             Children = new Dictionary<long, Component>();
 
+            //Add Toolbar & Menus
+            Toolbar = new Toolbar();
+            MainScene.Children.Add(Toolbar);
+            AddMenu = new AddComponentMenu();
+            AddMenu.Initialize(210, Scene.MainScene.Height - Toolbar.ToolbarHeight + 10, Color.FromArgb(180, 0, 0, 0));
+            MainScene.Children.Add(AddMenu);
 
             //Add collision border lines
             borderTop = new CompLine(new Coord(0, 0), new Coord(MainScene.Width, 0), Colors.Black, 1.0);
