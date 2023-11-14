@@ -20,12 +20,12 @@ namespace PhysicsEngine
 
         public virtual Coord Position { get; set; }
         public bool IsCollisionEnabled { get; set; } = true;
-        protected bool IsBeingDragged { get; set; } = false;
+        public bool IsBeingDragged { get; set; } = false;
 
         //Is true during drag if user is holding ctrl. will freely move component with no physics and snap to grid
-        protected bool IsMouseDragMode { get; set; } = false;
+        public bool IsMouseDragMode { get; set; } = false;
         protected bool IsMouseRotateMode { get; set; } = false;
-        protected Coord PointerDragPoint { get; set; } = new Coord(0, 0);
+        public Coord PointerDragPoint { get; set; } = new Coord(0, 0);
         protected SolidColorBrush FillBrush { get; set; }
         protected SolidColorBrush StrokeBrush { get; set; }
 
@@ -33,7 +33,6 @@ namespace PhysicsEngine
         public Physics Phys { get; private set; }
 
         public abstract Shape GetUIElement();
-        public abstract void Draw(CanvasDrawingSession session);
 
         public virtual void Initialize()
         {

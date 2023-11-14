@@ -135,9 +135,6 @@ namespace PhysicsEngine
             _rect.StrokeThickness = 2.0;
         }
 
-        public override void Draw(CanvasDrawingSession session)
-        { }
-
         public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 5.0)
         {
             Initialize();

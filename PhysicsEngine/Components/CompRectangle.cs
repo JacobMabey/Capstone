@@ -33,8 +33,6 @@ namespace PhysicsEngine
                 Canvas.SetTop(_rect, pos.Y);
             }
         }
-        public override void Draw(CanvasDrawingSession session)
-        { }
 
         private Size size;
         public Size Size
@@ -164,28 +162,26 @@ namespace PhysicsEngine
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
             PointerDragPoint = new Coord(pointerCoord.X - Position.X, pointerCoord.Y - Position.Y);
 
+            IsMouseDragMode = true;
+            _rect.Opacity = 0.6;
             //Rotate mode on if user hold shift
             if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
             {
                 IsMouseRotateMode = true;
-            }
-            //Drag mode on if user hold control
-            else if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
-            {
-                IsMouseDragMode = true;
-                _rect.Opacity = 0.6;
             }
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             IsBeingDragged = false;
             _rect.ReleasePointerCapture(e.Pointer);
+            IsCollisionEnabled = true;
             IsMouseDragMode = false;
             _rect.Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (!IsBeingDragged) return;
+            IsCollisionEnabled = false;
 
             //Rotate mode on if user hold shift
             if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
@@ -195,17 +191,6 @@ namespace PhysicsEngine
             else
             {
                 IsMouseRotateMode = false;
-            }
-            //Drag mode on if user hold control
-            if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
-            {
-                IsMouseDragMode = true;
-                _rect.Opacity = 0.6;
-            }
-            else
-            {
-                IsMouseDragMode = false;
-                _rect.Opacity = 1.0;
             }
 
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
@@ -219,7 +204,7 @@ namespace PhysicsEngine
 
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
-            if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
+            if (Scene.IsSnappableGridEnabled && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
             {
                 posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;

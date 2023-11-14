@@ -111,9 +111,6 @@ namespace PhysicsEngine
             
         }
 
-        public override void Draw(CanvasDrawingSession session)
-        { }
-
 
         private void Line_PointerPressed(object sender, PointerRoutedEventArgs e)
         {

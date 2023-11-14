@@ -127,10 +127,6 @@ namespace PhysicsEngine
 
 
         public override Shape GetUIElement() => _ellipse;
-        public override void Draw(CanvasDrawingSession session)
-        {
-            session.DrawEllipse(new System.Numerics.Vector2((float)pos.X, (float)pos.Y), (float)radius, (float)radius, Colors.Red);
-        }
 
         public override void Update()
         {

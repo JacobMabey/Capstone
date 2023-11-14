@@ -69,7 +69,7 @@ namespace PhysicsEngine
 
             rect = new CompRectangle(new Coord(220, 100), new Size(50, 80));
             rect.RotationAngle = 45;
-            //Scene.Add(rect);
+            Scene.Add(rect);
 
             //p1 = new Particle(new Coord(300, 15), 25);
             //p1.Phys.Elasticity = 0.9;
