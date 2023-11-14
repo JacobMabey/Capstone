@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PhysicsEngine.UI_Menus;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -70,6 +71,8 @@ namespace PhysicsEngine
             }
         }
 
+        private double MaxVelocity => 30.0;
+
         public Physics(Component parent)
         {
             Parent = parent;
@@ -91,6 +94,10 @@ namespace PhysicsEngine
                     double grav = GravityAcceleration / 100.0;
                     Acceleration = new Coord(Acceleration.X * Timer.TimeScale, ((Acceleration.Y + grav)) * Timer.TimeScale);
                     Velocity = new Coord(Velocity.X + Acceleration.X, Velocity.Y + Acceleration.Y);
+
+                    double vLength = GetLength(Velocity);
+                    if (vLength > MaxVelocity)
+                        Velocity = new Coord(Velocity.X / vLength * MaxVelocity, Velocity.Y / vLength * MaxVelocity);
 
                     //Update Position
                     Coord newPosition = new Coord(((Particle)Parent).Position.X + Velocity.X * Timer.MovementMultiplier, ((Particle)Parent).Position.Y + Velocity.Y * Timer.MovementMultiplier);
@@ -508,23 +515,17 @@ namespace PhysicsEngine
 
         private Coord UpdatePositionWithCircleBorderConstraint(Coord oldPosition, Coord newPosition, double parentRadius)
         {
-            Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, Scene.MainScene.Height / 2.0);
+            Coord WindowCenter = new Coord(Scene.MainScene.Width / 2.0, (Scene.MainScene.Height - Toolbar.ToolbarHeight) / 2.0);
             double ConstraintRadius = Scene.GetCircleBorderRadius();
             Coord toCenter = new Coord(newPosition.X - WindowCenter.X, newPosition.Y - WindowCenter.Y);
             double centerDistance = GetLength(toCenter);
             if (centerDistance > ConstraintRadius - parentRadius)
             {
-                //double grav = (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime) / Timer.TimeScale;
                 Coord MoveDirection = new Coord(toCenter.X / centerDistance, toCenter.Y / centerDistance);
-                /*Velocity = new Coord(
-                    Velocity.X * Elasticity + (WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X),
-                    (Velocity.Y - grav) * Elasticity + grav + (WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y)
-                );*/
                 ApplyForce(new Coord(
                     (WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius) - newPosition.X),
                     (WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius) - newPosition.Y)
                 ), eForceType.DIRECT);
-                newPosition = new Coord(WindowCenter.X + MoveDirection.X * (ConstraintRadius - parentRadius), WindowCenter.Y + MoveDirection.Y * (ConstraintRadius - parentRadius));
             }
 
             return newPosition;

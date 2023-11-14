@@ -297,9 +297,8 @@ namespace PhysicsEngine
             particle.Phys.ApplyForce(new Coord(Math.Cos(rotationRadians) * ParticleVelocity, Math.Sin(rotationRadians) * ParticleVelocity));
 
             //Create
-            Scene.AddLater(particle);
-
-            ParticlesEjected++;
+            if (Scene.AddLater(particle))
+                ParticlesEjected++;
         }
     }
 }

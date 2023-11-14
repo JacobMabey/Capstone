@@ -15,7 +15,7 @@ namespace PhysicsEngine.UI_Menus
 {
     public class Toolbar : Canvas
     {
-        public readonly double ToolbarHeight = 30.0;
+        public static readonly double ToolbarHeight = 30.0;
 
         //Toobar border
         private Rectangle rectBorder;

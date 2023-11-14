@@ -38,6 +38,8 @@ namespace PhysicsEngine
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
 
+        public static int MAX_PARTICLE_COUNT => 500;
+        public static int ParticleCount { get; private set; } = 0;
 
         //Main global toolbar
         public static Toolbar Toolbar { get; set; }
@@ -175,23 +177,44 @@ namespace PhysicsEngine
         {
             if (comp == null) return;
 
+            //check if component is particle
+            if (comp is Particle)
+            {
+                if (ParticleCount < MAX_PARTICLE_COUNT)
+                {
+                    ParticleCount++;
+                }
+                else return;
+
+                //check radius for max radius spawned to set grid partion size
+                if (((Particle)comp).Radius > MaxParticleRadius)
+                    MaxParticleRadius = ((Particle)comp).Radius;
+            }
+
             Children.Add(comp.ID, comp);
             MainScene.Children.Add(comp.GetUIElement());
-
-            //check radius for max radius spawned to set grid partion size
-            if (comp is Particle && ((Particle)comp).Radius > MaxParticleRadius)
-                MaxParticleRadius = ((Particle)comp).Radius;
         }
 
-        public static void AddLater(Component comp)
+        public static bool AddLater(Component comp)
         {
-            if (comp == null) return;
+            if (comp == null) return false;
+
+            //check if component is particle
+            if (comp is Particle)
+            {
+                if (ParticleCount < MAX_PARTICLE_COUNT)
+                {
+                    ParticleCount++;
+                }
+                else return false;
+
+                //check radius for max radius spawned to set grid partion size
+                if (((Particle)comp).Radius > MaxParticleRadius)
+                    MaxParticleRadius = ((Particle)comp).Radius;
+            }
 
             elementsToBeAdded.Add(comp);
-
-            //check radius for max radius spawned to set grid partion size
-            if (comp is Particle && ((Particle)comp).Radius > MaxParticleRadius)
-                MaxParticleRadius = ((Particle)comp).Radius;
+            return true;
         }
 
         public static void Remove(long id)
@@ -200,12 +223,20 @@ namespace PhysicsEngine
 
             MainScene.Children.Remove(Children[id].GetUIElement());
             Children.Remove(id);
+
+            //check if component is particle
+            if (Children[id] is Particle)
+                ParticleCount--;
         }
         public static void RemoveLater(long id)
         {
             if (!Children.ContainsKey(id)) return;
 
             elementsToBeDestroyed.Add(id);
+
+            //check if component is particle
+            if (Children[id] is Particle)
+                ParticleCount--;
         }
 
         public static void ClearScene()

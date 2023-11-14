@@ -94,15 +94,15 @@ namespace PhysicsEngine
             l4 = new CompLine(new Coord(10, 10), new Coord(310, 10));
             //Scene.Add(l4);
 
-            ejector = new ParticleEjector(new Coord(450, 80), 200.0, 1000, 6, 6);
-            ejector.ParticleElasticity = 0.8;
-            ejector.ParticleRadius = 12;
-            ejector.ParticleRadiusRange = 6;
+            ejector = new ParticleEjector(new Coord(500, 200), 200.0, 1000, 6, 80);
+            ejector.ParticleElasticity = 0.6;
+            ejector.ParticleRadius = 15;
+            ejector.ParticleRadiusRange = 0;
             ejector.ParticleFriction = 0.0;
             ejector.ParticleScatterAngle = 0.0;
             ejector.ParticleColor = Colors.Blue;
-            ejector.ColorChangeRate = 0;
-            ejector.ParticleColorChangeRate = 1;
+            ejector.ColorChangeRate = 1.5;
+            ejector.ParticleColorChangeRate = 0;
             Scene.Add(ejector);
 
             ejector2 = new ParticleEjector(new Coord(400, 50), -45.0, 1000, 5, 0.6);
@@ -113,30 +113,15 @@ namespace PhysicsEngine
             Timer.TimeScale = 1.0;
 
             //Scene.ToggleBorderCollision();
-            //Scene.SetCircleBorderRadius(400);
+            //Scene.SetCircleBorderRadius(200);
             //Scene.ToggleCircleBorderCollision();
         }
 
 
-        private void Loop(object sender, object e) 
+        private void Loop(object sender, object e)
         {
             Update(); //Main Canvas Update To be within Loop
-
-            particleCounter.Text = "" + (ejector.ParticlesEjected + ejector2.ParticlesEjected).ToString();
         }
-
-        private void drawdraw(CanvasDrawingSession session)
-        {
-            session.DrawRectangle(new Rect(new Point(0f, 0f), new Point(10f, 10f)), Colors.Red);
-            foreach (Component c in Scene.Children.Values)
-            {
-
-                c.Draw(session);
-
-                Debug.WriteLine("DRAW");
-            }
-        }
-        
 
 
         private void Initialize(Color bgColor)
@@ -147,42 +132,12 @@ namespace PhysicsEngine
             Scene.Initialize();
             MainCanvas.Children.Add(Scene.MainScene);
 
-
-            /*MainCanvas.Draw += (ICanvasAnimatedControl canvas, CanvasAnimatedDrawEventArgs args) =>
-            {
-                try
-                {
-
-                
-                //CanvasCommandList cl = new CanvasCommandList(canvas);
-                using (CanvasDrawingSession session = args.DrawingSession) // cl.CreateDrawingSession())
-                {
-                        //session.Clear(Colors.White);
-                        drawdraw(session);
-                   
-                }
-                } catch (Exception e)
-                {
-                    Debug.WriteLine("e");
-                }
-            };*/
-          
-            //
-
-            //For testing
-            //Window.Current.Content.KeyDown += HandleKeyDown;
-
             //Initialize Systems
             this.Loaded += PageLoaded;
 
             Timer.Initialize();
             Renderer.Initialize(bgColor);
             //
-        }
-
-        private void CanvasAnimatedControl_Draw(ICanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
-        {
-            throw new NotImplementedException();
         }
 
         private void PageLoaded(object sender, RoutedEventArgs e)
