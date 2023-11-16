@@ -22,6 +22,7 @@ namespace PhysicsEngine
         private Line _line = new Line();
 
         private bool PosABeingDragged { get; set; } = false;
+        public bool FullLineBeingDragged { get; set; } = false;
 
         private Coord posA;
         public Coord PosA
@@ -114,6 +115,7 @@ namespace PhysicsEngine
 
         private void Line_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            FullLineBeingDragged = false;
             IsBeingDragged = true;
             _line.CapturePointer(e.Pointer);
 
@@ -122,6 +124,9 @@ namespace PhysicsEngine
             double pointADistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosA.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosA.Y), 2));
             double pointBDistance = Math.Sqrt(Math.Pow(Math.Abs(pointerCoord.X - PosB.X), 2) + Math.Pow(Math.Abs(pointerCoord.Y - PosB.Y), 2));
             PosABeingDragged = pointADistance < pointBDistance;
+
+            double toMidPointDistance = Physics.GetDistance(Coord.FromPoint(pointerCoord), GetMidPoint());
+            FullLineBeingDragged = (PosABeingDragged && toMidPointDistance < pointADistance) || (!PosABeingDragged && toMidPointDistance < pointBDistance);
 
             //Drag mode on if user hold control
             if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
@@ -141,21 +146,46 @@ namespace PhysicsEngine
         {
             if (!IsBeingDragged) return;
 
+            //Drag mode on if user hold control
+            if (!IsMouseRotateMode && Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                IsMouseDragMode = true;
+                _line.Opacity = 0.6;
+            }
+            else
+            {
+                IsMouseDragMode = false;
+                _line.Opacity = 1.0;
+            }
+
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
-            double posx = pointerCoord.X - PointerDragPoint.X;
-            double posy = pointerCoord.Y - PointerDragPoint.Y;
+            double posx = pointerCoord.X;
+            double posy = pointerCoord.Y;
             if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
             {
                 posx = Math.Round(posx / Scene.SnapCellSize) * Scene.SnapCellSize;
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
-            if (PosABeingDragged)
+
+            if (FullLineBeingDragged)
             {
-                PosA = new Coord(posx, posy);
+                Coord midPoint = GetMidPoint();
+                double pointerToCenter = Physics.GetDistance(new Coord(posx, posy), midPoint);
+                double pointerToCenterAngle = Physics.GetAngle(midPoint, new Coord(posx, posy));
+
+                PosA = Physics.MovePoint(PosA, pointerToCenter, pointerToCenterAngle);
+                PosB = Physics.MovePoint(PosB, pointerToCenter, pointerToCenterAngle);
             } else
             {
-                PosB = new Coord(posx, posy);
+                if (PosABeingDragged)
+                {
+                    PosA = new Coord(posx, posy);
+                }
+                else
+                {
+                    PosB = new Coord(posx, posy);
+                }
             }
         }
 

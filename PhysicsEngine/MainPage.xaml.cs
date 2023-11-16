@@ -29,6 +29,8 @@ namespace PhysicsEngine
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        public static FontFamily GlobalFont = new FontFamily("Cascadia Code");
+
         private static Size windowSize;
         public static Size WindowSize
         {
@@ -40,6 +42,8 @@ namespace PhysicsEngine
                 Scene.MainScene.Height = windowSize.Height;
                 if (Scene.Toolbar != null)
                     Scene.Toolbar.ResetPosition();
+                if (Scene.AddMenu != null)
+                    Scene.AddMenu.ResetPosition();
             }
         }
 

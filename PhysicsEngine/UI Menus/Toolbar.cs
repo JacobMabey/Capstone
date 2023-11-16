@@ -153,6 +153,10 @@ namespace PhysicsEngine.UI_Menus
         {
             //Toggle add component menu
             Scene.AddMenu.ToggleMenuExpanded();
+
+            //Close other menus
+            if (Scene.WorldMenu.IsMenuExpanded)
+                Scene.WorldMenu.ToggleMenuExpanded();
         }
 
         private void ClearButton_Pressed(object sender, PointerRoutedEventArgs e)
@@ -162,6 +166,11 @@ namespace PhysicsEngine.UI_Menus
         private void SettingsButton_Pressed(object sender, PointerRoutedEventArgs e)
         {
             //Toggle Settings Menu
+            Scene.WorldMenu.ToggleMenuExpanded();
+
+            //Close other menus
+            if (Scene.AddMenu.IsMenuExpanded)
+                Scene.AddMenu.ToggleMenuExpanded();
         }
 
 

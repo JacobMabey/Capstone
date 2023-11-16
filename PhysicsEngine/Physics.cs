@@ -20,6 +20,7 @@ namespace PhysicsEngine
 {
     public class Physics
     {
+        public static double MaxGravity => 1000;
         public static double GravityAcceleration { get; set; } = 30;
 
         private static readonly double Epsilon = 0.01;
@@ -307,38 +308,6 @@ namespace PhysicsEngine
                         Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
                         Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
 
-                        //Check for collision on the corners of the rect
-                        double particleToLinePointDistance = GetDistance(newPosition, pointTL);
-                        Coord collidingPoint = pointTL;
-                        if (particleToLinePointDistance > (parent.Radius))
-                        {
-                            particleToLinePointDistance = GetDistance(newPosition, pointTR);
-                            collidingPoint = pointTR;
-                            if (particleToLinePointDistance > (parent.Radius))
-                            {
-                                particleToLinePointDistance = GetDistance(newPosition, pointBR);
-                                collidingPoint = pointBR;
-                                if (particleToLinePointDistance > (parent.Radius))
-                                {
-                                    particleToLinePointDistance = GetDistance(newPosition, pointBL);
-                                    collidingPoint = pointBL;
-                                }
-                            }
-                        }
-                        if (particleToLinePointDistance < (parent.Radius))
-                        {
-                            double moveDistance = ((parent.Radius ) - particleToLinePointDistance);
-                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
-                            newPosition = new Coord(
-                                newPosition.X + moveVector.X,
-                                newPosition.Y + moveVector.Y
-                            );
-                            ApplyForce(moveVector, eForceType.DIRECT);
-                            /*Velocity = new Coord(
-                                Velocity.X + moveVector.X,
-                                Velocity.Y + moveVector.Y
-                            );*/
-                        }
 
                         //Will be set to the two points connected to the side of the rect the particle intersects with
                         Coord pointA = new Coord(0, 0);
@@ -354,6 +323,11 @@ namespace PhysicsEngine
                         double lineToParticleAngle = GetAngle(pointTL, pointTR) - Math.PI / 2.0;
                         Coord movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle);
                         Coord movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTL, movedPointTR) > GetDistance(oldPosition, pointTL, pointTR))
+                        {
+                            movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
                         Coord topIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTL, movedPointTR);
                         double topDist = GetLength(new Coord(oldPosition.X - topIntersect.X, oldPosition.Y - topIntersect.Y));
                         if (topDist <= moveLength)
@@ -372,6 +346,11 @@ namespace PhysicsEngine
                         lineToParticleAngle = GetAngle(pointTR, pointBR) + Math.PI / 2.0;
                         movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle);
                         Coord movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTR, movedPointBR) > GetDistance(oldPosition, pointTR, pointBR))
+                        {
+                            movedPointTR = MovePoint(pointTR, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
                         Coord rightIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTR, movedPointBR);
                         double rightDist = GetLength(new Coord(oldPosition.X - rightIntersect.X, oldPosition.Y - rightIntersect.Y));
                         if (rightDist <= moveLength)
@@ -390,6 +369,11 @@ namespace PhysicsEngine
                         lineToParticleAngle = GetAngle(pointBL, pointBR) + Math.PI / 2.0;
                         Coord movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle);
                         movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointBL, movedPointBR) > GetDistance(oldPosition, pointBL, pointBR))
+                        {
+                            movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBR = MovePoint(pointBR, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
                         Coord bottomIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointBL, movedPointBR);
                         double bottomDist = GetLength(new Coord(oldPosition.X - bottomIntersect.X, oldPosition.Y - bottomIntersect.Y));
                         if (bottomDist <= moveLength)
@@ -408,6 +392,11 @@ namespace PhysicsEngine
                         lineToParticleAngle = GetAngle(pointTL, pointBL) - Math.PI / 2.0;
                         movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle);
                         movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle);
+                        if (GetDistance(oldPosition, movedPointTL, movedPointBL) > GetDistance(oldPosition, pointTL, pointBL))
+                        {
+                            movedPointTL = MovePoint(pointTL, parent.Radius, lineToParticleAngle + Math.PI);
+                            movedPointBL = MovePoint(pointBL, parent.Radius, lineToParticleAngle + Math.PI);
+                        }
                         Coord leftIntersect = GetIntersectionPoint(oldPosition, newPosition, movedPointTL, movedPointBL);
                         double leftDist = GetLength(new Coord(oldPosition.X - leftIntersect.X, oldPosition.Y - leftIntersect.Y));
                         if (leftDist <= moveLength)
@@ -443,6 +432,40 @@ namespace PhysicsEngine
 
                             newPosition = reflectPos;
                             //oldPosition = intersection;
+                        }
+
+
+                        //Check for collision on the corners of the rect
+                        double particleToLinePointDistance = GetDistance(newPosition, pointTL);
+                        Coord collidingPoint = pointTL;
+                        if (particleToLinePointDistance > (parent.Radius))
+                        {
+                            particleToLinePointDistance = GetDistance(newPosition, pointTR);
+                            collidingPoint = pointTR;
+                            if (particleToLinePointDistance > (parent.Radius))
+                            {
+                                particleToLinePointDistance = GetDistance(newPosition, pointBR);
+                                collidingPoint = pointBR;
+                                if (particleToLinePointDistance > (parent.Radius))
+                                {
+                                    particleToLinePointDistance = GetDistance(newPosition, pointBL);
+                                    collidingPoint = pointBL;
+                                }
+                            }
+                        }
+                        if (particleToLinePointDistance < (parent.Radius))
+                        {
+                            double moveDistance = ((parent.Radius) - particleToLinePointDistance);
+                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
+                            newPosition = new Coord(
+                                newPosition.X + moveVector.X,
+                                newPosition.Y + moveVector.Y
+                            );
+                            ApplyForce(moveVector, eForceType.DIRECT);
+                            /*Velocity = new Coord(
+                                Velocity.X + moveVector.X,
+                                Velocity.Y + moveVector.Y
+                            );*/
                         }
 
                     }
@@ -560,7 +583,13 @@ namespace PhysicsEngine
         public static double GetAngle(Coord pointA, Coord pointB)
         {
             double slope = GetSlope(pointA, pointB);
-            if (slope == 0) return Math.PI;
+            if (slope == 0)
+            {
+                if (pointA.X > pointB.X)
+                    return Math.PI;
+                else
+                    return 0.0;
+            }
             if (double.IsPositiveInfinity(slope)) return -Math.PI / 2.0;
             if (double.IsNegativeInfinity(slope)) return Math.PI / 2.0;
             
@@ -574,6 +603,8 @@ namespace PhysicsEngine
             while (angle > Math.PI * 2.0)
                 angle -= Math.PI * 2.0;
 
+            if (double.IsNaN(angle))
+                angle = 0;
             return angle;
         }
 
@@ -617,7 +648,7 @@ namespace PhysicsEngine
         /// <param name="distance"></param>
         /// <param name="angle"></param>
         /// <returns>Moved point</returns>
-        private Coord MovePoint(Coord point, double distance, double angle)
+        public static Coord MovePoint(Coord point, double distance, double angle)
         {
             return new Coord(point.X + Math.Cos(angle) * distance, point.Y + (-Math.Sin(angle)) * distance);
         }
@@ -629,7 +660,7 @@ namespace PhysicsEngine
         /// <param name="origin"></param>
         /// <param name="angle"></param>
         /// <returns>New rotated point</returns>
-        private Coord RotatePointAroundPoint(Coord point, Coord origin, double angle)
+        public static Coord RotatePointAroundPoint(Coord point, Coord origin, double angle)
         {
             double angleRad = angle * Math.PI / 180.0;
             return new Coord(
@@ -662,7 +693,7 @@ namespace PhysicsEngine
             
             double newParticleAngle = particleAngle + (2.0 * diffAngle);
 
-            double passedIntersectionLength = GetDistance(intersection, newPosition);
+            double passedIntersectionLength = GetDistance(intersection, oldPosition);
             
             return MovePoint(intersection, passedIntersectionLength, newParticleAngle);
         }

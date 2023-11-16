@@ -24,7 +24,26 @@ namespace PhysicsEngine
 
         private SolidColorBrush ParticleFillBrush { get; set; }
 
-        public bool IsPaused { get; set; } = false;
+        private SolidColorBrush PausedStrokeBrush { get; set; }
+
+        private bool isPaused = false;
+        public bool IsPaused
+        {
+            get => isPaused;
+            set
+            {
+                isPaused = value;
+                if (PausedStrokeBrush == null)
+                    PausedStrokeBrush = new SolidColorBrush(Colors.Black);
+
+                if (isPaused)
+                    PausedStrokeBrush.Color = Color.FromArgb(255, 125, 20, 12);
+                else
+                    PausedStrokeBrush.Color = Colors.Black;
+                if (_rect.Stroke != PausedStrokeBrush)
+                    _rect.Stroke = PausedStrokeBrush;
+            }
+        }
 
         private Coord posiiton;
         public override Coord Position
@@ -38,7 +57,7 @@ namespace PhysicsEngine
             }
         }
 
-        private Size EJECTOR_SIZE { get; set; } = new Size(20, 50);
+        public static Size EJECTOR_SIZE { get; private set; } = new Size(20, 50);
 
         private Color fill;
         public Color FillColor
@@ -131,11 +150,12 @@ namespace PhysicsEngine
             RotationTransform.CenterX = EJECTOR_SIZE.Width / 2.0;
             RotationTransform.CenterY = EJECTOR_SIZE.Height / 2.0;
             _rect.RenderTransform = RotationTransform;
-            _rect.Stroke = new SolidColorBrush(Colors.Black);
-            _rect.StrokeThickness = 2.0;
+            PausedStrokeBrush = new SolidColorBrush(Colors.Black);
+            _rect.Stroke = PausedStrokeBrush;
+            _rect.StrokeThickness = 3.0;
         }
 
-        public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 5.0)
+        public ParticleEjector(Coord position, double rotationAngle, int particleLimit, double ratePerSecond = 3.0, double particleVelocity = 10.0)
         {
             Initialize();
             Position = position;
@@ -147,8 +167,8 @@ namespace PhysicsEngine
             ParticleRate = ratePerSecond;
             ParticleVelocity = particleVelocity;
             ParticleScatterAngle = 0.0;
-            ParticleElasticity = 1.0;
-            ParticleFriction = 0.1;
+            ParticleElasticity = 0.8;
+            ParticleFriction = 0.0;
             ParticleRadius = 5.0;
             ParticleRadiusRange = 0.0;
             ParticlesEjected = 0;

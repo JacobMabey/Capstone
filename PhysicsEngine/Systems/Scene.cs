@@ -46,6 +46,7 @@ namespace PhysicsEngine
 
         //Main Menus
         public static AddComponentMenu AddMenu { get; set; }
+        public static WorldSettingsMenu WorldMenu { get; set; }
 
         //Border Objects
         private static CompLine borderTop;
@@ -70,8 +71,11 @@ namespace PhysicsEngine
             Toolbar = new Toolbar();
             MainScene.Children.Add(Toolbar);
             AddMenu = new AddComponentMenu();
-            AddMenu.Initialize(210, Scene.MainScene.Height - Toolbar.ToolbarHeight + 10, Color.FromArgb(180, 0, 0, 0));
+            AddMenu.Initialize(280, Scene.MainScene.Height - Toolbar.ToolbarHeight + 10, Color.FromArgb(180, 0, 0, 0));
             MainScene.Children.Add(AddMenu);
+            WorldMenu = new WorldSettingsMenu();
+            WorldMenu.Initialize(320, Scene.MainScene.Width + 20, Color.FromArgb(180, 0, 0, 0));
+            MainScene.Children.Add(WorldMenu);
 
             //Add collision border lines
             borderTop = new CompLine(new Coord(0, 0), new Coord(MainScene.Width, 0), Colors.Black, 1.0);
@@ -252,6 +256,7 @@ namespace PhysicsEngine
                 if (MainScene.Children[i] is Shape && ((Shape)MainScene.Children[i]).Tag is Component)
                     MainScene.Children.RemoveAt(i);
             }
+            ParticleCount = 0;
             Add(borderTop);
             Add(borderRight);
             Add(borderBottom);

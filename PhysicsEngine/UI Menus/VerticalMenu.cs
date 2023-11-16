@@ -10,12 +10,7 @@ using Windows.UI.Xaml.Shapes;
 
 namespace PhysicsEngine.UI_Menus
 {
-    public enum eMenuType
-    {
-        HORIZONTAL,
-        VERTICAL
-    }
-    public class HorizontalMenu : Canvas
+    public class VerticalMenu : Canvas
     {
         //Animation
         protected Storyboard ExpandBoard = new Storyboard();
@@ -24,23 +19,23 @@ namespace PhysicsEngine.UI_Menus
         private double expandDuration = 0.2;
         private double contractDuration = 0.1;
 
-        public double MenuHeight { get; set; }
-        public double MenuY { get; set; }
+        public double MenuWidth { get; set; }
+        public double MenuX { get; set; }
 
         public bool IsMenuExpanded { get; set; } = false;
 
-        public virtual void Initialize(double height, double menuY, Color bgColor)
+        public virtual void Initialize(double width, double menuX, Color bgColor)
         {
             ScrollViewer scroll = new ScrollViewer();
             scroll.Content = this;
 
             Canvas.SetZIndex(this, 99);
-            MenuHeight = height;
-            Width = Scene.MainScene.Width;
-            Height = 0;
-            MenuY = menuY;
-            Canvas.SetTop(this, MenuY);
-            Canvas.SetLeft(this, 0);
+            MenuWidth = width;
+            Height = Scene.MainScene.Height;
+            Width = 0;
+            MenuX = menuX;
+            Canvas.SetTop(this, 0);
+            Canvas.SetLeft(this, MenuX);
 
             //Add Background
             Rectangle bgRect = new Rectangle();
@@ -56,31 +51,31 @@ namespace PhysicsEngine.UI_Menus
             {
                 Duration = TimeSpan.FromSeconds(expandDuration),
                 From = 0,
-                To = MenuHeight
+                To = MenuWidth
             };
             expand.EnableDependentAnimation = true;
             Storyboard.SetTarget(expand, this);
-            Storyboard.SetTargetProperty(expand, "Canvas.Height");
+            Storyboard.SetTargetProperty(expand, "Canvas.Width");
 
             DoubleAnimation expandBg = new DoubleAnimation
             {
                 Duration = TimeSpan.FromSeconds(expandDuration),
                 From = 0,
-                To = MenuHeight
+                To = MenuWidth
             };
             expandBg.EnableDependentAnimation = true;
             Storyboard.SetTarget(expandBg, bgRect);
-            Storyboard.SetTargetProperty(expandBg, "Height");
+            Storyboard.SetTargetProperty(expandBg, "Width");
 
             DoubleAnimation expandTop = new DoubleAnimation
             {
                 Duration = TimeSpan.FromSeconds(expandDuration),
-                From = MenuY,
-                To = MenuY - MenuHeight
+                From = MenuX,
+                To = MenuX - MenuWidth
             };
             expandTop.EnableDependentAnimation = true;
             Storyboard.SetTarget(expandTop, this);
-            Storyboard.SetTargetProperty(expandTop, "Canvas.Top");
+            Storyboard.SetTargetProperty(expandTop, "Canvas.Left");
 
             ExpandBoard = new Storyboard();
             ExpandBoard.Duration = expand.Duration;
@@ -93,32 +88,32 @@ namespace PhysicsEngine.UI_Menus
             DoubleAnimation contract = new DoubleAnimation
             {
                 Duration = TimeSpan.FromSeconds(contractDuration),
-                From = MenuHeight,
+                From = MenuWidth,
                 To = 0
             };
             contract.EnableDependentAnimation = true;
             Storyboard.SetTarget(contract, this);
-            Storyboard.SetTargetProperty(contract, "Canvas.Height");
+            Storyboard.SetTargetProperty(contract, "Canvas.Width");
 
             DoubleAnimation contractBg = new DoubleAnimation
             {
                 Duration = TimeSpan.FromSeconds(contractDuration),
-                From = MenuHeight,
+                From = MenuWidth,
                 To = 0
             };
             contractBg.EnableDependentAnimation = true;
             Storyboard.SetTarget(contractBg, bgRect);
-            Storyboard.SetTargetProperty(contractBg, "Height");
+            Storyboard.SetTargetProperty(contractBg, "Width");
 
             DoubleAnimation contractTop = new DoubleAnimation
             {
                 Duration = TimeSpan.FromSeconds(contractDuration),
-                From = MenuY - MenuHeight,
-                To = MenuY
+                From = MenuX - MenuWidth,
+                To = MenuX
             };
             contractTop.EnableDependentAnimation = true;
             Storyboard.SetTarget(contractTop, this);
-            Storyboard.SetTargetProperty(contractTop, "Canvas.Top");
+            Storyboard.SetTargetProperty(contractTop, "Canvas.Left");
 
             ContractBoard = new Storyboard();
             ContractBoard.Duration = contract.Duration;
@@ -141,7 +136,7 @@ namespace PhysicsEngine.UI_Menus
 
         public virtual void ResetPosition()
         {
-            Width = Scene.MainScene.Width;
+            Height = Scene.MainScene.Height;
         }
     }
 }

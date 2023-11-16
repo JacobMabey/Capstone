@@ -136,8 +136,10 @@
     <Compile Include="Systems\Timer.cs" />
     <Compile Include="UI Menus\AddComponentMenu.cs" />
     <Compile Include="UI Menus\AddCompOptions\AddCompPanel.cs" />
+    <Compile Include="UI Menus\VerticalMenu.cs" />
     <Compile Include="UI Menus\HorizontalMenu.cs" />
     <Compile Include="UI Menus\Toolbar.cs" />
+    <Compile Include="UI Menus\WorldSettingsMenu.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
