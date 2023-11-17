@@ -12,12 +12,24 @@ namespace PhysicsEngine
 {
     public static class Renderer
     {
+        private static Color bgColor;
+        public static Color BackgroundColor
+        {
+            get => bgColor;
+            set
+            {
+                if (bgColor != value)
+                    Scene.MainScene.Background = new SolidColorBrush(bgColor);
+                bgColor = value;
+                Scene.WorldMenu.BgColorPicker.SetColor(bgColor);
+            }
+        }
         private static TextBlock fpsText { get; set; }
 
         public static void Initialize(Color bgColor)
         {
             if (bgColor != null)
-                SetBgColor(bgColor);
+                BackgroundColor = bgColor;
 
 #if DEBUG
             fpsText = new TextBlock();
@@ -39,12 +51,6 @@ namespace PhysicsEngine
         public static void Shutdown()
         {
 
-        }
-
-
-        public static void SetBgColor(Color bg)
-        {
-            Scene.MainScene.Background = new SolidColorBrush(bg);
         }
     }
 }

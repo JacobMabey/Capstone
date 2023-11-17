@@ -22,14 +22,14 @@ namespace PhysicsEngine
             double delta = max - min;
 
             double hue = 0;
-            if (delta == 0)
-                hue = 0;
-            else if (max == r)
+            if (max == r)
                 hue = 60.0 * (((g - b) / delta) % 6.0);
             else if (max == g)
                 hue = 60.0 * ((b - r) / delta + 2);
             else if (max == b)
                 hue = 60.0 * ((r - g) / delta + 4);
+            if (delta == 0)
+                hue = 0;
 
 
             double saturation = 0;
@@ -87,7 +87,7 @@ namespace PhysicsEngine
                 b = sec;
             }
 
-            return new double[] { r * 255, g * 255, b * 255 };
+            return new double[] { (r + dif) * 255, (g + dif) * 255, (b + dif) * 255 };
         }
     }
 }
