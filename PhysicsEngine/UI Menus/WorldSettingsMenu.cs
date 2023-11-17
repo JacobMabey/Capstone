@@ -18,6 +18,7 @@ namespace PhysicsEngine.UI_Menus
             ExpandBoard.Completed += ExpandBoard_Completed;
 
             SettingsStack = new StackPanel();
+            SettingsStack.Width = MenuWidth - 40;
             SettingsStack.Margin = new Thickness(10);
             SettingsStack.Visibility = Visibility.Collapsed;
 
@@ -28,6 +29,7 @@ namespace PhysicsEngine.UI_Menus
             settingsTitle.FontSize = 32;
             settingsTitle.Foreground = new SolidColorBrush(Colors.White);
             settingsTitle.Margin = new Thickness(0, 0, 0, 20);
+            settingsTitle.HorizontalAlignment = HorizontalAlignment.Center;
             SettingsStack.Children.Add(settingsTitle);
 
             //Set Gravity Customization
@@ -44,9 +46,32 @@ namespace PhysicsEngine.UI_Menus
 
 
             //Set Background Color Customization
+            TextBlock bgColorTitle = new TextBlock();
+            bgColorTitle.Text = "Background Color";
+            bgColorTitle.FontSize = 20;
+            bgColorTitle.FontFamily = MainPage.GlobalFont;
+            bgColorTitle.Foreground = new SolidColorBrush(Colors.White);
+            bgColorTitle.Margin = new Thickness(0, 30, 0, 5);
+            bgColorTitle.HorizontalAlignment = HorizontalAlignment.Center;
+            SettingsStack.Children.Add(bgColorTitle);
+
             BgColorPicker = new HsvColorPicker(MenuWidth - 40);
             BgColorPicker.ColorChanged += (s, e) => { Renderer.BackgroundColor = BgColorPicker.PreviewColorBrush.Color; };
             SettingsStack.Children.Add(BgColorPicker);
+
+
+            //Set toggleable Borders
+            //Edge Border
+            Grid edgeBorderGrid = GetEdgeBorderToggleGrid();
+            SettingsStack.Children.Add(edgeBorderGrid);
+
+            //Circle Border
+            Grid circBorderGrid = GetCircleBorderToggleGrid();
+            SettingsStack.Children.Add(circBorderGrid);
+
+
+            //Window Size Customization
+
 
 
             this.Children.Add(SettingsStack);
@@ -55,16 +80,6 @@ namespace PhysicsEngine.UI_Menus
         private void ColorPicker_ColorChanged(ColorPicker sender, ColorChangedEventArgs args)
         {
             Renderer.BackgroundColor = sender.Color;
-        }
-
-        private void GravityCheckbox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-        private void GravityCheckbox_Checked(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
 
@@ -146,6 +161,147 @@ namespace PhysicsEngine.UI_Menus
         }
 
 
+        //Toggle Edge Border Input
+        private Grid GetEdgeBorderToggleGrid()
+        {
+            Grid edgeBorderGrid = new Grid();
+            edgeBorderGrid.Width = MenuWidth - 40;
+            edgeBorderGrid.Margin = new Thickness(0, 20, 0, 0);
+            edgeBorderGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
+            edgeBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            edgeBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            edgeBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            edgeBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            edgeBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+
+            TextBlock edgeBorderLabel = new TextBlock();
+            Grid.SetColumn(edgeBorderLabel, 0);
+            Grid.SetColumnSpan(edgeBorderLabel, 4);
+            edgeBorderLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            edgeBorderLabel.VerticalAlignment = VerticalAlignment.Center;
+            edgeBorderLabel.Text = "Toggle Edge Borders";
+            edgeBorderLabel.FontSize = 16;
+            edgeBorderLabel.FontFamily = MainPage.GlobalFont;
+            edgeBorderLabel.Foreground = new SolidColorBrush(Colors.White);
+            edgeBorderGrid.Children.Add(edgeBorderLabel);
+
+            CheckBox edgeBorderCheckbox = new CheckBox();
+            Grid.SetColumn(edgeBorderCheckbox, 4);
+            edgeBorderCheckbox.IsChecked = true;
+            edgeBorderCheckbox.Checked += (s, o) =>
+            {
+                Scene.SetBorderCollision(true);
+            };
+            edgeBorderCheckbox.Unchecked += (s, o) =>
+            {
+                Scene.SetBorderCollision(false);
+            };
+            edgeBorderGrid.Children.Add(edgeBorderCheckbox);
+
+
+            return edgeBorderGrid;
+        }
+
+
+        //Toggle Edge Border Input
+        private Grid GetCircleBorderToggleGrid()
+        {
+            Grid circBorderGrid = new Grid();
+            circBorderGrid.Width = MenuWidth - 40;
+            circBorderGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
+            circBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            circBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            circBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            circBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            circBorderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            circBorderGrid.RowDefinitions.Add(new RowDefinition());
+            circBorderGrid.RowDefinitions.Add(new RowDefinition());
+
+            TextBlock circBorderLabel = new TextBlock();
+            Grid.SetColumn(circBorderLabel, 0);
+            Grid.SetColumnSpan(circBorderLabel, 4);
+            circBorderLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            circBorderLabel.VerticalAlignment = VerticalAlignment.Center;
+            circBorderLabel.Text = "Toggle Circle Border";
+            circBorderLabel.FontSize = 16;
+            circBorderLabel.FontFamily = MainPage.GlobalFont;
+            circBorderLabel.Foreground = new SolidColorBrush(Colors.White);
+            circBorderGrid.Children.Add(circBorderLabel);
+
+            CheckBox circBorderCheckbox = new CheckBox();
+            Grid.SetColumn(circBorderCheckbox, 4);
+            circBorderCheckbox.IsChecked = Scene.IsCircleBorderActive;
+            circBorderGrid.Children.Add(circBorderCheckbox);
+
+
+            //Second Row
+            TextBlock circRadLabel = new TextBlock();
+            Grid.SetColumn(circRadLabel, 0);
+            Grid.SetColumnSpan(circRadLabel, 3);
+            Grid.SetRow(circRadLabel, 1);
+            circRadLabel.VerticalAlignment = VerticalAlignment.Center;
+            circRadLabel.Text = "Set Circle Radius";
+            circRadLabel.FontSize = 14;
+            circRadLabel.FontFamily = MainPage.GlobalFont;
+            SolidColorBrush lableColor = new SolidColorBrush(Scene.IsCircleBorderActive ? Colors.LightGray : Colors.Gray);
+            circRadLabel.Foreground = lableColor;
+            circBorderGrid.Children.Add(circRadLabel);
+
+            //Make text input
+            TextBox circRadInput = new TextBox();
+            Grid.SetColumn(circRadInput, 3);
+            Grid.SetColumnSpan(circRadInput, 2);
+            Grid.SetRow(circRadInput, 1);
+            circRadInput.MaxLength = 3;
+            circRadInput.IsEnabled = false;
+            circRadInput.TextAlignment = TextAlignment.Center;
+            circRadInput.TextWrapping = TextWrapping.Wrap;
+            circRadInput.Text = Scene.CircleBorderRadius+"";
+            circRadInput.GotFocus += (object o, RoutedEventArgs e) => circRadInput.SelectAll();
+            circRadInput.BeforeTextChanging += CircRadInput_BeforeTextChanging;
+            circBorderGrid.Children.Add(circRadInput);
+
+
+            circBorderCheckbox.Checked += (s, o) =>
+            {
+                Scene.SetCircleBorderCollision(true);
+                lableColor.Color = Colors.LightGray;
+                circRadInput.IsEnabled = true;
+            };
+            circBorderCheckbox.Unchecked += (s, o) =>
+            {
+                Scene.SetCircleBorderCollision(false);
+                lableColor.Color = Colors.Gray;
+                circRadInput.IsEnabled = false;
+            };
+
+            return circBorderGrid;
+        }
+
+        private void CircRadInput_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (double.TryParse(args.NewText, out double parsed))
+            {
+                if (parsed > 999)
+                {
+                    parsed = Math.Sign(parsed) * 999;
+                    Scene.SetCircleBorderRadius(parsed);
+                    sender.Text = parsed + "";
+                }
+                else if (parsed < 10)
+                {
+                    parsed = 10;
+                    Scene.SetCircleBorderRadius(parsed);
+                    sender.Text = parsed + "";
+                }
+                else
+                    Scene.SetCircleBorderRadius(parsed);
+            }
+            else
+            {
+                args.Cancel = true;
+            }
+        }
 
 
         //Expansion
@@ -161,6 +317,13 @@ namespace PhysicsEngine.UI_Menus
             {
                 SettingsStack.Visibility = Visibility.Collapsed;
             }
+        }
+
+
+        public override void ResetPosition()
+        {
+            base.ResetPosition();
+            MenuX = MainPage.WindowSize.Width;
         }
     }
 }

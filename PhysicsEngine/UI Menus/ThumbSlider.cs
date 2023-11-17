@@ -15,11 +15,35 @@ namespace PhysicsEngine.UI_Menus
         public Line SliderLine { get; set; }
         public Ellipse Thumb {  get; set; }
 
-        public int Minimum { get; set; } = 0;
-        public int Maximum { get; set; } = 10;
+        private double thumbRadius;
+        public double ThumbRadius
+        {
+            get => thumbRadius;
+            set
+            {
+                thumbRadius = value;
+                Thumb.Width = thumbRadius * 2.0;
+                Thumb.Height = thumbRadius * 2.0;
+            }
+        }
 
-        private int val = 0;
-        public virtual int Value
+        private bool isEnabled = true;
+        public bool IsEnabled
+        {
+            get => isEnabled;
+            set
+            {
+                isEnabled = value;
+                Thumb.Opacity = isEnabled ? 1 : 0.5;
+                SliderLine.Opacity = isEnabled ? 1 : 0.65;
+            }
+        }
+
+        public double Minimum { get; set; } = 0;
+        public double Maximum { get; set; } = 10;
+
+        private double val = 0;
+        public virtual double Value
         {
             get => val;
             set
@@ -48,8 +72,7 @@ namespace PhysicsEngine.UI_Menus
             SliderLine.Stroke = new SolidColorBrush(Colors.White);
 
             Thumb = new Ellipse();
-            Thumb.Width = thumbRadius * 2.0;
-            Thumb.Height = thumbRadius * 2.0;
+            ThumbRadius = thumbRadius;
             Canvas.SetTop(Thumb, -thumbRadius - 3);
             Thumb.PointerPressed += Thumb_PointerPressed;
             Thumb.PointerMoved += Thumb_PointerMoved;
@@ -63,6 +86,8 @@ namespace PhysicsEngine.UI_Menus
 
         private void Thumb_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            if (!IsEnabled) return;
+
             IsThumbBeingDragged = true;
             Thumb.CapturePointer(e.Pointer);
         }
@@ -76,7 +101,7 @@ namespace PhysicsEngine.UI_Menus
                     newPos = Width;
                 Canvas.SetLeft(Thumb, newPos - Thumb.Width / 2.0);
 
-                Value = (int)Math.Round(newPos / Width * (double)(Maximum - Minimum) + Minimum);
+                Value = newPos / Width * (double)(Maximum - Minimum) + Minimum;
             }
         }
         private void Thumb_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

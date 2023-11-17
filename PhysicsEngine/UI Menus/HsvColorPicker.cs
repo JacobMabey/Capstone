@@ -223,7 +223,7 @@ namespace PhysicsEngine.UI_Menus
 
         private void HueSlider_ValueChanged(object sender, EventArgs e)
         {
-            Hue = HueSlider.Value;
+            Hue = (int)HueSlider.Value;
             HueValue.Text = Hue+"";
             double[] newColorRaw = ColorFunctions.HsvToRgb(Hue, Saturation / 100.0, Value / 100.0);
             Color newColor = Color.FromArgb(255, (byte)newColorRaw[0], (byte)newColorRaw[1], (byte)newColorRaw[2]);
@@ -233,23 +233,27 @@ namespace PhysicsEngine.UI_Menus
         }
         private void SaturationSlider_ValueChanged(object sender, EventArgs e)
         {
-            Saturation = SaturationSlider.Value;
+            Saturation = (int)SaturationSlider.Value;
             SaturationValue.Text = Saturation + "";
             double[] newColorRaw = ColorFunctions.HsvToRgb(Hue, Saturation / 100.0, Value / 100.0);
             Color newColor = Color.FromArgb(255, (byte)newColorRaw[0], (byte)newColorRaw[1], (byte)newColorRaw[2]);
             PreviewColorBrush.Color = newColor;
             if (ColorChanged != null)
                 ColorChanged(this, EventArgs.Empty);
+
+            HueSlider.IsEnabled = Saturation != 0;
         }
         private void ValueSlider_ValueChanged(object sender, EventArgs e)
         {
-            Value = ValueSlider.Value;
+            Value = (int)ValueSlider.Value;
             ValValue.Text = Value + "";
             double[] newColorRaw = ColorFunctions.HsvToRgb(Hue, Saturation / 100.0, Value / 100.0);
             Color newColor = Color.FromArgb(255, (byte)newColorRaw[0], (byte)newColorRaw[1], (byte)newColorRaw[2]);
             PreviewColorBrush.Color = newColor;
             if (ColorChanged != null)
                 ColorChanged(this, EventArgs.Empty);
+
+            SaturationSlider.IsEnabled = Value != 0;
         }
 
 
@@ -266,10 +270,12 @@ namespace PhysicsEngine.UI_Menus
             Saturation = (int)(hsvColor[1] * 100.0);
             SaturationValue.Text = Saturation + "";
             Canvas.SetLeft(SaturationSlider.Thumb, (double)Saturation / (double)100 * SaturationSlider.Width - SaturationSlider.Thumb.Width / 2.0);
+            HueSlider.IsEnabled = Saturation != 0;
 
             Value = (int)(hsvColor[2] * 100.0);
             ValValue.Text = Value + "";
             Canvas.SetLeft(ValueSlider.Thumb, (double)Value / (double)100 * ValueSlider.Width - ValueSlider.Thumb.Width / 2.0);
+            SaturationSlider.IsEnabled = Value != 0;
         }
     }
 }

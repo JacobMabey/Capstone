@@ -108,5 +108,12 @@ namespace PhysicsEngine.UI_Menus
                 AddEjector.Visibility = Visibility.Collapsed;
             }
         }
+
+
+        public override void ResetPosition()
+        {
+            base.ResetPosition();
+            MenuY = MainPage.WindowSize.Height - Toolbar.ToolbarHeight;
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace PhysicsEngine.UI_Menus
 
         //TimeScale Slider
         private TextBlock TimeScaleText { get; set; }
-        private Slider TimeScaleSlider { get; set; }
+        private ThumbSlider TimeScaleSlider { get; set; }
 
         //Add Component Button
         private Image AddButton { get; set; }
@@ -47,16 +47,18 @@ namespace PhysicsEngine.UI_Menus
         private void Initialize()
         {
             //Initialize
+            Width = MainPage.WindowSize.Width;
             Height = ToolbarHeight;
             Canvas.SetZIndex(this, 100);
 
             //Background
-            Background = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
+            //Background = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
 
             //Border
             rectBorder = new Rectangle();
             rectBorder.Width = Width + 2;
             rectBorder.Height = ToolbarHeight + 2;
+            rectBorder.Fill = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
             rectBorder.Stroke = new SolidColorBrush(Colors.Black);
             rectBorder.StrokeThickness = 1;
             Canvas.SetLeft(rectBorder, -1);
@@ -83,21 +85,13 @@ namespace PhysicsEngine.UI_Menus
             this.Children.Add(TimeScaleText);
 
             //TimeScale Slider
-            TimeScaleSlider = new Slider();
+            TimeScaleSlider = new ThumbSlider(190.0, 8);
             TimeScaleSlider.ValueChanged += TimeScaleSlider_ValueChanged;
-            TimeScaleSlider.IsThumbToolTipEnabled = false;
-            double sliderStretchScale = 1.6;
-            ScaleTransform scale = new ScaleTransform();
-            scale.ScaleX = sliderStretchScale;
-            TimeScaleSlider.RenderTransform = scale;
             TimeScaleSlider.Minimum = 0.0;
             TimeScaleSlider.Maximum = Timer.TIMESCALE_MAX;
-            TimeScaleSlider.StepFrequency = 0.01;
             TimeScaleSlider.Value = Timer.TimeScale;
-            TimeScaleSlider.Width = 200.0 / sliderStretchScale;
             TimeScaleSlider.Height = ToolbarHeight;
-            TimeScaleSlider.Margin = new Thickness(-4);
-            TimeScaleSlider.RequestedTheme = ElementTheme.Dark;
+            Canvas.SetTop(TimeScaleSlider, ToolbarHeight / 2.0 + 2);
             Canvas.SetLeft(TimeScaleSlider, 100.0);
             this.Children.Add(TimeScaleSlider);
 
@@ -107,7 +101,7 @@ namespace PhysicsEngine.UI_Menus
             AddButton.Width = ToolbarHeight;
             AddButton.Height = ToolbarHeight;
             AddButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
-            Canvas.SetLeft(AddButton, Canvas.GetLeft(TimeScaleSlider) + TimeScaleSlider.Width * sliderStretchScale + 5.0);
+            Canvas.SetLeft(AddButton, Canvas.GetLeft(TimeScaleSlider) + TimeScaleSlider.Width + 15.0);
             Canvas.SetZIndex(AddButton, 101);
             AddButton.PointerPressed += AddButton_Pressed;
             this.Children.Add(AddButton);
@@ -134,9 +128,9 @@ namespace PhysicsEngine.UI_Menus
             ResetPosition();
         }
 
-        private void TimeScaleSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        private void TimeScaleSlider_ValueChanged(object sender, EventArgs e)
         {
-            Timer.TimeScale = e.NewValue;
+            Timer.TimeScale = TimeScaleSlider.Value;
             TimeScaleText.Text = (int)(Timer.TimeScale * 100.0) + "%";
         }
 

@@ -271,10 +271,26 @@ namespace PhysicsEngine
             borderBottom.IsCollisionEnabled = !borderBottom.IsCollisionEnabled;
             borderLeft.IsCollisionEnabled = !borderLeft.IsCollisionEnabled;
         }
+        public static void SetBorderCollision(bool col)
+        {
+            borderTop.IsCollisionEnabled = col;
+            borderRight.IsCollisionEnabled = col;
+            borderBottom.IsCollisionEnabled = col;
+            borderLeft.IsCollisionEnabled = col;
+        }
+        public static bool IsBorderCollisionEnabled()
+        {
+            return borderTop.IsCollisionEnabled;
+        }
 
         public static void ToggleCircleBorderCollision()
         {
             IsCircleBorderActive = !IsCircleBorderActive;
+            circleBorder.Opacity = IsCircleBorderActive ? 1 : 0;
+        }
+        public static void SetCircleBorderCollision(bool col)
+        {
+            IsCircleBorderActive = col;
             circleBorder.Opacity = IsCircleBorderActive ? 1 : 0;
         }
         public static void SetCircleBorderRadius(double radius)
@@ -289,6 +305,22 @@ namespace PhysicsEngine
         public static double GetCircleBorderRadius()
         {
             return CircleBorderRadius;
+        }
+
+
+        public static void ResetBorderPositions()
+        {
+            if (borderTop == null)
+                return;
+
+            borderTop.PosA = new Coord(0, 0);
+            borderTop.PosB = new Coord(MainScene.Width, 0);
+            borderRight.PosA = new Coord(MainScene.Width, 0);
+            borderRight.PosB = new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight);
+            borderBottom.PosA = new Coord(0, MainScene.Height - Toolbar.ToolbarHeight);
+            borderBottom.PosB = new Coord(MainScene.Width, MainScene.Height - Toolbar.ToolbarHeight);
+            borderLeft.PosA = new Coord(0, 0);
+            borderLeft.PosB = new Coord(0, MainScene.Height - Toolbar.ToolbarHeight);
         }
     }
 }
