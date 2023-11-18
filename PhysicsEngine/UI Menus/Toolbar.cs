@@ -151,6 +151,9 @@ namespace PhysicsEngine.UI_Menus
             //Close other menus
             if (Scene.WorldMenu.IsMenuExpanded)
                 Scene.WorldMenu.ToggleMenuExpanded();
+
+            if (Scene.CompMenu.IsMenuExpanded)
+                Scene.CompMenu.ToggleMenuExpanded();
         }
 
         private void ClearButton_Pressed(object sender, PointerRoutedEventArgs e)
@@ -165,6 +168,9 @@ namespace PhysicsEngine.UI_Menus
             //Close other menus
             if (Scene.AddMenu.IsMenuExpanded)
                 Scene.AddMenu.ToggleMenuExpanded();
+
+            if (Scene.CompMenu.IsMenuExpanded)
+                Scene.CompMenu.ToggleMenuExpanded();
         }
 
 

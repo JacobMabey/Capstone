@@ -69,6 +69,7 @@ namespace PhysicsEngine
             base.Initialize();
 
             _ellipse.Tag = this;
+            _ellipse.Tapped += Ellipse_Tapped;
             _ellipse.PointerPressed += Ellipse_PointerPressed;
             _ellipse.PointerReleased += Ellipse_PointerReleased;
             _ellipse.PointerMoved += Ellipse_PointerMoved;
@@ -104,7 +105,11 @@ namespace PhysicsEngine
         }
         private void Ellipse_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            if (IsBeingAdded)
+                OpenCompMenu();
+
             IsBeingDragged = false;
+            IsBeingAdded = false;
             _ellipse.ReleasePointerCapture(e.Pointer);
             IsMouseDragMode = false;
             _ellipse.Opacity = 1.0;
@@ -115,6 +120,18 @@ namespace PhysicsEngine
 
             Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
 
+            //Drag mode on if user hold control
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) == CoreVirtualKeyStates.Down)
+            {
+                IsMouseDragMode = true;
+                _ellipse.Opacity = 0.6;
+            }
+            else
+            {
+                IsMouseDragMode = false;
+                _ellipse.Opacity = 1.0;
+            }
+
             double posx = pointerCoord.X - PointerDragPoint.X;
             double posy = pointerCoord.Y - PointerDragPoint.Y;
             if (Scene.IsSnappableGridEnabled && IsMouseDragMode)
@@ -123,6 +140,16 @@ namespace PhysicsEngine
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             Position = new Coord(posx, posy);
+        }
+        private void Ellipse_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            IsMouseDragMode = false;
+            IsBeingAdded = false;
+            IsBeingDragged = false;
+            _ellipse.Opacity = 1.0;
+            _ellipse.ReleasePointerCaptures();
+
+            OpenCompMenu();
         }
 
 

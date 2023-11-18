@@ -33,7 +33,7 @@ namespace PhysicsEngine
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
         //Main Space Partitioning Grid Global Values
-        public static double MaxParticleRadius { get; private set; } = 5.0;
+        public static double MaxParticleRadius { get; private set; } = 30.0;
         public static double SpacePartitionCellSize => MaxParticleRadius * 2.0;
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
@@ -47,6 +47,7 @@ namespace PhysicsEngine
         //Main Menus
         public static AddComponentMenu AddMenu { get; set; }
         public static WorldSettingsMenu WorldMenu { get; set; }
+        public static ComponentMenu CompMenu { get; set; }
 
         //Border Objects
         private static CompLine borderTop;
@@ -70,12 +71,18 @@ namespace PhysicsEngine
             //Add Toolbar & Menus
             Toolbar = new Toolbar();
             MainScene.Children.Add(Toolbar);
+
             AddMenu = new AddComponentMenu();
             AddMenu.Initialize(280, Scene.MainScene.Height - Toolbar.ToolbarHeight + 10, Color.FromArgb(180, 0, 0, 0));
             MainScene.Children.Add(AddMenu);
+
             WorldMenu = new WorldSettingsMenu();
             WorldMenu.Initialize(320, Scene.MainScene.Width + 20, Color.FromArgb(180, 0, 0, 0));
             MainScene.Children.Add(WorldMenu);
+
+            CompMenu = new ComponentMenu();
+            CompMenu.Initialize(320, Scene.MainScene.Width + 20, Color.FromArgb(180, 0, 0, 0));
+            MainScene.Children.Add(CompMenu);
 
             //Add collision border lines
             borderTop = new CompLine(new Coord(0, 0), new Coord(MainScene.Width, 0), Colors.Black, 1.0);
@@ -117,6 +124,11 @@ namespace PhysicsEngine
                 //Check for out of bounds elements
                 double x = Canvas.GetLeft(comp.GetUIElement());
                 double y = Canvas.GetTop(comp.GetUIElement());
+                if (comp is Particle)
+                {
+                    x += ((Particle)comp).Radius;
+                    y += ((Particle)comp).Radius;
+                }
 
                 if (x < -OUT_OF_BOUNDS_MARGIN.Left || x > MainScene.Width + OUT_OF_BOUNDS_MARGIN.Right
                     || y < -OUT_OF_BOUNDS_MARGIN.Top || y > MainScene.Height + OUT_OF_BOUNDS_MARGIN.Bottom)
@@ -236,6 +248,10 @@ namespace PhysicsEngine
             //check if component is particle
             if (Children[id] is Particle)
                 ParticleCount--;
+
+            //Check if component has menu open
+            if (Scene.CompMenu != null && Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == id)
+                Scene.CompMenu.ToggleMenuExpanded();
         }
         public static void RemoveLater(long id)
         {
@@ -246,6 +262,10 @@ namespace PhysicsEngine
             //check if component is particle
             if (Children[id] is Particle)
                 ParticleCount--;
+
+            //Check if component has menu open
+            if (Scene.CompMenu != null && Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == id)
+                Scene.CompMenu.ToggleMenuExpanded();
         }
 
         public static void ClearScene()
@@ -261,6 +281,9 @@ namespace PhysicsEngine
             Add(borderRight);
             Add(borderBottom);
             Add(borderLeft);
+
+            if (Scene.CompMenu.IsMenuExpanded)
+                Scene.CompMenu.ToggleMenuExpanded();
         }
 
 

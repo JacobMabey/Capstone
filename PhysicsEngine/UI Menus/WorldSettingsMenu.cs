@@ -18,8 +18,8 @@ namespace PhysicsEngine.UI_Menus
             ExpandBoard.Completed += ExpandBoard_Completed;
 
             SettingsStack = new StackPanel();
-            SettingsStack.Width = MenuWidth - 40;
-            SettingsStack.Margin = new Thickness(10);
+            SettingsStack.Width = MenuWidth - 50;
+            SettingsStack.Margin = new Thickness(10, 35, 10, 10);
             SettingsStack.Visibility = Visibility.Collapsed;
 
             //Set settings title
@@ -75,11 +75,6 @@ namespace PhysicsEngine.UI_Menus
 
 
             this.Children.Add(SettingsStack);
-        }
-
-        private void ColorPicker_ColorChanged(ColorPicker sender, ColorChangedEventArgs args)
-        {
-            Renderer.BackgroundColor = sender.Color;
         }
 
 

@@ -82,6 +82,7 @@ namespace PhysicsEngine
             _line.PointerPressed += Line_PointerPressed;
             _line.PointerReleased += Line_PointerReleased;
             _line.PointerMoved += Line_PointerMoved;
+            _line.Tapped += Line_Tapped;
         }
 
         public CompLine()
@@ -137,7 +138,11 @@ namespace PhysicsEngine
         }
         private void Line_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            if (IsBeingAdded)
+                OpenCompMenu();
+
             IsBeingDragged = false;
+            IsBeingAdded = false;
             _line.ReleasePointerCapture(e.Pointer);
             IsMouseDragMode = false;
             _line.Opacity = 1.0;
@@ -187,6 +192,16 @@ namespace PhysicsEngine
                     PosB = new Coord(posx, posy);
                 }
             }
+        }
+        private void Line_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            IsMouseDragMode = false;
+            IsBeingAdded = false;
+            IsBeingDragged = false;
+            _line.Opacity = 1.0;
+            _line.ReleasePointerCaptures();
+
+            OpenCompMenu();
         }
 
 

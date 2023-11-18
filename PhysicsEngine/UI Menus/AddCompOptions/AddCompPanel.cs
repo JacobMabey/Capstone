@@ -56,7 +56,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                     CompTitle.Text = "Particle";
                     break;
                 case eShapeType.EJECTOR:
-                    CompTitle.Text = "Particle Ejector";
+                    CompTitle.Text = "Ejector";
                     break;
             }
             CompTitle.FontFamily = MainPage.GlobalFont;
@@ -108,6 +108,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
             dragTooltip.Text = "Click and Drag Shape to Add";
             dragTooltip.Padding = new Thickness(0, 12, 0 , 0);
             dragTooltip.FontFamily = MainPage.GlobalFont;
+            dragTooltip.TextWrapping = TextWrapping.Wrap;
             dragTooltip.FontSize = 10;
             dragTooltip.Foreground = new SolidColorBrush(Colors.LightGray);
 
@@ -144,6 +145,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 rect.PointerDragPoint = new Coord(pointerCoord.X - rect.Position.X, pointerCoord.Y - rect.Position.Y);
 
                 rect.IsBeingDragged = true;
+                rect.IsBeingAdded = true;
                 rect.GetUIElement().CapturePointer(e.Pointer);
                 rect.IsMouseDragMode = true;
                 rect.GetUIElement().Opacity = 0.6;
@@ -159,6 +161,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 line.PosB = new Coord(centerPos.X - 35.0, centerPos.Y + 50.0);
 
                 line.IsBeingDragged = true;
+                line.IsBeingAdded = true;
                 line.GetUIElement().CapturePointer(e.Pointer);
                 line.FullLineBeingDragged = true;
                 Scene.Add(line);
@@ -171,6 +174,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 particle.Fill = Color.FromArgb(255, 242, 80, 80);
 
                 particle.IsBeingDragged = true;
+                particle.IsBeingAdded = true;
                 particle.GetUIElement().CapturePointer(e.Pointer);
                 Scene.Add(particle);
 
@@ -187,6 +191,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
 
                 ejector.PointerDragPoint = new Coord(pointerCoord.X - ejector.Position.X, pointerCoord.Y - ejector.Position.Y);
                 ejector.IsBeingDragged = true;
+                ejector.IsBeingAdded = true;
                 ejector.GetUIElement().CapturePointer(e.Pointer);
                 Scene.Add(ejector);
             }

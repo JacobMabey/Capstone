@@ -46,6 +46,24 @@ namespace PhysicsEngine.UI_Menus
             bgRect.StrokeThickness = 1;
             Children.Add(bgRect);
 
+            //Add Close Button
+            TextBlock closeText = new TextBlock();
+            closeText.Text = ">";
+            ScaleTransform scale = new ScaleTransform
+            {
+                ScaleY = 1.75
+            };
+            closeText.RenderTransform = scale;
+            Canvas.SetLeft(closeText, 5);
+            Canvas.SetTop(closeText, 0);
+            closeText.FontSize = 20;
+            closeText.Tapped += (s, o) => {
+                ToggleMenuExpanded();
+            };
+            closeText.Foreground = new SolidColorBrush(Colors.LightGray);
+            closeText.FontFamily = MainPage.GlobalFont;
+            Children.Add(closeText);
+
             //Expand Animation
             DoubleAnimation expand = new DoubleAnimation
             {

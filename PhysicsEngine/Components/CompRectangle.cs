@@ -118,6 +118,7 @@ namespace PhysicsEngine
             _rect.PointerPressed += Rect_PointerPressed;
             _rect.PointerReleased += Rect_PointerReleased;
             _rect.PointerMoved += Rect_PointerMoved;
+            _rect.Tapped += Rect_Tapped;
             RotationTransform = new RotateTransform();
             _rect.RenderTransform = RotationTransform;
         }
@@ -172,16 +173,18 @@ namespace PhysicsEngine
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            if (IsBeingAdded)
+                OpenCompMenu();
+
             IsBeingDragged = false;
+            IsBeingAdded = false;
             _rect.ReleasePointerCapture(e.Pointer);
-            IsCollisionEnabled = true;
             IsMouseDragMode = false;
             _rect.Opacity = 1.0;
         }
         private void Rect_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (!IsBeingDragged) return;
-            IsCollisionEnabled = false;
 
             //Rotate mode on if user hold shift
             if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
@@ -210,6 +213,16 @@ namespace PhysicsEngine
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             Position = new Coord(posx, posy);
+        }
+        private void Rect_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            IsMouseDragMode = false;
+            IsBeingAdded = false;
+            IsBeingDragged = false;
+            _rect.Opacity = 1.0;
+            _rect.ReleasePointerCaptures();
+
+            OpenCompMenu();
         }
 
 
