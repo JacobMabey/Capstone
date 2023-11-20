@@ -68,9 +68,6 @@ namespace PhysicsEngine
         public MainPage()
         {
             Initialize(Color.FromArgb(255, 230, 230, 230)); //Main Initial Canvas Initialization
-
-
-            
         }
 
 
@@ -99,8 +96,6 @@ namespace PhysicsEngine
         private void PageLoaded(object sender, RoutedEventArgs e)
         {
             CompositionTarget.Rendering += Loop;
-
-
         }
 
         private void Update()

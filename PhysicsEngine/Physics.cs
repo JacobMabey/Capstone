@@ -20,8 +20,9 @@ namespace PhysicsEngine
 {
     public class Physics
     {
+        public static bool IsGravityEnabled { get; set; } = false;
         public static double MaxGravity => 1000;
-        public static double GravityAcceleration { get; set; } = 30;
+        public static double GravityAcceleration { get; set; } = 20;
 
         private static readonly double Epsilon = 0.01;
 
@@ -92,7 +93,7 @@ namespace PhysicsEngine
                     ApplyForce(new Coord(-Math.Sign(Velocity.X) * (Friction), -Math.Sign(Velocity.Y) * (Friction)));
 
                     //Update Velocity & Gravity
-                    double grav = GravityAcceleration / 100.0;
+                    double grav = IsGravityEnabled ? GravityAcceleration / 100.0 : 0.0;
                     Acceleration = new Coord(Acceleration.X * Timer.TimeScale, ((Acceleration.Y + grav)) * Timer.TimeScale);
                     Velocity = new Coord(Velocity.X + Acceleration.X, Velocity.Y + Acceleration.Y);
 

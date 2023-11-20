@@ -117,9 +117,10 @@ namespace PhysicsEngine.UI_Menus
             //Make checkbox
             CheckBox gravityCheckbox = new CheckBox();
             Grid.SetColumn(gravityCheckbox, 0);
-            gravityCheckbox.IsChecked = true;
-            gravityCheckbox.Checked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = true; Physics.GravityAcceleration = double.Parse(gravityInput.Text); };
-            gravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = false; Physics.GravityAcceleration = 0.0; };
+            gravityCheckbox.IsChecked = Physics.IsGravityEnabled;
+            gravityInput.IsEnabled = Physics.IsGravityEnabled;
+            gravityCheckbox.Checked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = true; Physics.IsGravityEnabled = true; };
+            gravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = false; Physics.IsGravityEnabled = false; };
             gravityInputGrid.Children.Add(gravityCheckbox);
 
             //Make pps label
