@@ -12,6 +12,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Markup;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
@@ -47,7 +48,7 @@ namespace PhysicsEngine
         }
 
         private Color fill;
-        public Color FillColor
+        public override Color Fill
         {
             get => fill;
             set
@@ -107,6 +108,14 @@ namespace PhysicsEngine
             {
                 rotationAngle = value;
                 RotationTransform.Angle = rotationAngle;
+
+                if (Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == this.ID)
+                {
+                    double roundedAngle = rotationAngle;
+                    while (roundedAngle < 0) roundedAngle += 360;
+                    while (roundedAngle > 359) roundedAngle -= 359;
+                    Scene.CompMenu.RotateInput.Text = ((int)(roundedAngle * 1000.0) / 1000.0) + "";
+                }
             }
         }
 
@@ -128,7 +137,7 @@ namespace PhysicsEngine
             Initialize();
             Position = new Coord(0,0);
             Size = new Size(0,0);
-            FillColor = Colors.LightGray;
+            Fill = Colors.LightGray;
             StrokeColor = Colors.Black;
             _rect.StrokeThickness = 1.0;
         }
@@ -137,7 +146,7 @@ namespace PhysicsEngine
             Initialize();
             Position = position;
             Size = size;
-            FillColor = Colors.LightGray;
+            Fill = Colors.LightGray;
             StrokeColor = Colors.Black;
             _rect.StrokeThickness = 1.0;
 
@@ -147,7 +156,7 @@ namespace PhysicsEngine
             Initialize();
             Position = position;
             Size = size;
-            FillColor = fill;
+            Fill = fill;
             StrokeColor = stroke;
             _rect.StrokeThickness = strokeThickness;
 
@@ -226,8 +235,21 @@ namespace PhysicsEngine
         }
 
 
-
         public override Shape GetUIElement() => _rect;
+
+        public override Component Clone()
+        {
+            CompRectangle clone = new CompRectangle();
+            clone.IsCollisionEnabled = IsCollisionEnabled;
+            clone.Position = Position;
+            clone.Size = Size;
+            clone.Fill = Fill;
+            clone.RotationAngle = RotationAngle;
+            clone.RotationCenter = RotationCenter;
+            clone.StrokeColor = StrokeColor;
+            clone.StrokeThickness = StrokeThickness;
+            return clone;
+        }
 
         public override void Update()
         {

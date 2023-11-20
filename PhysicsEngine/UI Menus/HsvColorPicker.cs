@@ -48,7 +48,7 @@ namespace PhysicsEngine.UI_Menus
             PreviewColorRect = new Rectangle
             {
                 Width = Width,
-                Height = 50,
+                Height = 30,
             };
             PreviewColorBrush = new SolidColorBrush(Colors.Red);
             PreviewColorRect.Fill = PreviewColorBrush;
@@ -85,7 +85,7 @@ namespace PhysicsEngine.UI_Menus
             TextBlock hueLabel = new TextBlock();
             Grid.SetColumn(hueLabel, 0);
             hueLabel.VerticalAlignment = VerticalAlignment.Center;
-            hueLabel.Padding = new Thickness(10);
+            hueLabel.Padding = new Thickness(0, 10, 0, 10);
             hueLabel.Text = "Hue:";
             hueLabel.FontSize = 12;
             hueLabel.FontFamily = MainPage.GlobalFont;
@@ -97,7 +97,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(HueSlider, 1);
             HueSlider.Minimum = 0;
             HueSlider.Maximum = 359;
-            HueSlider.Margin = new Thickness(0, 30, 0, 0);
+            HueSlider.Margin = new Thickness(0, 10, 0, 0);
             HueSlider.ValueChanged += HueSlider_ValueChanged;
             hueGrid.Children.Add(HueSlider);
 
@@ -106,7 +106,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(HueValue, 2);
             HueValue.HorizontalAlignment = HorizontalAlignment.Center;
             HueValue.VerticalAlignment = VerticalAlignment.Center;
-            HueValue.Padding = new Thickness(10);
+            HueValue.Padding = new Thickness(0, 10, 0, 10);
             HueValue.Text = HueSlider.Value + "";
             HueValue.FontSize = 12;
             HueValue.FontFamily = MainPage.GlobalFont;
@@ -137,7 +137,7 @@ namespace PhysicsEngine.UI_Menus
             TextBlock satLabel = new TextBlock();
             Grid.SetColumn(satLabel, 0);
             satLabel.VerticalAlignment = VerticalAlignment.Center;
-            satLabel.Padding = new Thickness(10);
+            satLabel.Padding = new Thickness(0, 10, 0, 10);
             satLabel.Text = "Sat:";
             satLabel.FontSize = 12;
             satLabel.FontFamily = MainPage.GlobalFont;
@@ -149,7 +149,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(SaturationSlider, 1);
             SaturationSlider.Minimum = 0;
             SaturationSlider.Maximum = 100;
-            SaturationSlider.Margin = new Thickness(0, 30, 0, 0);
+            SaturationSlider.Margin = new Thickness(0, 10, 0, 0);
             SaturationSlider.ValueChanged += SaturationSlider_ValueChanged;
             satGrid.Children.Add(SaturationSlider);
 
@@ -158,7 +158,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(SaturationValue, 2);
             SaturationValue.HorizontalAlignment = HorizontalAlignment.Center;
             SaturationValue.VerticalAlignment = VerticalAlignment.Center;
-            SaturationValue.Padding = new Thickness(10);
+            SaturationValue.Padding = new Thickness(0, 10, 0, 10);
             SaturationValue.Text = SaturationSlider.Value + "";
             SaturationValue.FontSize = 12;
             SaturationValue.FontFamily = MainPage.GlobalFont;
@@ -189,7 +189,7 @@ namespace PhysicsEngine.UI_Menus
             TextBlock valLabel = new TextBlock();
             Grid.SetColumn(valLabel, 0);
             valLabel.VerticalAlignment = VerticalAlignment.Center;
-            valLabel.Padding = new Thickness(10);
+            valLabel.Padding = new Thickness(0, 10, 0, 10);
             valLabel.Text = "Val:";
             valLabel.FontSize = 12;
             valLabel.FontFamily = MainPage.GlobalFont;
@@ -201,7 +201,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(ValueSlider, 1);
             ValueSlider.Minimum = 0;
             ValueSlider.Maximum = 100;
-            ValueSlider.Margin = new Thickness(0, 30, 0, 0);
+            ValueSlider.Margin = new Thickness(0, 10, 0, 0);
             ValueSlider.ValueChanged += ValueSlider_ValueChanged;
             valueGrid.Children.Add(ValueSlider);
 
@@ -210,7 +210,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(ValValue, 2);
             ValValue.HorizontalAlignment = HorizontalAlignment.Center;
             ValValue.VerticalAlignment = VerticalAlignment.Center;
-            ValValue.Padding = new Thickness(10);
+            ValValue.Padding = new Thickness(0, 10, 0, 10);
             ValValue.Text = ValueSlider.Value + "";
             ValValue.FontSize = 12;
             ValValue.FontFamily = MainPage.GlobalFont;

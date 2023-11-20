@@ -35,7 +35,7 @@ namespace PhysicsEngine
         /// <summary>
         /// Sets dampening of forces
         /// </summary>
-        private double friction = 0.1;
+        private double friction = 0.0;
         public double Friction
         {
             get => friction;
@@ -49,7 +49,7 @@ namespace PhysicsEngine
         /// 0 to 1 Sets "bounce amount"
         /// 0 will not bounce, while 1 will lose no kenetic energy
         /// </summary>
-        private double elasticity = 1.0;
+        private double elasticity = 0.8;
         public double Elasticity
         {
             get => elasticity;
@@ -150,56 +150,36 @@ namespace PhysicsEngine
             bool CheckAgain = true;
 
 
-            //foreach (Component comp in Scene.Children.Values)
-            List<Particle> checkList = new List<Particle>();
-            checkList.AddRange(Scene.SpacePartitionGrid[Scene.CurrentCell]);
-
-            //Get adjacent positions
-            List<Coord> adjacentCells = new List<Coord>()
+            //If particle collision is enabled, react to collisions
+            if (parent.IsParticleCollisionEnabled)
             {
-                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y),
-                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y - 1),
-                new Coord(Scene.CurrentCell.X, Scene.CurrentCell.Y - 1),
-                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y - 1),
-                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y),
-                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y + 1),
-                new Coord(Scene.CurrentCell.X, Scene.CurrentCell.Y + 1),
-                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y + 1)
-            };
-            foreach (Coord cell in adjacentCells)
-            {
-                if (Scene.SpacePartitionGrid.ContainsKey(cell))
-                    checkList.AddRange(Scene.SpacePartitionGrid[cell]);
-            }
+                List<Particle> checkList = GetAdjacentCellsParticleList();
 
-            //Loop through all particles and Update Position
-            foreach (Particle comp in checkList)
-            {
-                if (!comp.IsCollisionEnabled || double.IsNaN(comp.Phys.Velocity.X))
-                    continue;
+                //Loop through all particles and Update Position
+                foreach (Particle comp in checkList)
+                {
+                    if (!comp.IsCollisionEnabled || !comp.IsParticleCollisionEnabled || double.IsNaN(comp.Phys.Velocity.X))
+                        continue;
 
-                Particle particle = (Particle)comp;
-                if (particle.Equals(parent))
-                    continue;
+                    Particle particle = (Particle)comp;
+                    if (particle.Equals(parent))
+                        continue;
 
 
-                //Get particle distance
-                double particleDistance = GetDistance(newPosition, particle.Position);
-                if (particleDistance > (parent.Radius + particle.Radius))
-                    continue;
+                    //Get particle distance
+                    double particleDistance = GetDistance(newPosition, particle.Position);
+                    if (particleDistance > (parent.Radius + particle.Radius))
+                        continue;
 
 
-                double moveDistance = ((parent.Radius + particle.Radius) - particleDistance) / 2.0;
-                Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(particle.Position, newPosition));
-                newPosition = new Coord(
-                    newPosition.X + moveVector.X,
-                    newPosition.Y + moveVector.Y
-                );
-                ApplyForce(moveVector, eForceType.DIRECT);
-                /*Velocity = new Coord(
-                    Velocity.X + moveVector.X,
-                    Velocity.Y + moveVector.Y
-                );*/
+                    double moveDistance = ((parent.Radius + particle.Radius) - particleDistance) / 2.0;
+                    Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(particle.Position, newPosition));
+                    newPosition = new Coord(
+                        newPosition.X + moveVector.X,
+                        newPosition.Y + moveVector.Y
+                    );
+                    ApplyForce(moveVector, eForceType.DIRECT);
+                }
             }
             
 
@@ -235,25 +215,21 @@ namespace PhysicsEngine
                         //Check for collision on the end points of the line
                         double particleToLinePointDistance = GetDistance(newPosition, line.PosA);
                         Coord collidingPoint = line.PosA;
-                        if (particleToLinePointDistance > (parent.Radius + 2.0))
+                        if (particleToLinePointDistance > (parent.Radius))
                         {
                             particleToLinePointDistance = GetDistance(newPosition, line.PosB);
                             collidingPoint = line.PosB;
                         }
 
-                        if (particleToLinePointDistance <= (parent.Radius + 2.0))
+                        if (particleToLinePointDistance <= (parent.Radius))
                         {
-                            double moveDistance = ((parent.Radius + 2.0) - particleToLinePointDistance);
+                            double moveDistance = ((parent.Radius) - particleToLinePointDistance);
                             Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
                             newPosition = new Coord(
                                 newPosition.X + moveVector.X,
                                 newPosition.Y + moveVector.Y
                             );
                             ApplyForce(moveVector, eForceType.DIRECT);
-                            /*Velocity = new Coord(
-                                Velocity.X + moveVector.X,
-                                Velocity.Y + moveVector.Y
-                            );*/
                         }
 
                         //Get new virtual line position based on the particles radius
@@ -308,6 +284,35 @@ namespace PhysicsEngine
                         Coord pointBR = RotatePointAroundPoint(new Coord(rect.Position.X + rect.Size.Width, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
                         Coord pointBL = RotatePointAroundPoint(new Coord(rect.Position.X, rect.Position.Y + rect.Size.Height), rect.Position, rect.RotationAngle);
 
+
+                        //Check for collision on the corners of the rect
+                        double particleToLinePointDistance = GetDistance(newPosition, pointTL);
+                        Coord collidingPoint = pointTL;
+                        if (particleToLinePointDistance > (parent.Radius + 1))
+                        {
+                            particleToLinePointDistance = GetDistance(newPosition, pointTR);
+                            collidingPoint = pointTR;
+                            if (particleToLinePointDistance > (parent.Radius + 1))
+                            {
+                                particleToLinePointDistance = GetDistance(newPosition, pointBR);
+                                collidingPoint = pointBR;
+                                if (particleToLinePointDistance > (parent.Radius + 1))
+                                {
+                                    particleToLinePointDistance = GetDistance(newPosition, pointBL);
+                                    collidingPoint = pointBL;
+                                }
+                            }
+                        }
+                        if (particleToLinePointDistance < (parent.Radius + 1))
+                        {
+                            double moveDistance = ((parent.Radius + 1) - particleToLinePointDistance);
+                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
+                            newPosition = new Coord(
+                                newPosition.X + moveVector.X,
+                                newPosition.Y + moveVector.Y
+                            );
+                            ApplyForce(moveVector, eForceType.DIRECT);
+                        }
 
                         //Will be set to the two points connected to the side of the rect the particle intersects with
                         Coord pointA = new Coord(0, 0);
@@ -433,41 +438,6 @@ namespace PhysicsEngine
                             newPosition = reflectPos;
                             //oldPosition = intersection;
                         }
-
-
-                        //Check for collision on the corners of the rect
-                        double particleToLinePointDistance = GetDistance(newPosition, pointTL);
-                        Coord collidingPoint = pointTL;
-                        if (particleToLinePointDistance > (parent.Radius))
-                        {
-                            particleToLinePointDistance = GetDistance(newPosition, pointTR);
-                            collidingPoint = pointTR;
-                            if (particleToLinePointDistance > (parent.Radius))
-                            {
-                                particleToLinePointDistance = GetDistance(newPosition, pointBR);
-                                collidingPoint = pointBR;
-                                if (particleToLinePointDistance > (parent.Radius))
-                                {
-                                    particleToLinePointDistance = GetDistance(newPosition, pointBL);
-                                    collidingPoint = pointBL;
-                                }
-                            }
-                        }
-                        if (particleToLinePointDistance < (parent.Radius))
-                        {
-                            double moveDistance = ((parent.Radius) - particleToLinePointDistance);
-                            Coord moveVector = MovePoint(new Coord(0, 0), moveDistance, GetAngle(collidingPoint, newPosition));
-                            newPosition = new Coord(
-                                newPosition.X + moveVector.X,
-                                newPosition.Y + moveVector.Y
-                            );
-                            ApplyForce(moveVector, eForceType.DIRECT);
-                            /*Velocity = new Coord(
-                                Velocity.X + moveVector.X,
-                                Velocity.Y + moveVector.Y
-                            );*/
-                        }
-
                     }
 
                     //If collision is detected, update velocity
@@ -515,8 +485,6 @@ namespace PhysicsEngine
 
 
                         //Add collision dampining due to elasticity
-                        //double grav = (GravityAcceleration * Timer.DeltaTime * Timer.DeltaTime) / Timer.TimeScale;
-                        //Velocity = new Coord(Velocity.X * Elasticity, (Velocity.Y - grav) * Elasticity + grav);
                         Velocity = new Coord(Velocity.X * Elasticity, Velocity.Y * Elasticity);
 
                         CheckAgain = true;
@@ -552,6 +520,34 @@ namespace PhysicsEngine
             }
 
             return newPosition;
+        }
+
+
+
+        private List<Particle> GetAdjacentCellsParticleList()
+        {
+            List<Particle> checkList = new List<Particle>();
+            checkList.AddRange(Scene.SpacePartitionGrid[Scene.CurrentCell]);
+
+            //Get adjacent positions
+            List<Coord> adjacentCells = new List<Coord>()
+            {
+                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y),
+                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y - 1),
+                new Coord(Scene.CurrentCell.X, Scene.CurrentCell.Y - 1),
+                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y - 1),
+                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y),
+                new Coord(Scene.CurrentCell.X + 1, Scene.CurrentCell.Y + 1),
+                new Coord(Scene.CurrentCell.X, Scene.CurrentCell.Y + 1),
+                new Coord(Scene.CurrentCell.X - 1, Scene.CurrentCell.Y + 1)
+            };
+            foreach (Coord cell in adjacentCells)
+            {
+                if (Scene.SpacePartitionGrid.ContainsKey(cell))
+                    checkList.AddRange(Scene.SpacePartitionGrid[cell]);
+            }
+
+            return checkList;
         }
 
 
@@ -721,6 +717,17 @@ namespace PhysicsEngine
             );
             intersection = new Coord(GetEpsilonRounded(intersection.X), GetEpsilonRounded(intersection.Y));
             return intersection;
+        }
+
+
+        public Physics Clone(Component parent)
+        {
+            Physics clone = new Physics(parent);
+            clone.Mass = Mass;
+            clone.Friction = Friction;
+            clone.Elasticity = Elasticity;
+
+            return clone;
         }
     }
 

@@ -21,5 +21,6 @@ namespace PhysicsEngine
         {
             return new Coord(point.X, point.Y);
         }
+        public Point ToPoint() { return new Point(X, Y); }
     }
 }

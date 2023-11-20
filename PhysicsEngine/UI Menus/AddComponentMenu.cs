@@ -45,9 +45,9 @@ namespace PhysicsEngine.UI_Menus
             //Add line panel
             Line displayLine = new Line();
             displayLine.X1 = ShapeDisplaySize.Width;
-            displayLine.Y1 = 30.0;
+            displayLine.Y1 = 50.0;
             displayLine.X2 = 0.0;
-            displayLine.Y2 = ShapeDisplaySize.Height + 30.0;
+            displayLine.Y2 = ShapeDisplaySize.Height + 50.0;
             displayLine.StrokeThickness = 8;
             displayLine.Stroke = new SolidColorBrush(Color.FromArgb(255, 52, 173, 79));
             AddLine = new AddCompPanel(AddCompPanel.eShapeType.LINE, displayLine,
@@ -72,11 +72,12 @@ namespace PhysicsEngine.UI_Menus
             displayEjector.Width = ShapeDisplaySize.Width * 0.7;
             displayEjector.Height = ShapeDisplaySize.Height * 0.8;
             RotateTransform ejectorRotate = new RotateTransform();
-            ejectorRotate.Angle = 165.0;
-            ejectorRotate.CenterX = ShapeDisplaySize.Width / 2.0;
-            ejectorRotate.CenterY = ShapeDisplaySize.Height / 2.0;
+            ejectorRotate.Angle = 20.0;
+            ejectorRotate.CenterX = displayEjector.Width / 2.0;
+            ejectorRotate.CenterY = displayEjector.Height / 2.0;
             displayEjector.RenderTransform = ejectorRotate;
             displayEjector.StrokeThickness = 3.0;
+            displayEjector.Margin = new Thickness(5, 0, 0, 0);
             displayEjector.Stroke = new SolidColorBrush(Colors.Black);
             displayEjector.Fill = new SolidColorBrush(Color.FromArgb(255, 169, 80, 242));
             AddEjector = new AddCompPanel(AddCompPanel.eShapeType.EJECTOR, displayEjector,

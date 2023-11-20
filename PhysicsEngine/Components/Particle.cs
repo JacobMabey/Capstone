@@ -46,7 +46,7 @@ namespace PhysicsEngine
         }
 
         private Color fill;
-        public Color Fill
+        public override Color Fill
         {
             get => fill;
             set
@@ -57,11 +57,17 @@ namespace PhysicsEngine
                 FillBrush.Color = fill;
                 if (_ellipse.Fill != FillBrush)
                     _ellipse.Fill = FillBrush;
+
+                if (Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == this.ID)
+                {
+                    Scene.CompMenu.ColorPicker.SetColor(fill);
+                }
             }
         }
 
         public double ColorChangeRate { get; set; } = 0.0;
 
+        public bool IsParticleCollisionEnabled { get; set; } = true;
 
 
         public override void Initialize()
@@ -154,6 +160,21 @@ namespace PhysicsEngine
 
 
         public override Shape GetUIElement() => _ellipse;
+
+        public override Component Clone()
+        {
+            Particle clone = new Particle();
+            clone.IsCollisionEnabled = IsCollisionEnabled;
+            clone.IsParticleCollisionEnabled = IsParticleCollisionEnabled;
+            clone.Fill = Fill;
+            clone.ColorChangeRate = ColorChangeRate;
+            clone.HasPhysics = HasPhysics;
+            clone.Radius = Radius;
+            clone.Position = Position;
+            clone.Phys = Phys.Clone(clone);
+
+            return clone;
+        }
 
         public override void Update()
         {

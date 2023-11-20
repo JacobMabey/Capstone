@@ -137,7 +137,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
             {
                 CompRectangle rect = new CompRectangle();
                 rect.StrokeThickness = 2;
-                rect.FillColor = Color.FromArgb(255, 79, 137, 196);
+                rect.Fill = Color.FromArgb(255, 79, 137, 196);
                 Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
                 rect.Position = Coord.FromPoint(pointerCoord);
                 rect.Size = new Windows.Foundation.Size(70.0, 100.0);
@@ -182,7 +182,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
             else if (ShapeType == eShapeType.EJECTOR)
             {
                 Coord pointerCoord = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
-                ParticleEjector ejector = new ParticleEjector(pointerCoord, 255.0, 100);
+                ParticleEjector ejector = new ParticleEjector(pointerCoord, 295.0, 100);
                 ejector.ParticleRadius = 10;
                 ejector.ParticleColor = Color.FromArgb(255, 169, 80, 242);
                 ejector.FillColorIsBasedOnParticle = true;

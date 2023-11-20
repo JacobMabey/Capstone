@@ -17,6 +17,7 @@ namespace PhysicsEngine
     {
         public static Random Rand = new Random();
 
+        public static Coord WindowCenter => new Coord(MainPage.WindowSize.Width / 2.0, MainPage.WindowSize.Height / 2.0);
         public static Dictionary<long, Component> Children { get; set; }
 
         //Main Global Canvas
@@ -242,12 +243,12 @@ namespace PhysicsEngine
         {
             if (!Children.ContainsKey(id)) return;
 
-            MainScene.Children.Remove(Children[id].GetUIElement());
-            Children.Remove(id);
-
             //check if component is particle
             if (Children[id] is Particle)
                 ParticleCount--;
+
+            MainScene.Children.Remove(Children[id].GetUIElement());
+            Children.Remove(id);
 
             //Check if component has menu open
             if (Scene.CompMenu != null && Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == id)
@@ -257,11 +258,11 @@ namespace PhysicsEngine
         {
             if (!Children.ContainsKey(id)) return;
 
-            elementsToBeDestroyed.Add(id);
-
             //check if component is particle
             if (Children[id] is Particle)
                 ParticleCount--;
+
+            elementsToBeDestroyed.Add(id);
 
             //Check if component has menu open
             if (Scene.CompMenu != null && Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == id)

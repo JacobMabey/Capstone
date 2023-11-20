@@ -60,7 +60,7 @@ namespace PhysicsEngine
         public static Size EJECTOR_SIZE { get; private set; } = new Size(20, 50);
 
         private Color fill;
-        public Color FillColor
+        public override Color Fill
         {
             get => fill;
             set
@@ -82,7 +82,7 @@ namespace PhysicsEngine
             {
                 fillColorIsBasedOnParticle = value;
                 if (fillColorIsBasedOnParticle)
-                    FillColor = ParticleColor;
+                    Fill = ParticleColor;
             }
         }
 
@@ -94,11 +94,19 @@ namespace PhysicsEngine
             {
                 rotationAngle = value;
                 RotationTransform.Angle = rotationAngle + 90.0;
+
+                if (Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == this.ID)
+                {
+                    double roundedAngle = rotationAngle;
+                    while (roundedAngle < 0) roundedAngle += 360;
+                    while (roundedAngle > 359) roundedAngle -= 359;
+                    Scene.CompMenu.RotateInput.Text = ((int)(roundedAngle * 1000.0) / 1000.0) + "";
+                }
             }
         }
 
         public double ParticleScatterAngle { get; set; }
-        public double ParticleRate { get; private set; }
+        public double ParticleRate { get; set; }
         public double ParticleVelocity { get; private set; }
         public double ParticleElasticity { get; set; }
         public double ParticleFriction { get; set; }
@@ -115,8 +123,22 @@ namespace PhysicsEngine
             }
         }
         public double ParticleRadiusRange { get; set; }
-        public int ParticlesEjected { get; private set; }
-        public int ParticleLimit { get; private set; }
+
+        private int particlesEjected = 0;
+        public int ParticlesEjected
+        {
+            get => particlesEjected;
+            private set
+            {
+                particlesEjected = value;
+
+                if (Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == this.ID)
+                {
+                    Scene.CompMenu.ParticlesEjectedValue.Text = particlesEjected + "";
+                }
+            }
+        }
+        public int ParticleLimit { get; set; }
         private double ParticleTimer { get; set; }
 
         private Color particleFill;
@@ -129,6 +151,14 @@ namespace PhysicsEngine
                 if (ParticleFillBrush == null)
                     ParticleFillBrush = new SolidColorBrush();
                 ParticleFillBrush.Color = particleFill;
+
+                if (FillColorIsBasedOnParticle)
+                    Fill = particleFill;
+
+                if (Scene.CompMenu.IsMenuExpanded && Scene.CompMenu.ParentComponent.ID == this.ID)
+                {
+                    Scene.CompMenu.EjectorParticleColorPicker.SetColor(particleFill);
+                }
             }
         }
 
@@ -175,9 +205,11 @@ namespace PhysicsEngine
             ParticlesEjected = 0;
             ParticleTimer = 0;
             FillColorIsBasedOnParticle = true;
-            FillColor = Colors.Black;
+            Fill = Colors.Black;
             ParticleColor = Colors.Red;
         }
+
+        public void ResetParticlesEjected() { ParticlesEjected = 0; }
 
         private void Rect_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
@@ -274,6 +306,24 @@ namespace PhysicsEngine
 
         public override Shape GetUIElement() => _rect;
 
+        public override Component Clone()
+        {
+            ParticleEjector clone = new ParticleEjector(Position, RotationAngle, ParticleLimit, ParticleRate, ParticleVelocity);
+            clone.ParticleElasticity = ParticleElasticity;
+            clone.ParticleFriction = ParticleFriction;
+            clone.ColorChangeRate = ColorChangeRate;
+            clone.ParticleColorChangeRate = ParticleColorChangeRate;
+            clone.Fill = Fill;
+            clone.ParticleColor = ParticleColor;
+            clone.FillColorIsBasedOnParticle = FillColorIsBasedOnParticle;
+            clone.ParticleRadius = ParticleRadius;
+            clone.ParticleRadiusRange = ParticleRadiusRange;
+            clone.ParticleScatterAngle = ParticleScatterAngle;
+            clone.IsPaused = IsPaused;
+
+            return clone;
+        }
+
         public override void Update()
         {
             base.Update();
@@ -317,7 +367,7 @@ namespace PhysicsEngine
                 ParticleColor = Color.FromArgb(255, (byte)newColor[0], (byte)newColor[1], (byte)newColor[2]);
             }
             if (FillColorIsBasedOnParticle)
-                FillColor = ParticleColor;
+                Fill = ParticleColor;
 
 
             //Set Eject Velocity

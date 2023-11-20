@@ -15,9 +15,10 @@ namespace PhysicsEngine
 {
     public abstract class Component
     {
-        private static long U_Id = 0;
+        protected static long U_Id { get; set; } = 0;
         public long ID = -1;
 
+        public virtual Color Fill { get; set; }
         public virtual Coord Position { get; set; }
         public bool IsCollisionEnabled { get; set; } = true;
         public bool IsBeingDragged { get; set; } = false;
@@ -31,9 +32,11 @@ namespace PhysicsEngine
         public SolidColorBrush StrokeBrush { get; set; }
 
         protected bool HasPhysics { get; set; } = false;
-        public Physics Phys { get; private set; }
+        public Physics Phys { get; protected set; }
 
         public abstract Shape GetUIElement();
+
+        public abstract Component Clone();
 
         public virtual void Initialize()
         {
@@ -47,7 +50,6 @@ namespace PhysicsEngine
             if (HasPhysics && !IsBeingDragged)
                 Phys.Update();
         }
-
 
         protected void OpenCompMenu()
         {

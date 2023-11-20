@@ -60,7 +60,7 @@ namespace PhysicsEngine
         }
 
         private Color fill;
-        public Color Fill
+        public override Color Fill
         {
             get => fill;
             set
@@ -207,6 +207,17 @@ namespace PhysicsEngine
 
         public override Shape GetUIElement() => _line;
 
+        public override Component Clone()
+        {
+            CompLine clone = new CompLine();
+            clone.IsCollisionEnabled = IsCollisionEnabled;
+            clone.PosA = PosA;
+            clone.PosB = PosB;
+            clone.Fill = Fill;
+            clone.Thickness = Thickness;
+
+            return clone;
+        }
 
         public override void Update()
         {
