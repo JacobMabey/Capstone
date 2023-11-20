@@ -73,7 +73,7 @@ namespace PhysicsEngine
             }
         }
 
-        private double MaxVelocity => 30.0;
+        public static double MaxVelocity => 30.0;
 
         public Physics(Component parent)
         {

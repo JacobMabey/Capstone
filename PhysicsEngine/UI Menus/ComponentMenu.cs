@@ -70,6 +70,7 @@ namespace PhysicsEngine.UI_Menus
         public TextBlock ParticlesEjectedValue {  get; set; }
         TextBox ParticleLimitInput { get; set; }
         Grid EjectorPropertiesGrid { get; set; }
+        Grid EjectorParticleVelocityGrid { get; set; }
         Grid EjectorParticleColorChangeRateGrid { get; set; }
 
 
@@ -122,6 +123,7 @@ namespace PhysicsEngine.UI_Menus
             ParticleColorTitle.HorizontalAlignment = HorizontalAlignment.Center;
             ParticleEjectGrid = GetParticleEjectGrid();
             EjectorPropertiesGrid = GetEjectorPropertiesGrid();
+            EjectorParticleVelocityGrid = GetParticleEjectorVelocityGrid();
             EjectorParticleColorChangeRateGrid = GetEjectorParticleColorChangeRateGrid();
 
             //Copy/Delete
@@ -217,6 +219,9 @@ namespace PhysicsEngine.UI_Menus
 
                     RotateInput.Text = ((ParticleEjector)ParentComponent).RotationAngle + "";
                     SettingsStack.Children.Add(RotateGrid);
+
+                    (EjectorParticleVelocityGrid.Children.Where(c => c is TextBox).First() as TextBox).Text = ((ParticleEjector)ParentComponent).ParticleVelocity + "";
+                    SettingsStack.Children.Add(EjectorParticleVelocityGrid);
 
                     (ColorChangeRateGrid.Children.Where(c => c is TextBox).First() as TextBox).Text = ((ParticleEjector)ParentComponent).ColorChangeRate + "";
                     SettingsStack.Children.Add(ColorChangeRateGrid);
@@ -409,9 +414,9 @@ namespace PhysicsEngine.UI_Menus
         {
             if (double.TryParse(args.NewText, out double parsed))
             {
-                if (parsed > 30)
+                if (parsed > 50)
                 {
-                    parsed = 30;
+                    parsed = 50;
                     if (ParentComponent is Particle)
                         ((Particle)ParentComponent).Radius = parsed;
                     else if (ParentComponent is ParticleEjector)
@@ -563,7 +568,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(angleInput, 1);
             Grid.SetRow(angleInput, 1);
             angleInput.Margin = new Thickness(10);
-            angleInput.MaxLength = 5;
+            angleInput.MaxLength = 4;
             angleInput.Text = "0";
             angleInput.TextAlignment = TextAlignment.Center;
             angleInput.TextWrapping = TextWrapping.Wrap;
@@ -630,10 +635,66 @@ namespace PhysicsEngine.UI_Menus
                 args.Cancel = true;
             }
         }
+        private Grid GetParticleEjectorVelocityGrid()
+        {
+            Grid velocityGrid = new Grid();
+            velocityGrid.Margin = new Thickness(10, 5, 10, 5);
+            velocityGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            velocityGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            velocityGrid.ColumnDefinitions.Add(new ColumnDefinition());
+
+            TextBlock velocityLabel = new TextBlock();
+            Grid.SetColumn(velocityLabel, 0);
+            Grid.SetColumnSpan(velocityLabel, 2);
+            velocityLabel.Text = "Particle Velocity";
+            velocityLabel.FontFamily = MainPage.GlobalFont;
+            velocityLabel.FontSize = 16;
+            velocityLabel.Foreground = new SolidColorBrush(Colors.White);
+            velocityLabel.VerticalAlignment = VerticalAlignment.Center;
+            velocityLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            velocityGrid.Children.Add(velocityLabel);
+
+            TextBox velocityInput = new TextBox();
+            Grid.SetColumn(velocityInput, 2);
+            velocityInput.MaxLength = 3;
+            velocityInput.TextAlignment = TextAlignment.Center;
+            velocityInput.TextWrapping = TextWrapping.Wrap;
+            velocityInput.GotFocus += (object o, RoutedEventArgs e) => velocityInput.SelectAll();
+            velocityInput.BeforeTextChanging += VelocityInput_BeforeTextChanging;
+            velocityGrid.Children.Add(velocityInput);
+
+            return velocityGrid;
+        }
+
+        private void VelocityInput_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (double.TryParse(args.NewText, out double parsed))
+            {
+                if (parsed > Physics.MaxVelocity)
+                {
+                    parsed = Physics.MaxVelocity;
+                    ((ParticleEjector)ParentComponent).ParticleVelocity = parsed;
+                    sender.Text = parsed + "";
+                }
+                else if (parsed < 0)
+                {
+                    parsed = 0;
+                    ((ParticleEjector)ParentComponent).ParticleVelocity = parsed;
+                    sender.Text = parsed + "";
+                }
+                else
+                    ((ParticleEjector)ParentComponent).ParticleVelocity = parsed;
+            }
+            else
+            {
+                args.Cancel = true;
+            }
+        }
+
         private Grid GetColorChangeRateGrid()
         {
             Grid colorRateGrid = new Grid();
-            colorRateGrid.Margin = new Thickness(10, 20, 10, 5);
+            colorRateGrid.Margin = new Thickness(10, 5, 10, 5);
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -806,7 +867,7 @@ namespace PhysicsEngine.UI_Menus
         private Grid GetRectRotateInputGrid()
         {
             Grid rotateGrid = new Grid();
-            rotateGrid.Margin = new Thickness(10, 10, 10, 10);
+            rotateGrid.Margin = new Thickness(10, 0, 10, 0);
             rotateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rotateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             rotateGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -1226,7 +1287,7 @@ namespace PhysicsEngine.UI_Menus
         private Grid GetEjectorParticleColorChangeRateGrid()
         {
             Grid colorRateGrid = new Grid();
-            colorRateGrid.Margin = new Thickness(10, 20, 10, 5);
+            colorRateGrid.Margin = new Thickness(10, 0, 10, 5);
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());
             colorRateGrid.ColumnDefinitions.Add(new ColumnDefinition());

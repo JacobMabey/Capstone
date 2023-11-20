@@ -2,6 +2,7 @@
 
 using System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -48,6 +49,7 @@ namespace PhysicsEngine.UI_Menus
 
             //Add Close Button
             TextBlock closeText = new TextBlock();
+            closeText.Width = 15;
             closeText.Text = ">";
             ScaleTransform scale = new ScaleTransform
             {
@@ -57,6 +59,15 @@ namespace PhysicsEngine.UI_Menus
             Canvas.SetLeft(closeText, 5);
             Canvas.SetTop(closeText, 0);
             closeText.FontSize = 20;
+            closeText.TextAlignment = TextAlignment.Center;
+            closeText.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            closeText.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             closeText.Tapped += (s, o) => {
                 ToggleMenuExpanded();
             };

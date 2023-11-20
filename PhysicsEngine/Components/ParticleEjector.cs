@@ -107,7 +107,7 @@ namespace PhysicsEngine
 
         public double ParticleScatterAngle { get; set; }
         public double ParticleRate { get; set; }
-        public double ParticleVelocity { get; private set; }
+        public double ParticleVelocity { get; set; }
         public double ParticleElasticity { get; set; }
         public double ParticleFriction { get; set; }
 

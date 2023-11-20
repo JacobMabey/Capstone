@@ -2,6 +2,7 @@
 
 using System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -61,6 +62,14 @@ namespace PhysicsEngine.UI_Menus
             closeText.RenderTransform = scale;
             Canvas.SetTop(closeText, 0);
             closeText.FontSize = 20;
+            closeText.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            closeText.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             closeText.Tapped += (s, o) => {
                 ToggleMenuExpanded();
             };
