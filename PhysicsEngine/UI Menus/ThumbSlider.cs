@@ -1,6 +1,7 @@
 
 using System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -72,6 +73,14 @@ namespace PhysicsEngine.UI_Menus
             SliderLine.Stroke = new SolidColorBrush(Colors.White);
 
             Thumb = new Ellipse();
+            Thumb.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            Thumb.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             ThumbRadius = thumbRadius;
             Canvas.SetTop(Thumb, -thumbRadius - 3);
             Thumb.PointerPressed += Thumb_PointerPressed;

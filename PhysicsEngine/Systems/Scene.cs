@@ -64,6 +64,8 @@ namespace PhysicsEngine
         public static void Initialize()
         {
             MainScene = new Canvas();
+            //Initialize Hotkeys
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
             //Set Size
             MainPage.WindowSize = new Size(1080, 720);
@@ -106,6 +108,38 @@ namespace PhysicsEngine
             circleBorder.Opacity = 0;
             MainScene.Children.Add(circleBorder);
         }
+
+
+        //HOT KEYS
+        private static void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
+        {
+            switch (args.VirtualKey)
+            {
+                case Windows.System.VirtualKey.G: // Toggle Gravity
+                    Physics.IsGravityEnabled = !Physics.IsGravityEnabled;
+                    WorldMenu.GravityCheckbox.IsChecked = Physics.IsGravityEnabled;
+                    break;
+                case Windows.System.VirtualKey.C: // Copy Selected Component
+                    if (CompMenu.IsMenuExpanded && CompMenu.ParentComponent != null)
+                        CompMenu.CloneSelectedComponent();
+                    break;
+                case Windows.System.VirtualKey.A: // Toggle Add Component Menu
+                    AddMenu.ToggleMenuExpanded();
+
+                    if (AddMenu.IsMenuExpanded)
+                    {
+                        //Close other menus
+                        if (Scene.WorldMenu.IsMenuExpanded)
+                            Scene.WorldMenu.ToggleMenuExpanded();
+
+                        if (Scene.CompMenu.IsMenuExpanded)
+                            Scene.CompMenu.ToggleMenuExpanded();
+                    }
+                    break;
+            }
+        }
+
+
 
         public static void Update()
         {

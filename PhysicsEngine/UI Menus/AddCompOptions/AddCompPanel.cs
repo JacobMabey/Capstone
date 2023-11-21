@@ -1,6 +1,7 @@
 
 using Windows.Foundation;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -27,18 +28,26 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
 
         public AddCompPanel(eShapeType shapeType, Shape display, string desc)
         {
+            this.PointerPressed += ShapeDisplay_PointerPressed;
+            this.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            this.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
+            this.Background = new SolidColorBrush(Color.FromArgb(10, 0, 0, 0));
             this.BorderBrush = new SolidColorBrush(Colors.White);
             this.BorderThickness = new Thickness(2);
             Margin = new Thickness(20);
             Padding = new Thickness(10);
             Spacing = 20;
-            //Width = MainPage.WindowSize.Width / 4.0 - (Margin.Left + Margin.Right) - BorderThickness.Right * 2.0;
 
             //Add Shape Display
             Orientation = Orientation.Horizontal;
             ShapeType = shapeType;
             ShapeDisplay = display;
-            ShapeDisplay.PointerPressed += ShapeDisplay_PointerPressed;
             this.Children.Add(ShapeDisplay);
 
             //Add Component Title

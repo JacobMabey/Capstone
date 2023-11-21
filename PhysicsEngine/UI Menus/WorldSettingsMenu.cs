@@ -12,6 +12,8 @@ namespace PhysicsEngine.UI_Menus
         public HsvColorPicker BgColorPicker { get; private set; }
         StackPanel SettingsStack {  get; set; }
 
+        public CheckBox GravityCheckbox { get; set; }
+
         public override void Initialize(double width, double menuX, Color bgColor)
         {
             base.Initialize(width, menuX, bgColor);
@@ -107,6 +109,8 @@ namespace PhysicsEngine.UI_Menus
             TextBox gravityInput = new TextBox();
             Grid.SetColumn(gravityInput, 2);
             gravityInput.MaxLength = 6;
+            gravityInput.Foreground = new SolidColorBrush(Colors.White);
+            gravityInput.FontFamily = MainPage.GlobalFont;
             gravityInput.TextAlignment = TextAlignment.Center;
             gravityInput.TextWrapping = TextWrapping.Wrap;
             gravityInput.Text = Physics.GravityAcceleration + "";
@@ -115,13 +119,13 @@ namespace PhysicsEngine.UI_Menus
             gravityInputGrid.Children.Add(gravityInput);
 
             //Make checkbox
-            CheckBox gravityCheckbox = new CheckBox();
-            Grid.SetColumn(gravityCheckbox, 0);
-            gravityCheckbox.IsChecked = Physics.IsGravityEnabled;
+            GravityCheckbox = new CheckBox();
+            Grid.SetColumn(GravityCheckbox, 0);
+            GravityCheckbox.IsChecked = Physics.IsGravityEnabled;
             gravityInput.IsEnabled = Physics.IsGravityEnabled;
-            gravityCheckbox.Checked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = true; Physics.IsGravityEnabled = true; };
-            gravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = false; Physics.IsGravityEnabled = false; };
-            gravityInputGrid.Children.Add(gravityCheckbox);
+            GravityCheckbox.Checked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = true; Physics.IsGravityEnabled = true; };
+            GravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = false; Physics.IsGravityEnabled = false; };
+            gravityInputGrid.Children.Add(GravityCheckbox);
 
             //Make pps label
             TextBlock ppsLabel = new TextBlock();
@@ -250,6 +254,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetRow(circRadInput, 1);
             circRadInput.MaxLength = 3;
             circRadInput.IsEnabled = false;
+            circRadInput.Foreground = new SolidColorBrush(Colors.White);
+            circRadInput.FontFamily = MainPage.GlobalFont;
             circRadInput.TextAlignment = TextAlignment.Center;
             circRadInput.TextWrapping = TextWrapping.Wrap;
             circRadInput.Text = Scene.CircleBorderRadius+"";

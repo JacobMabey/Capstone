@@ -64,6 +64,7 @@ namespace PhysicsEngine.UI_Menus
         Grid ThicknessGrid { get; set; }
 
         //Particle Ejector Inputs And Settings
+        TextBlock EjectorPauseTooltip { get; set; }
         TextBlock ParticleColorTitle { get; set; }
         public HsvColorPicker EjectorParticleColorPicker { get; set; }
         Grid ParticleEjectGrid { get; set; }
@@ -85,7 +86,7 @@ namespace PhysicsEngine.UI_Menus
             CompTitle.FontFamily = MainPage.GlobalFont;
             CompTitle.FontSize = 32;
             CompTitle.Foreground = new SolidColorBrush(Colors.White);
-            CompTitle.Margin = new Thickness(0, 0, 0, 20);
+            CompTitle.Margin = new Thickness(0, 0, 0, 10);
             CompTitle.HorizontalAlignment = HorizontalAlignment.Center;
             SettingsStack.Children.Add(CompTitle);
 
@@ -115,6 +116,12 @@ namespace PhysicsEngine.UI_Menus
             ThicknessGrid = GetLineThicknessGrid();
 
             //Particle Ejectors
+            EjectorPauseTooltip = new TextBlock();
+            EjectorPauseTooltip.Text = "Right-Click Ejector to Toggle Pause";
+            EjectorPauseTooltip.FontSize = 12;
+            EjectorPauseTooltip.FontFamily = MainPage.GlobalFont;
+            EjectorPauseTooltip.Foreground = new SolidColorBrush(Color.FromArgb(255, 240, 176, 146));
+            EjectorPauseTooltip.HorizontalAlignment = HorizontalAlignment.Center;
             ParticleColorTitle = new TextBlock();
             ParticleColorTitle.Text = "Particle Color";
             ParticleColorTitle.FontSize = 24;
@@ -202,6 +209,8 @@ namespace PhysicsEngine.UI_Menus
                 else if (ParentComponent is ParticleEjector)
                 {
                     CompTitle.Text = "Ejector";
+
+                    SettingsStack.Children.Add(EjectorPauseTooltip);
 
                     ParticlesEjectedValue.Text = ((ParticleEjector)ParentComponent).ParticlesEjected+"";
                     ParticleLimitInput.Text = ((ParticleEjector)ParentComponent).ParticleLimit + "";
@@ -358,6 +367,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(radiusInput, 0);
             Grid.SetRow(radiusInput, 1);
             radiusInput.MaxLength = 3;
+            radiusInput.Foreground = new SolidColorBrush(Colors.White);
+            radiusInput.FontFamily = MainPage.GlobalFont;
             radiusInput.TextAlignment = TextAlignment.Center;
             radiusInput.TextWrapping = TextWrapping.Wrap;
             radiusInput.GotFocus += (object o, RoutedEventArgs e) => radiusInput.SelectAll();
@@ -380,6 +391,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(elasticityInput, 1);
             Grid.SetRow(elasticityInput, 1);
             elasticityInput.MaxLength = 5;
+            elasticityInput.Foreground = new SolidColorBrush(Colors.White);
+            elasticityInput.FontFamily = MainPage.GlobalFont;
             elasticityInput.TextAlignment = TextAlignment.Center;
             elasticityInput.TextWrapping = TextWrapping.Wrap;
             elasticityInput.GotFocus += (object o, RoutedEventArgs e) => elasticityInput.SelectAll();
@@ -402,6 +415,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(frictionInput, 2);
             Grid.SetRow(frictionInput, 1);
             frictionInput.MaxLength = 5;
+            frictionInput.Foreground = new SolidColorBrush(Colors.White);
+            frictionInput.FontFamily = MainPage.GlobalFont;
             frictionInput.TextAlignment = TextAlignment.Center;
             frictionInput.TextWrapping = TextWrapping.Wrap;
             frictionInput.GotFocus += (object o, RoutedEventArgs e) => frictionInput.SelectAll();
@@ -557,6 +572,8 @@ namespace PhysicsEngine.UI_Menus
             forceInput.Margin = new Thickness(10);
             forceInput.MaxLength = 5;
             forceInput.Text = "0";
+            forceInput.Foreground = new SolidColorBrush(Colors.White);
+            forceInput.FontFamily = MainPage.GlobalFont;
             forceInput.TextAlignment = TextAlignment.Center;
             forceInput.TextWrapping = TextWrapping.Wrap;
             forceInput.GotFocus += (object o, RoutedEventArgs e) => forceInput.SelectAll();
@@ -570,6 +587,8 @@ namespace PhysicsEngine.UI_Menus
             angleInput.Margin = new Thickness(10);
             angleInput.MaxLength = 4;
             angleInput.Text = "0";
+            angleInput.Foreground = new SolidColorBrush(Colors.White);
+            angleInput.FontFamily = MainPage.GlobalFont;
             angleInput.TextAlignment = TextAlignment.Center;
             angleInput.TextWrapping = TextWrapping.Wrap;
             angleInput.GotFocus += (object o, RoutedEventArgs e) => angleInput.SelectAll();
@@ -657,6 +676,8 @@ namespace PhysicsEngine.UI_Menus
             TextBox velocityInput = new TextBox();
             Grid.SetColumn(velocityInput, 2);
             velocityInput.MaxLength = 3;
+            velocityInput.Foreground = new SolidColorBrush(Colors.White);
+            velocityInput.FontFamily = MainPage.GlobalFont;
             velocityInput.TextAlignment = TextAlignment.Center;
             velocityInput.TextWrapping = TextWrapping.Wrap;
             velocityInput.GotFocus += (object o, RoutedEventArgs e) => velocityInput.SelectAll();
@@ -713,6 +734,8 @@ namespace PhysicsEngine.UI_Menus
             TextBox colorChangeInput = new TextBox();
             Grid.SetColumn(colorChangeInput, 2);
             colorChangeInput.MaxLength = 3;
+            colorChangeInput.Foreground = new SolidColorBrush(Colors.White);
+            colorChangeInput.FontFamily = MainPage.GlobalFont;
             colorChangeInput.TextAlignment = TextAlignment.Center;
             colorChangeInput.TextWrapping = TextWrapping.Wrap;
             colorChangeInput.GotFocus += (object o, RoutedEventArgs e) => colorChangeInput.SelectAll();
@@ -795,6 +818,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetRow(widthInput, 1);
             widthInput.Margin = new Thickness(10);
             widthInput.MaxLength = 4;
+            widthInput.Foreground = new SolidColorBrush(Colors.White);
+            widthInput.FontFamily = MainPage.GlobalFont;
             widthInput.TextAlignment = TextAlignment.Center;
             widthInput.TextWrapping = TextWrapping.Wrap;
             widthInput.GotFocus += (object o, RoutedEventArgs e) => widthInput.SelectAll();
@@ -806,6 +831,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetRow(heightInput, 1);
             heightInput.Margin = new Thickness(10);
             heightInput.MaxLength = 4;
+            heightInput.Foreground = new SolidColorBrush(Colors.White);
+            heightInput.FontFamily = MainPage.GlobalFont;
             heightInput.TextAlignment = TextAlignment.Center;
             heightInput.TextWrapping = TextWrapping.Wrap;
             heightInput.GotFocus += (object o, RoutedEventArgs e) => heightInput.SelectAll();
@@ -886,6 +913,8 @@ namespace PhysicsEngine.UI_Menus
             RotateInput = new TextBox();
             Grid.SetColumn(RotateInput, 2);
             RotateInput.MaxLength = 3;
+            RotateInput.Foreground = new SolidColorBrush(Colors.White);
+            RotateInput.FontFamily = MainPage.GlobalFont;
             RotateInput.TextAlignment = TextAlignment.Center;
             RotateInput.TextWrapping = TextWrapping.Wrap;
             RotateInput.GotFocus += (object o, RoutedEventArgs e) => RotateInput.SelectAll();
@@ -985,6 +1014,8 @@ namespace PhysicsEngine.UI_Menus
             TextBox thicknessInput = new TextBox();
             Grid.SetColumn(thicknessInput, 2);
             thicknessInput.MaxLength = 2;
+            thicknessInput.Foreground = new SolidColorBrush(Colors.White);
+            thicknessInput.FontFamily = MainPage.GlobalFont;
             thicknessInput.TextAlignment = TextAlignment.Center;
             thicknessInput.TextWrapping = TextWrapping.Wrap;
             thicknessInput.GotFocus += (object o, RoutedEventArgs e) => thicknessInput.SelectAll();
@@ -1059,6 +1090,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(ParticleLimitInput, 1);
             Grid.SetRow(ParticleLimitInput, 0);
             ParticleLimitInput.MaxLength = 5;
+            ParticleLimitInput.Foreground = new SolidColorBrush(Colors.White);
+            ParticleLimitInput.FontFamily = MainPage.GlobalFont;
             ParticleLimitInput.Margin = new Thickness(10);
             ParticleLimitInput.TextAlignment = TextAlignment.Center;
             ParticleLimitInput.TextWrapping = TextWrapping.Wrap;
@@ -1153,6 +1186,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(rateInput, 0);
             Grid.SetRow(rateInput, 1);
             rateInput.MaxLength = 2;
+            rateInput.Foreground = new SolidColorBrush(Colors.White);
+            rateInput.FontFamily = MainPage.GlobalFont;
             rateInput.TextAlignment = TextAlignment.Center;
             rateInput.TextWrapping = TextWrapping.Wrap;
             rateInput.GotFocus += (object o, RoutedEventArgs e) => rateInput.SelectAll();
@@ -1175,6 +1210,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(radiusRangelInput, 1);
             Grid.SetRow(radiusRangelInput, 1);
             radiusRangelInput.MaxLength = 3;
+            radiusRangelInput.Foreground = new SolidColorBrush(Colors.White);
+            radiusRangelInput.FontFamily = MainPage.GlobalFont;
             radiusRangelInput.TextAlignment = TextAlignment.Center;
             radiusRangelInput.TextWrapping = TextWrapping.Wrap;
             radiusRangelInput.GotFocus += (object o, RoutedEventArgs e) => radiusRangelInput.SelectAll();
@@ -1197,6 +1234,8 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(scatterInput, 2);
             Grid.SetRow(scatterInput, 1);
             scatterInput.MaxLength = 3;
+            scatterInput.Foreground = new SolidColorBrush(Colors.White);
+            scatterInput.FontFamily = MainPage.GlobalFont;
             scatterInput.TextAlignment = TextAlignment.Center;
             scatterInput.TextWrapping = TextWrapping.Wrap;
             scatterInput.GotFocus += (object o, RoutedEventArgs e) => scatterInput.SelectAll();
@@ -1306,6 +1345,8 @@ namespace PhysicsEngine.UI_Menus
             TextBox colorChangeInput = new TextBox();
             Grid.SetColumn(colorChangeInput, 2);
             colorChangeInput.MaxLength = 3;
+            colorChangeInput.Foreground = new SolidColorBrush(Colors.White);
+            colorChangeInput.FontFamily = MainPage.GlobalFont;
             colorChangeInput.TextAlignment = TextAlignment.Center;
             colorChangeInput.TextWrapping = TextWrapping.Wrap;
             colorChangeInput.GotFocus += (object o, RoutedEventArgs e) => colorChangeInput.SelectAll();
@@ -1346,35 +1387,58 @@ namespace PhysicsEngine.UI_Menus
             copyDelGrid.Width = MenuWidth - 50;
             copyDelGrid.ColumnDefinitions.Add(new ColumnDefinition());
             copyDelGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            copyDelGrid.RowDefinitions.Add(new RowDefinition());
+            copyDelGrid.RowDefinitions.Add(new RowDefinition());
 
             //Copy Button
             Grid copyButton = GetButton("Copy", Colors.White);
             Grid.SetColumn(copyButton, 0);
+            Grid.SetRow(copyButton, 0);
             copyButton.Tapped += (s, o) =>
             {
-                Component clone = ParentComponent.Clone();
-                if (clone is CompLine)
-                {
-                    ((CompLine)clone).PosA = Physics.MovePoint(Scene.WindowCenter, 50.0, 45.0);
-                    ((CompLine)clone).PosB = Physics.MovePoint(Scene.WindowCenter, 50.0, 225.0);
-                } else
-                    clone.Position = Scene.WindowCenter;
-
-                Scene.AddLater(clone);
+                CloneSelectedComponent();
             };
 
             //Delete Button
             Grid deleteButton = GetButton("Delete", Colors.Red);
             Grid.SetColumn(deleteButton, 1);
+            Grid.SetRow(deleteButton, 0);
             deleteButton.Tapped += (s, o) =>
             {
                 Scene.Remove(ParentComponent.ID);
             };
 
+            TextBlock copyHotkeyTooltip = new TextBlock();
+            Grid.SetColumn(copyHotkeyTooltip, 0);
+            Grid.SetColumnSpan(copyHotkeyTooltip, 2);
+            Grid.SetRow(copyHotkeyTooltip, 1);
+            copyHotkeyTooltip.Text = "Press C to Copy Component";
+            copyHotkeyTooltip.FontSize = 12;
+            copyHotkeyTooltip.FontFamily = MainPage.GlobalFont;
+            copyHotkeyTooltip.Foreground = new SolidColorBrush(Color.FromArgb(255, 240, 176, 146));
+            copyHotkeyTooltip.HorizontalAlignment = HorizontalAlignment.Center;
+
             copyDelGrid.Children.Add(copyButton);
             copyDelGrid.Children.Add(deleteButton);
+            copyDelGrid.Children.Add(copyHotkeyTooltip);
 
             return copyDelGrid;
+        }
+
+        public bool CloneSelectedComponent()
+        {
+            if (!IsMenuExpanded || ParentComponent == null) return false;
+
+            Component clone = ParentComponent.Clone();
+            if (clone is CompLine)
+            {
+                ((CompLine)clone).PosA = Physics.MovePoint(Scene.WindowCenter, 50.0, 45.0);
+                ((CompLine)clone).PosB = Physics.MovePoint(Scene.WindowCenter, 50.0, 225.0);
+            }
+            else
+                clone.Position = Scene.WindowCenter;
+
+            return Scene.AddLater(clone);
         }
 
         private Grid GetButton(String text, Color color)

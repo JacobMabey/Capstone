@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -67,9 +68,17 @@ namespace PhysicsEngine.UI_Menus
 
             //Pause Button
             PauseButton = new Image();
+            PauseButton.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            PauseButton.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             PauseButton.Width = ToolbarHeight;
             PauseButton.Height = ToolbarHeight;
-            PauseButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+            PauseButton.Source = new BitmapImage(new Uri(Timer.IsPaused ? "ms-appx:///Assets/Icons/playBtn.png" : "ms-appx:///Assets/Icons/pauseBtn.png"));
             Canvas.SetLeft(PauseButton, 5.0);
             Canvas.SetZIndex(PauseButton, 101);
             PauseButton.PointerPressed += PauseButton_Pressed;
@@ -98,9 +107,17 @@ namespace PhysicsEngine.UI_Menus
 
             //Add Component Button
             AddButton = new Image();
+            AddButton.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            AddButton.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             AddButton.Width = ToolbarHeight;
             AddButton.Height = ToolbarHeight;
-            AddButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+            AddButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/addBtn.png"));
             Canvas.SetLeft(AddButton, Canvas.GetLeft(TimeScaleSlider) + TimeScaleSlider.Width + 15.0);
             Canvas.SetZIndex(AddButton, 101);
             AddButton.PointerPressed += AddButton_Pressed;
@@ -108,18 +125,34 @@ namespace PhysicsEngine.UI_Menus
 
             //Clear Button
             ClearButton = new Image();
+            ClearButton.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            ClearButton.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             ClearButton.Width = ToolbarHeight;
             ClearButton.Height = ToolbarHeight;
-            ClearButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+            ClearButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/clearBtn.png"));
             Canvas.SetZIndex(ClearButton, 101);
             ClearButton.PointerPressed += ClearButton_Pressed;
             this.Children.Add(ClearButton);
 
             //Settings Button
             SettingsButton = new Image();
+            SettingsButton.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            SettingsButton.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
             SettingsButton.Width = ToolbarHeight;
             SettingsButton.Height = ToolbarHeight;
-            SettingsButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+            SettingsButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/settingsBtn.png"));
             Canvas.SetZIndex(SettingsButton, 101);
             SettingsButton.PointerPressed += SettingsButton_Pressed;
             this.Children.Add(SettingsButton);
@@ -139,8 +172,7 @@ namespace PhysicsEngine.UI_Menus
             Timer.IsPaused = !Timer.IsPaused;
             TimeScaleSlider.IsEnabled = !Timer.IsPaused;
             TimeScaleText.Text = (int)(Timer.TimeScale * 100.0) + "%";
-            //PauseButton.Fill = Timer.IsPaused ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Green);
-            PauseButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/StoreLogo.png"));
+            PauseButton.Source = new BitmapImage(new Uri(Timer.IsPaused ? "ms-appx:///Assets/Icons/playBtn.png" : "ms-appx:///Assets/Icons/pauseBtn.png"));
         }
 
         private void AddButton_Pressed(object sender, PointerRoutedEventArgs e)
