@@ -72,8 +72,30 @@ namespace PhysicsEngine.UI_Menus
             SettingsStack.Children.Add(circBorderGrid);
 
 
-            //Window Size Customization
+            //Hotkey Tooltips
+            TextBlock hotkeyTitle = new TextBlock();
+            hotkeyTitle.Margin = new Thickness(0, 20, 0, 5);
+            hotkeyTitle.Text = "Hotkeys";
+            hotkeyTitle.FontSize = 16;
+            hotkeyTitle.FontFamily = MainPage.GlobalFont;
+            hotkeyTitle.Foreground = new SolidColorBrush(Color.FromArgb(255, 240, 176, 146));
+            hotkeyTitle.HorizontalAlignment = HorizontalAlignment.Center;
+            SettingsStack.Children.Add(hotkeyTitle);
 
+            TextBlock tooltips = new TextBlock();
+            tooltips.Text =
+                "  G\t- Toggle Gravity\n" +
+                "  C\t- Copy Selected Component\n" +
+                "Space\t- Toggle Time Paused\n" +
+                "Esc\t- Close All Menus\n" +
+                "  A\t- Open Add Component Menu\n" +
+                "  S\t- Open World Settings Menu\n" +
+                "  X\t- Clear Add Component Mode";
+            tooltips.FontSize = 12;
+            tooltips.FontFamily = MainPage.GlobalFont;
+            tooltips.Foreground = new SolidColorBrush(Color.FromArgb(255, 240, 176, 146));
+            tooltips.HorizontalAlignment = HorizontalAlignment.Center;
+            SettingsStack.Children.Add(tooltips);
 
 
             this.Children.Add(SettingsStack);

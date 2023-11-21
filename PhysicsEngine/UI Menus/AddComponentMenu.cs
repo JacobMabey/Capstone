@@ -107,6 +107,9 @@ namespace PhysicsEngine.UI_Menus
                 AddLine.Visibility = Visibility.Collapsed;
                 AddParticle.Visibility = Visibility.Collapsed;
                 AddEjector.Visibility = Visibility.Collapsed;
+            } else
+            {
+                Scene.Toolbar.ComponentAddMode = eComponentAddMode.NONE;
             }
         }
 

@@ -144,7 +144,8 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
 
             if (ShapeType == eShapeType.RECTANGLE)
             {
-                CompRectangle rect = new CompRectangle();
+                Scene.Toolbar.ComponentAddMode = eComponentAddMode.RECTANGLE;
+                /*CompRectangle rect = new CompRectangle();
                 rect.StrokeThickness = 2;
                 rect.Fill = Color.FromArgb(255, 79, 137, 196);
                 Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
@@ -158,11 +159,12 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 rect.GetUIElement().CapturePointer(e.Pointer);
                 rect.IsMouseDragMode = true;
                 rect.GetUIElement().Opacity = 0.6;
-                Scene.Add(rect);
+                Scene.Add(rect);*/
             }
             else if (ShapeType == eShapeType.LINE)
             {
-                CompLine line = new CompLine();
+                Scene.Toolbar.ComponentAddMode = eComponentAddMode.LINE;
+                /*CompLine line = new CompLine();
                 line.Thickness = 8;
                 line.Fill = Color.FromArgb(255, 52, 173, 79);
                 Coord centerPos = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
@@ -173,11 +175,12 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 line.IsBeingAdded = true;
                 line.GetUIElement().CapturePointer(e.Pointer);
                 line.FullLineBeingDragged = true;
-                Scene.Add(line);
+                Scene.Add(line);*/
             }
             else if (ShapeType == eShapeType.ELLIPSE)
             {
-                Particle particle = new Particle();
+                Scene.Toolbar.ComponentAddMode = eComponentAddMode.PARTICLE;
+                /*Particle particle = new Particle();
                 particle.Position = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
                 particle.Radius = 10;
                 particle.Fill = Color.FromArgb(255, 242, 80, 80);
@@ -185,12 +188,13 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 particle.IsBeingDragged = true;
                 particle.IsBeingAdded = true;
                 particle.GetUIElement().CapturePointer(e.Pointer);
-                Scene.Add(particle);
+                Scene.Add(particle);*/
 
             }
             else if (ShapeType == eShapeType.EJECTOR)
             {
-                Coord pointerCoord = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
+                Scene.Toolbar.ComponentAddMode = eComponentAddMode.EJECTOR;
+                /*Coord pointerCoord = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
                 ParticleEjector ejector = new ParticleEjector(pointerCoord, 295.0, 100);
                 ejector.ParticleRadius = 10;
                 ejector.ParticleColor = Color.FromArgb(255, 169, 80, 242);
@@ -202,7 +206,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
                 ejector.IsBeingDragged = true;
                 ejector.IsBeingAdded = true;
                 ejector.GetUIElement().CapturePointer(e.Pointer);
-                Scene.Add(ejector);
+                Scene.Add(ejector);*/
             }
         }
     }

@@ -6,17 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+using static PhysicsEngine.UI_Menus.AddCompOptions.AddCompPanel;
 
 namespace PhysicsEngine
 {
     public static class Scene
     {
         public static Random Rand = new Random();
-
+        public static bool IsComponentBeingDragged { get; set; } = false;
         public static Coord WindowCenter => new Coord(MainPage.WindowSize.Width / 2.0, MainPage.WindowSize.Height / 2.0);
         public static Dictionary<long, Component> Children { get; set; }
 
@@ -64,11 +66,33 @@ namespace PhysicsEngine
         public static void Initialize()
         {
             MainScene = new Canvas();
+
             //Initialize Hotkeys
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
             //Set Size
             MainPage.WindowSize = new Size(1080, 720);
+            Rectangle background = new Rectangle
+            {
+                Width = MainPage.WindowSize.Width,
+                Height = MainPage.WindowSize.Height,
+                Fill = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0))
+            };
+            Canvas.SetZIndex(background, 0);
+            background.PointerPressed += MainScene_PointerPressed;
+            background.PointerEntered += (s, o) =>
+            {
+                if (Toolbar.ComponentAddMode == eComponentAddMode.NONE)
+                    Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+                else
+                    Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Cross, 1);
+            };
+            background.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
+            MainScene.Children.Add(background);
+
             Children = new Dictionary<long, Component>();
 
             //Add Toolbar & Menus
@@ -100,6 +124,7 @@ namespace PhysicsEngine
             circleBorder = new Ellipse();
             Canvas.SetLeft(circleBorder, MainScene.Width / 2.0 - CircleBorderRadius);
             Canvas.SetTop(circleBorder, (MainScene.Height - Toolbar.ToolbarHeight) / 2.0 - CircleBorderRadius);
+            Canvas.SetZIndex(circleBorder, -1);
             circleBorder.Width = CircleBorderRadius * 2.0;
             circleBorder.Height = CircleBorderRadius * 2.0;
             circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
@@ -107,6 +132,76 @@ namespace PhysicsEngine
             circleBorder.StrokeThickness = 1;
             circleBorder.Opacity = 0;
             MainScene.Children.Add(circleBorder);
+        }
+
+        private static void MainScene_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (Scene.Toolbar != null && Scene.Toolbar.ComponentAddMode != eComponentAddMode.NONE)
+            {
+                if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.RECTANGLE)
+                {
+                    CompRectangle rect = new CompRectangle();
+                    rect.StrokeThickness = 2;
+                    rect.Fill = Color.FromArgb(255, 79, 137, 196);
+                    Point pointerCoord = e.GetCurrentPoint(Scene.MainScene).Position;
+                    rect.Position = Coord.FromPoint(pointerCoord);
+                    rect.Size = new Windows.Foundation.Size(70.0, 100.0);
+                    rect.Position = new Coord(rect.Position.X - rect.Size.Width / 2.0, rect.Position.Y - rect.Size.Height / 2.0);
+                    rect.PointerDragPoint = new Coord(pointerCoord.X - rect.Position.X, pointerCoord.Y - rect.Position.Y);
+
+                    rect.IsBeingDragged = true;
+                    rect.IsBeingAdded = true;
+                    rect.GetUIElement().CapturePointer(e.Pointer);
+                    rect.IsMouseDragMode = true;
+                    rect.GetUIElement().Opacity = 0.6;
+                    Scene.Add(rect);
+                }
+                else if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.LINE)
+                {
+                    CompLine line = new CompLine();
+                    line.Thickness = 8;
+                    line.Fill = Color.FromArgb(255, 52, 173, 79);
+                    Coord centerPos = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
+                    line.PosA = new Coord(centerPos.X + 35.0, centerPos.Y - 50.0);
+                    line.PosB = new Coord(centerPos.X - 35.0, centerPos.Y + 50.0);
+
+                    line.IsBeingDragged = true;
+                    line.IsBeingAdded = true;
+                    line.GetUIElement().CapturePointer(e.Pointer);
+                    line.FullLineBeingDragged = true;
+                    Scene.Add(line);
+                }
+                else if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.PARTICLE)
+                {
+                    Particle particle = new Particle();
+                    particle.Position = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
+                    particle.Position = new Coord(particle.Position.X - particle.Radius, particle.Position.Y - particle.Radius);
+                    particle.Radius = 10;
+                    particle.Fill = Color.FromArgb(255, 242, 80, 80);
+
+                    particle.IsBeingDragged = true;
+                    particle.IsBeingAdded = true;
+                    particle.GetUIElement().CapturePointer(e.Pointer);
+                    Scene.Add(particle);
+
+                }
+                else if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.EJECTOR)
+                {
+                    Coord pointerCoord = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
+                    ParticleEjector ejector = new ParticleEjector(pointerCoord, 295.0, 100);
+                    ejector.ParticleRadius = 10;
+                    ejector.ParticleColor = Color.FromArgb(255, 169, 80, 242);
+                    ejector.FillColorIsBasedOnParticle = true;
+                    ejector.IsPaused = true;
+                    ejector.Position = new Coord(ejector.Position.X - ParticleEjector.EJECTOR_SIZE.Width / 2.0, ejector.Position.Y - ParticleEjector.EJECTOR_SIZE.Height / 2.0);
+
+                    ejector.PointerDragPoint = new Coord(pointerCoord.X - ejector.Position.X, pointerCoord.Y - ejector.Position.Y);
+                    ejector.IsBeingDragged = true;
+                    ejector.IsBeingAdded = true;
+                    ejector.GetUIElement().CapturePointer(e.Pointer);
+                    Scene.Add(ejector);
+                }
+            }
         }
 
 
@@ -123,6 +218,28 @@ namespace PhysicsEngine
                     if (CompMenu.IsMenuExpanded && CompMenu.ParentComponent != null)
                         CompMenu.CloneSelectedComponent();
                     break;
+                case Windows.System.VirtualKey.X: // Clear Add Component Mode
+                    Toolbar.ComponentAddMode = eComponentAddMode.NONE;
+                    if (Window.Current.CoreWindow.PointerCursor.Type == CoreCursorType.Cross)
+                        Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+                    break;
+                case Windows.System.VirtualKey.Space: // Toggle Scene Paused
+                    Toolbar.TogglePauseScene();
+                    break;
+                case Windows.System.VirtualKey.Escape: // Close Any Menus
+
+                    Toolbar.ComponentAddMode = eComponentAddMode.NONE;
+
+                    if (Scene.AddMenu.IsMenuExpanded)
+                        Scene.AddMenu.ToggleMenuExpanded();
+
+                    if (Scene.WorldMenu.IsMenuExpanded)
+                        Scene.WorldMenu.ToggleMenuExpanded();
+
+                    if (Scene.CompMenu.IsMenuExpanded)
+                        Scene.CompMenu.ToggleMenuExpanded();
+
+                    break;
                 case Windows.System.VirtualKey.A: // Toggle Add Component Menu
                     AddMenu.ToggleMenuExpanded();
 
@@ -131,6 +248,19 @@ namespace PhysicsEngine
                         //Close other menus
                         if (Scene.WorldMenu.IsMenuExpanded)
                             Scene.WorldMenu.ToggleMenuExpanded();
+
+                        if (Scene.CompMenu.IsMenuExpanded)
+                            Scene.CompMenu.ToggleMenuExpanded();
+                    }
+                    break;
+                case Windows.System.VirtualKey.S: // Toggle World Settings Menu
+                    WorldMenu.ToggleMenuExpanded();
+
+                    if (WorldMenu.IsMenuExpanded)
+                    {
+                        //Close other menus
+                        if (Scene.AddMenu.IsMenuExpanded)
+                            Scene.AddMenu.ToggleMenuExpanded();
 
                         if (Scene.CompMenu.IsMenuExpanded)
                             Scene.CompMenu.ToggleMenuExpanded();

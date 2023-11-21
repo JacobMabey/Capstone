@@ -155,9 +155,6 @@ namespace PhysicsEngine.UI_Menus
 
         public virtual void ToggleMenuExpanded()
         {
-            if (ContractBoard.GetCurrentState() == ClockState.Active || ExpandBoard.GetCurrentState() == ClockState.Active)
-                return;
-
             if (IsMenuExpanded)
                 ContractBoard.Begin();
             else
