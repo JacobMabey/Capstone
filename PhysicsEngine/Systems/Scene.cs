@@ -136,9 +136,20 @@ namespace PhysicsEngine
 
         private static void MainScene_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (Scene.Toolbar != null && Scene.Toolbar.ComponentAddMode != eComponentAddMode.NONE)
+            if (Scene.Toolbar != null)
             {
-                if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.RECTANGLE)
+                if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.NONE)
+                {
+                    if (Scene.AddMenu.IsMenuExpanded)
+                        Scene.AddMenu.ToggleMenuExpanded();
+
+                    if (Scene.WorldMenu.IsMenuExpanded)
+                        Scene.WorldMenu.ToggleMenuExpanded();
+
+                    if (Scene.CompMenu.IsMenuExpanded)
+                        Scene.CompMenu.ToggleMenuExpanded();
+                }
+                else if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.RECTANGLE)
                 {
                     CompRectangle rect = new CompRectangle();
                     rect.StrokeThickness = 2;
