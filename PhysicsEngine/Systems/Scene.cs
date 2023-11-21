@@ -1,10 +1,13 @@
 ﻿using PhysicsEngine.UI_Menus;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -460,6 +463,110 @@ namespace PhysicsEngine
 
             if (Scene.CompMenu.IsMenuExpanded)
                 Scene.CompMenu.ToggleMenuExpanded();
+        }
+
+
+        public static async void SaveScene()
+        {
+            if (!Timer.IsPaused)
+                Toolbar.TogglePauseScene();
+
+            FileSavePicker savePicker = new FileSavePicker();
+            savePicker.DefaultFileExtension = ".psm";
+            savePicker.FileTypeChoices.Add("Particle Sim", new List<string>() { ".psm" });
+            savePicker.SuggestedFileName = "scene";
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+
+            StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                //Following code was helpfully given by ChatGPT
+                using (var stream = await file.OpenStreamForWriteAsync())
+                {
+                    using (var writer = new StreamWriter(stream))
+                    {
+                        await writer.WriteAsync(GetSaveText());
+                    }
+                }
+            }
+        }
+
+        public static async void LoadScene()
+        {
+            FileOpenPicker loadPicker = new FileOpenPicker();
+            loadPicker.FileTypeFilter.Add(".psm");
+            loadPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+
+            StorageFile file = await loadPicker.PickSingleFileAsync();
+            if (file == null) return;
+
+            //Clear scene and load properties
+            ClearScene();
+            Toolbar.TogglePauseScene();
+
+            string text = await FileIO.ReadTextAsync(file);
+
+            string[] lines = text.Split('\n');
+            bool isBuildingComponent = false;
+            string buildingComp = "";
+            for (int i = 6; i < lines.Length; i++)
+            {
+                string[] prop = lines[i].Split(':');
+
+                switch (prop[0])
+                {
+                    //Scene Properties
+                    case "IsGravityEnabled":
+                        Physics.IsGravityEnabled = bool.Parse(prop[1]);
+                        break;
+                    case "GravityAcceleration":
+                        Physics.GravityAcceleration = double.Parse(prop[1]);
+                        break;
+                    case "BackgroundColor":
+                        Renderer.BackgroundColor = LoadColor(prop[1]);
+                        break;
+                    case "BorderCollisionEnabled":
+                        SetBorderCollision(bool.Parse(prop[1]));
+                        break;
+                    case "IsCircleBorderActive":
+                        SetCircleBorderCollision(bool.Parse(prop[1]));
+                        break;
+                    case "CircleBorderRadius":
+                        SetCircleBorderRadius(double.Parse(prop[1]));
+                        break;
+
+                    case "comp_rectangle":
+
+                        break;
+                }
+            }
+        }
+
+        private static Color LoadColor(string color)
+        {
+            string[] c = color.Split(',');
+            return Color.FromArgb((byte)double.Parse(c[0]), (byte)double.Parse(c[1]), (byte)double.Parse(c[2]), (byte)double.Parse(c[3]));
+        }
+
+
+        private static string GetSaveText()
+        {
+            string output = "";
+
+            output += "IsGravityEnabled:" + Physics.IsGravityEnabled + "\n";
+            output += "GravityAcceleration:" + Physics.GravityAcceleration + "\n";
+            output += "BackgroundColor:" + Renderer.BackgroundColor.A + "," + Renderer.BackgroundColor.R + "," + Renderer.BackgroundColor.G + "," + Renderer.BackgroundColor.B + "\n";
+            output += "BorderCollisionEnabled:" + IsBorderCollisionEnabled() + "\n";
+            output += "IsCircleBorderActive:" + IsCircleBorderActive + "\n";
+            output += "CircleBorderRadius:" + CircleBorderRadius + "\n";
+
+            foreach (Component comp in Children.Values)
+            {
+                if (comp.ID != borderTop.ID && comp.ID != borderBottom.ID && comp.ID != borderLeft.ID && comp.ID != borderRight.ID)
+                output += comp.GetSaveText();
+            }
+
+            return output;
         }
 
 

@@ -37,6 +37,7 @@ namespace PhysicsEngine
         public abstract Shape GetUIElement();
 
         public abstract Component Clone();
+        public abstract string GetSaveText();
 
         public virtual void Initialize()
         {

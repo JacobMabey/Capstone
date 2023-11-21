@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI;
@@ -249,6 +250,23 @@ namespace PhysicsEngine
             clone.StrokeColor = StrokeColor;
             clone.StrokeThickness = StrokeThickness;
             return clone;
+        }
+
+        public override string GetSaveText()
+        {
+            string output = "comp_rectangle\n";
+
+            output += "IsCollisionEnabled:" + IsCollisionEnabled + "\n";
+            output += "Position:" + Position.X + "," + Position.Y + "\n";
+            output += "Size:" + Size.Width + "," + Size.Height + "\n";
+            output += "Fill:" + Fill.A + "," + Fill.R + "," + Fill.G + "," + Fill.B + "\n";
+            output += "RotationAngle:" + RotationAngle + "\n";
+            output += "RotationCenter:" + RotationCenter.X + "," + RotationCenter.Y + "\n";
+            output += "StrokeColor:" + StrokeColor.A + "," + StrokeColor.R + "," + StrokeColor.G + "," + StrokeColor.B + "\n";
+            output += "StrokeThickness:" + StrokeThickness + "\n";
+
+            output += "-\n";
+            return output;
         }
 
         public override void Update()

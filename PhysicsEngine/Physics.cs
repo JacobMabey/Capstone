@@ -30,7 +30,7 @@ namespace PhysicsEngine
 
         public Component Parent { get; private set; }
 
-        private Coord Acceleration { get; set; } = new Coord(0, 0);
+        public Coord Acceleration { get; set; } = new Coord(0, 0);
         public Coord Velocity { get; set; } = new Coord(0, 0);
 
         /// <summary>

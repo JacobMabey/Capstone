@@ -72,9 +72,14 @@ namespace PhysicsEngine.UI_Menus
             SettingsStack.Children.Add(circBorderGrid);
 
 
+            //Save and load grid
+            Grid saveLoadGrid = GetSaveLoadSceneGrid();
+            SettingsStack.Children.Add(saveLoadGrid);
+
+
             //Hotkey Tooltips
             TextBlock hotkeyTitle = new TextBlock();
-            hotkeyTitle.Margin = new Thickness(0, 20, 0, 5);
+            hotkeyTitle.Margin = new Thickness(0, 0, 0, 5);
             hotkeyTitle.Text = "Hotkeys";
             hotkeyTitle.FontSize = 16;
             hotkeyTitle.FontFamily = MainPage.GlobalFont;
@@ -325,6 +330,54 @@ namespace PhysicsEngine.UI_Menus
             {
                 args.Cancel = true;
             }
+        }
+
+        //Save and Load Scene Grid
+        private Grid GetSaveLoadSceneGrid()
+        {
+            Grid saveLoadGrid = new Grid();
+            saveLoadGrid.Margin = new Thickness(0, 10, 0, 0);
+            saveLoadGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            saveLoadGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            saveLoadGrid.RowDefinitions.Add(new RowDefinition());
+            saveLoadGrid.RowDefinitions.Add(new RowDefinition());
+
+            //Title
+            TextBlock saveLoadTitle = new TextBlock();
+            Grid.SetColumn(saveLoadTitle, 0);
+            Grid.SetColumnSpan(saveLoadTitle, 2);
+            Grid.SetRow(saveLoadTitle, 0);
+            saveLoadTitle.Text = "Save / Load Scene";
+            saveLoadTitle.FontSize = 18;
+            saveLoadTitle.FontFamily = MainPage.GlobalFont;
+            saveLoadTitle.Foreground = new SolidColorBrush(Colors.White);
+            saveLoadTitle.HorizontalAlignment = HorizontalAlignment.Center;
+            saveLoadGrid.Children.Add(saveLoadTitle);
+
+            //Save Button
+            Grid saveButton = GetButton("Save", Colors.White);
+            Grid.SetColumn(saveButton, 0);
+            Grid.SetRow(saveButton, 1);
+            saveButton.PointerReleased += SaveButton_PointerReleased;
+            saveLoadGrid.Children.Add(saveButton);
+
+            //Load Button
+            Grid loadButton = GetButton("Load", Colors.White);
+            Grid.SetColumn(loadButton, 1);
+            Grid.SetRow(loadButton, 1);
+            loadButton.PointerReleased += LoadButton_PointerReleased;
+            saveLoadGrid.Children.Add(loadButton);
+
+            return saveLoadGrid;
+        }
+
+        private void SaveButton_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Scene.SaveScene();
+        }
+        private void LoadButton_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Scene.LoadScene();
         }
 
 

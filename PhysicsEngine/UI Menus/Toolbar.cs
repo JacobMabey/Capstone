@@ -159,6 +159,8 @@ namespace PhysicsEngine.UI_Menus
             AddModeLabel = new TextBlock();
             Grid.SetColumn(AddModeLabel, 0);
             AddModeLabel.Text = GetCompAddModeText();
+            AddModeLabel.Margin = new Thickness(0, 5, 0, 0);
+            AddModeLabel.FontWeight = FontWeights.Bold;
             AddModeLabel.Foreground = new SolidColorBrush(Colors.White);
             AddModeLabel.HorizontalAlignment = HorizontalAlignment.Center;
             AddModeLabel.VerticalAlignment = VerticalAlignment.Center;
@@ -168,7 +170,7 @@ namespace PhysicsEngine.UI_Menus
             Grid.SetColumn(AddModeTooltip, 1);
             AddModeTooltip.Margin = new Thickness(0, 5, 0, 0);
             AddModeTooltip.Visibility = Visibility.Collapsed;
-            AddModeTooltip.Text = "(Click Anywhere to Add)";
+            AddModeTooltip.Text = "(Click Anywhere to Add  |  X - Exit Add Mode)";
             AddModeTooltip.Foreground = new SolidColorBrush(Colors.LightGray);
             AddModeTooltip.HorizontalAlignment = HorizontalAlignment.Center;
             AddModeTooltip.VerticalAlignment = VerticalAlignment.Center;

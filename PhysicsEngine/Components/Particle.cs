@@ -176,6 +176,27 @@ namespace PhysicsEngine
             return clone;
         }
 
+        public override string GetSaveText()
+        {
+            string output = "comp_particle\n";
+
+            output += "IsCollisionEnabled:" + IsCollisionEnabled + "\n";
+            output += "IsParticleCollisionEnabled:" + IsParticleCollisionEnabled + "\n";
+            output += "Fill:" + Fill.A + "," + Fill.R + "," + Fill.G + "," + Fill.B + "\n";
+            output += "ColorChangeRate:" + ColorChangeRate + "\n";
+            output += "HasPhysics:" + HasPhysics + "\n";
+            output += "Radius:" + Radius + "\n";
+            output += "Position:" + Position.X + "," + Position.Y + "\n";
+            output += "Mass:" + Phys.Mass + "\n";
+            output += "Friction:" + Phys.Friction + "\n";
+            output += "Elasticity:" + Phys.Elasticity + "\n";
+            output += "Velocity:" + Phys.Velocity.X + "," + Phys.Velocity.Y + "\n";
+            output += "Acceleration:" + Phys.Acceleration.X + "," + Phys.Acceleration.Y + "\n";
+
+            output += "-\n";
+            return output;
+        }
+
         public override void Update()
         {
             base.Update();

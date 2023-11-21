@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI;
@@ -319,9 +320,35 @@ namespace PhysicsEngine
             clone.ParticleRadius = ParticleRadius;
             clone.ParticleRadiusRange = ParticleRadiusRange;
             clone.ParticleScatterAngle = ParticleScatterAngle;
+            clone.ParticlesEjected = ParticlesEjected;
             clone.IsPaused = IsPaused;
 
             return clone;
+        }
+
+        public override string GetSaveText()
+        {
+            string output = "comp_ejector\n";
+
+            output += "RotationAngle:" + RotationAngle + "\n";
+            output += "ParticleLimit:" + ParticleLimit + "\n";
+            output += "ParticleRate:" + ParticleRate + "\n";
+            output += "ParticleVelocity:" + ParticleVelocity + "\n";
+            output += "ParticleElasticity:" + ParticleElasticity + "\n";
+            output += "ParticleFriction:" + ParticleFriction + "\n";
+            output += "ColorChangeRate:" + ColorChangeRate + "\n";
+            output += "ParticleColorChangeRate:" + ParticleColorChangeRate + "\n";
+            output += "Fill:" + Fill.A + "," + Fill.R + "," + Fill.G + "," + Fill.B + "\n";
+            output += "ParticleColor:" + ParticleColor.A + "," + ParticleColor.R + "," + ParticleColor.G + "," + ParticleColor.B + "\n";
+            output += "FillColorIsBasedOnParticle:" + FillColorIsBasedOnParticle + "\n";
+            output += "ParticleRadius:" + ParticleRadius + "\n";
+            output += "ParticleRadiusRange:" + ParticleRadiusRange + "\n";
+            output += "ParticleScatterAngle:" + ParticleScatterAngle + "\n";
+            output += "ParticlesEjected:" + ParticlesEjected + "\n";
+            output += "Position:" + Position.X + "," + Position.Y + "\n";
+
+            output += "-\n";
+            return output;
         }
 
         public override void Update()

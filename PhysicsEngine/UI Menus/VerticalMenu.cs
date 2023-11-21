@@ -151,6 +151,38 @@ namespace PhysicsEngine.UI_Menus
             ContractBoard.Children.Add(contractTop);
         }
 
+        protected Grid GetButton(String text, Color color)
+        {
+            Grid buttonGrid = new Grid();
+            buttonGrid.Margin = new Thickness(0, 10, 0, 10);
+            buttonGrid.PointerEntered += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 1);
+            };
+            buttonGrid.PointerExited += (s, o) =>
+            {
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
+            };
+
+            Rectangle buttonRect = new Rectangle();
+            buttonRect.Height = 30;
+            buttonRect.Fill = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255));
+            buttonRect.Stroke = new SolidColorBrush(Colors.Black);
+            buttonRect.StrokeThickness = 1;
+            buttonGrid.Children.Add(buttonRect);
+
+            TextBlock buttonText = new TextBlock();
+            buttonText.Text = text;
+            buttonText.FontSize = 16;
+            buttonText.FontFamily = MainPage.GlobalFont;
+            buttonText.Foreground = new SolidColorBrush(color);
+            buttonText.VerticalAlignment = VerticalAlignment.Center;
+            buttonText.HorizontalAlignment = HorizontalAlignment.Center;
+            buttonGrid.Children.Add(buttonText);
+
+            return buttonGrid;
+        }
+
         public virtual void ToggleMenuExpanded()
         {
             if (IsMenuExpanded)

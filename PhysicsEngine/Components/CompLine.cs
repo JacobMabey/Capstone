@@ -14,6 +14,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using Microsoft.Graphics.Canvas;
+using Windows.Devices.Radios;
 
 namespace PhysicsEngine
 {
@@ -217,6 +218,20 @@ namespace PhysicsEngine
             clone.Thickness = Thickness;
 
             return clone;
+        }
+
+        public override string GetSaveText()
+        {
+            string output = "comp_line\n";
+
+            output += "IsCollisionEnabled:" + IsCollisionEnabled + "\n";
+            output += "PosA:" + PosA.X + "," + PosA.Y + "\n";
+            output += "PosB:" + PosB.X + "," + PosB.Y + "\n";
+            output += "Fill:" + Fill.A + "," + Fill.R + "," + Fill.G + "," + Fill.B + "\n";
+            output += "Thickness:" + Thickness + "\n";
+
+            output += "-\n";
+            return output;
         }
 
         public override void Update()
