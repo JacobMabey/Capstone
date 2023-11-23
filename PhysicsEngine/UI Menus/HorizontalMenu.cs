@@ -1,5 +1,3 @@
-
-
 using System;
 using Windows.UI;
 using Windows.UI.Core;

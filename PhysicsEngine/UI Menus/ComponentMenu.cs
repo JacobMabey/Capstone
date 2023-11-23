@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Linq;
 using Windows.UI;
@@ -29,6 +27,10 @@ namespace PhysicsEngine.UI_Menus
         Grid HasParticleCollisionCheck { get; set; }
         SolidColorBrush HasParticleCollisionLabelFill { get; set; }
         CheckBox HasParticleCollisionCheckbox { get; set; }
+
+        //Has Physics Checkbox
+        Grid HasPhysicsCheck { get; set; }
+        CheckBox HasPhysicsCheckbox { get; set; }
 
         //Copy / Delete Component
         Grid CopyDeleteCompGrid { get; set; }
@@ -96,6 +98,7 @@ namespace PhysicsEngine.UI_Menus
 
             //Particles
             HasParticleCollisionCheck = GetHasParticleCollisionCheckGrid();
+            HasPhysicsCheck = GetHasPhysicsCheckGrid();
             StopVelocityGrid = GetButton("Stop Velocity", Colors.White);
             StopVelocityGrid.Width = MenuWidth - 50;
             StopVelocityGrid.Tapped += (s, o) =>
@@ -172,6 +175,9 @@ namespace PhysicsEngine.UI_Menus
                     HasParticleCollisionCheckbox.IsChecked = ((Particle)ParentComponent).IsParticleCollisionEnabled;
                     SettingsStack.Children.Add(HasParticleCollisionCheck);
 
+                    HasPhysicsCheckbox.IsChecked = ((Particle)ParentComponent).HasPhysics;
+                    SettingsStack.Children.Add(HasPhysicsCheck);
+
                     SettingsStack.Children.Add(StopVelocityGrid);
 
                     (ParticlePropertiesGrid.Children.Where(c => c is TextBox).ElementAt(0) as TextBox).Text = ((Particle)ParentComponent).Radius+"";
@@ -230,6 +236,8 @@ namespace PhysicsEngine.UI_Menus
                     (EjectorPropertiesGrid.Children.Where(c => c is TextBox).ElementAt(2) as TextBox).Text = ((ParticleEjector)ParentComponent).ParticleScatterAngle + "";
                     SettingsStack.Children.Add(EjectorPropertiesGrid);
 
+                    while (((ParticleEjector)ParentComponent).RotationAngle < 0) ((ParticleEjector)ParentComponent).RotationAngle += 360;
+                    while (((ParticleEjector)ParentComponent).RotationAngle > 360) ((ParticleEjector)ParentComponent).RotationAngle -= 360;
                     RotateInput.Text = ((ParticleEjector)ParentComponent).RotationAngle + "";
                     SettingsStack.Children.Add(RotateGrid);
 
@@ -344,6 +352,36 @@ namespace PhysicsEngine.UI_Menus
             return hasParticleCollision;
         }
 
+        private Grid GetHasPhysicsCheckGrid()
+        {
+            Grid hasPhysics = new Grid();
+            hasPhysics.Margin = new Thickness(10);
+
+            TextBlock hasPhysicsLabel = new TextBlock();
+            Grid.SetColumn(hasPhysicsLabel, 0);
+            Grid.SetColumnSpan(hasPhysicsLabel, 3);
+            hasPhysicsLabel.Text = "Toggle Particle Physics";
+            hasPhysicsLabel.FontSize = 14;
+            hasPhysicsLabel.FontFamily = MainPage.GlobalFont;
+            HasParticleCollisionLabelFill = new SolidColorBrush(Colors.White);
+            hasPhysicsLabel.Foreground = HasParticleCollisionLabelFill;
+            hasPhysicsLabel.VerticalAlignment = VerticalAlignment.Center;
+            hasPhysicsLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            hasPhysics.Children.Add(hasPhysicsLabel);
+
+            HasPhysicsCheckbox = new CheckBox();
+            Grid.SetColumn(HasPhysicsCheckbox, 4);
+            HasPhysicsCheckbox.IsChecked = true;
+            HasPhysicsCheckbox.Checked += (s, o) => { ((Particle)ParentComponent).HasPhysics = true; };
+            HasPhysicsCheckbox.Unchecked += (s, o) => {
+                ((Particle)ParentComponent).Phys.Velocity = new Coord(0, 0);
+                ((Particle)ParentComponent).HasPhysics = false;
+            };
+            hasPhysics.Children.Add(HasPhysicsCheckbox);
+
+            return hasPhysics;
+        }
+
 
         //Partilce Grid Functions
         private Grid GetParticlePropertiesGrid()
@@ -433,9 +471,9 @@ namespace PhysicsEngine.UI_Menus
         {
             if (double.TryParse(args.NewText, out double parsed))
             {
-                if (parsed > 50)
+                if (parsed > Scene.MaxParticleRadius)
                 {
-                    parsed = 50;
+                    parsed = Scene.MaxParticleRadius;
                     if (ParentComponent is Particle)
                         ((Particle)ParentComponent).Radius = parsed;
                     else if (ParentComponent is ParticleEjector)

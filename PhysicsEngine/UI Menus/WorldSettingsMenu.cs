@@ -2,7 +2,6 @@ using System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 
 namespace PhysicsEngine.UI_Menus
@@ -12,7 +11,13 @@ namespace PhysicsEngine.UI_Menus
         public HsvColorPicker BgColorPicker { get; private set; }
         StackPanel SettingsStack {  get; set; }
 
+        public TextBox GravityInput { get; set; }
         public CheckBox GravityCheckbox { get; set; }
+
+        public CheckBox EdgeBorderCheckbox { get; set; }
+
+        public CheckBox CircBorderCheckbox { get; set; }
+        public TextBox CircRadInput { get; set; }
 
         public override void Initialize(double width, double menuX, Color bgColor)
         {
@@ -133,25 +138,25 @@ namespace PhysicsEngine.UI_Menus
             gravityInputGrid.Children.Add(gravityLabel);
 
             //Make text input
-            TextBox gravityInput = new TextBox();
-            Grid.SetColumn(gravityInput, 2);
-            gravityInput.MaxLength = 6;
-            gravityInput.Foreground = new SolidColorBrush(Colors.White);
-            gravityInput.FontFamily = MainPage.GlobalFont;
-            gravityInput.TextAlignment = TextAlignment.Center;
-            gravityInput.TextWrapping = TextWrapping.Wrap;
-            gravityInput.Text = Physics.GravityAcceleration + "";
-            gravityInput.GotFocus += (object o, RoutedEventArgs e) => gravityInput.SelectAll();
-            gravityInput.BeforeTextChanging += GravityInput_BeforeTextChanging;
-            gravityInputGrid.Children.Add(gravityInput);
+            GravityInput = new TextBox();
+            Grid.SetColumn(GravityInput, 2);
+            GravityInput.MaxLength = 6;
+            GravityInput.Foreground = new SolidColorBrush(Colors.White);
+            GravityInput.FontFamily = MainPage.GlobalFont;
+            GravityInput.TextAlignment = TextAlignment.Center;
+            GravityInput.TextWrapping = TextWrapping.Wrap;
+            GravityInput.Text = Physics.GravityAcceleration + "";
+            GravityInput.GotFocus += (object o, RoutedEventArgs e) => GravityInput.SelectAll();
+            GravityInput.BeforeTextChanging += GravityInput_BeforeTextChanging;
+            gravityInputGrid.Children.Add(GravityInput);
 
             //Make checkbox
             GravityCheckbox = new CheckBox();
             Grid.SetColumn(GravityCheckbox, 0);
             GravityCheckbox.IsChecked = Physics.IsGravityEnabled;
-            gravityInput.IsEnabled = Physics.IsGravityEnabled;
-            GravityCheckbox.Checked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = true; Physics.IsGravityEnabled = true; };
-            GravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { gravityInput.IsEnabled = false; Physics.IsGravityEnabled = false; };
+            GravityInput.IsEnabled = Physics.IsGravityEnabled;
+            GravityCheckbox.Checked += (object s, RoutedEventArgs e) => { GravityInput.IsEnabled = true; Physics.IsGravityEnabled = true; };
+            GravityCheckbox.Unchecked += (object s, RoutedEventArgs e) => { GravityInput.IsEnabled = false; Physics.IsGravityEnabled = false; };
             gravityInputGrid.Children.Add(GravityCheckbox);
 
             //Make pps label
@@ -212,18 +217,18 @@ namespace PhysicsEngine.UI_Menus
             edgeBorderLabel.Foreground = new SolidColorBrush(Colors.White);
             edgeBorderGrid.Children.Add(edgeBorderLabel);
 
-            CheckBox edgeBorderCheckbox = new CheckBox();
-            Grid.SetColumn(edgeBorderCheckbox, 4);
-            edgeBorderCheckbox.IsChecked = true;
-            edgeBorderCheckbox.Checked += (s, o) =>
+            EdgeBorderCheckbox = new CheckBox();
+            Grid.SetColumn(EdgeBorderCheckbox, 4);
+            EdgeBorderCheckbox.IsChecked = true;
+            EdgeBorderCheckbox.Checked += (s, o) =>
             {
                 Scene.SetBorderCollision(true);
             };
-            edgeBorderCheckbox.Unchecked += (s, o) =>
+            EdgeBorderCheckbox.Unchecked += (s, o) =>
             {
                 Scene.SetBorderCollision(false);
             };
-            edgeBorderGrid.Children.Add(edgeBorderCheckbox);
+            edgeBorderGrid.Children.Add(EdgeBorderCheckbox);
 
 
             return edgeBorderGrid;
@@ -255,10 +260,10 @@ namespace PhysicsEngine.UI_Menus
             circBorderLabel.Foreground = new SolidColorBrush(Colors.White);
             circBorderGrid.Children.Add(circBorderLabel);
 
-            CheckBox circBorderCheckbox = new CheckBox();
-            Grid.SetColumn(circBorderCheckbox, 4);
-            circBorderCheckbox.IsChecked = Scene.IsCircleBorderActive;
-            circBorderGrid.Children.Add(circBorderCheckbox);
+            CircBorderCheckbox = new CheckBox();
+            Grid.SetColumn(CircBorderCheckbox, 4);
+            CircBorderCheckbox.IsChecked = Scene.IsCircleBorderActive;
+            circBorderGrid.Children.Add(CircBorderCheckbox);
 
 
             //Second Row
@@ -275,33 +280,33 @@ namespace PhysicsEngine.UI_Menus
             circBorderGrid.Children.Add(circRadLabel);
 
             //Make text input
-            TextBox circRadInput = new TextBox();
-            Grid.SetColumn(circRadInput, 3);
-            Grid.SetColumnSpan(circRadInput, 2);
-            Grid.SetRow(circRadInput, 1);
-            circRadInput.MaxLength = 3;
-            circRadInput.IsEnabled = false;
-            circRadInput.Foreground = new SolidColorBrush(Colors.White);
-            circRadInput.FontFamily = MainPage.GlobalFont;
-            circRadInput.TextAlignment = TextAlignment.Center;
-            circRadInput.TextWrapping = TextWrapping.Wrap;
-            circRadInput.Text = Scene.CircleBorderRadius+"";
-            circRadInput.GotFocus += (object o, RoutedEventArgs e) => circRadInput.SelectAll();
-            circRadInput.BeforeTextChanging += CircRadInput_BeforeTextChanging;
-            circBorderGrid.Children.Add(circRadInput);
+            CircRadInput = new TextBox();
+            Grid.SetColumn(CircRadInput, 3);
+            Grid.SetColumnSpan(CircRadInput, 2);
+            Grid.SetRow(CircRadInput, 1);
+            CircRadInput.MaxLength = 3;
+            CircRadInput.IsEnabled = false;
+            CircRadInput.Foreground = new SolidColorBrush(Colors.White);
+            CircRadInput.FontFamily = MainPage.GlobalFont;
+            CircRadInput.TextAlignment = TextAlignment.Center;
+            CircRadInput.TextWrapping = TextWrapping.Wrap;
+            CircRadInput.Text = Scene.CircleBorderRadius+"";
+            CircRadInput.GotFocus += (object o, RoutedEventArgs e) => CircRadInput.SelectAll();
+            CircRadInput.BeforeTextChanging += CircRadInput_BeforeTextChanging;
+            circBorderGrid.Children.Add(CircRadInput);
 
 
-            circBorderCheckbox.Checked += (s, o) =>
+            CircBorderCheckbox.Checked += (s, o) =>
             {
                 Scene.SetCircleBorderCollision(true);
                 lableColor.Color = Colors.LightGray;
-                circRadInput.IsEnabled = true;
+                CircRadInput.IsEnabled = true;
             };
-            circBorderCheckbox.Unchecked += (s, o) =>
+            CircBorderCheckbox.Unchecked += (s, o) =>
             {
                 Scene.SetCircleBorderCollision(false);
                 lableColor.Color = Colors.Gray;
-                circRadInput.IsEnabled = false;
+                CircRadInput.IsEnabled = false;
             };
 
             return circBorderGrid;

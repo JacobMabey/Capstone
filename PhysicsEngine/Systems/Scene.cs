@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -14,7 +12,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
-using static PhysicsEngine.UI_Menus.AddCompOptions.AddCompPanel;
 
 namespace PhysicsEngine
 {
@@ -39,7 +36,7 @@ namespace PhysicsEngine
         public static bool IsSnappableGridEnabled { get; set; } = true;
 
         //Main Space Partitioning Grid Global Values
-        public static double MaxParticleRadius { get; private set; } = 30.0;
+        public static double MaxParticleRadius { get; private set; } = 100.0;
         public static double SpacePartitionCellSize => MaxParticleRadius * 2.0;
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
@@ -62,6 +59,7 @@ namespace PhysicsEngine
         private static CompLine borderLeft;
 
         private static Ellipse circleBorder;
+        private static SolidColorBrush circleBorderBrush;
         public static double CircleBorderRadius { get; private set; } = 300;
         public static bool IsCircleBorderActive { get; set; } = false;
 
@@ -131,7 +129,6 @@ namespace PhysicsEngine
             circleBorder.Width = CircleBorderRadius * 2.0;
             circleBorder.Height = CircleBorderRadius * 2.0;
             circleBorder.Fill = new SolidColorBrush(Colors.Transparent);
-            circleBorder.Stroke = new SolidColorBrush(Colors.Black);
             circleBorder.StrokeThickness = 1;
             circleBorder.Opacity = 0;
             MainScene.Children.Add(circleBorder);
@@ -530,18 +527,22 @@ namespace PhysicsEngine
                         break;
                     case "GravityAcceleration":
                         Physics.GravityAcceleration = double.Parse(prop[1]);
+                        Scene.WorldMenu.GravityInput.Text = Physics.GravityAcceleration+"";
                         break;
                     case "BackgroundColor":
                         Renderer.BackgroundColor = LoadColor(prop[1]);
                         break;
                     case "BorderCollisionEnabled":
                         SetBorderCollision(bool.Parse(prop[1]));
+                        Scene.WorldMenu.EdgeBorderCheckbox.IsChecked = IsBorderCollisionEnabled();
                         break;
                     case "IsCircleBorderActive":
                         SetCircleBorderCollision(bool.Parse(prop[1]));
+                        Scene.WorldMenu.CircBorderCheckbox.IsChecked = IsCircleBorderActive;
                         break;
                     case "CircleBorderRadius":
                         SetCircleBorderRadius(double.Parse(prop[1]));
+                        Scene.WorldMenu.CircRadInput.Text = CircleBorderRadius+"";
                         break;
 
                     case "comp_rectangle": // Load Rectangle
@@ -877,6 +878,17 @@ namespace PhysicsEngine
         public static double GetCircleBorderRadius()
         {
             return CircleBorderRadius;
+        }
+
+        public static void SetCircleBorderColor(Color color)
+        {
+            if (circleBorderBrush == null)
+                circleBorderBrush = new SolidColorBrush(color);
+            else
+                circleBorderBrush.Color = color;
+
+            if (circleBorder.Stroke != circleBorderBrush)
+                circleBorder.Stroke = circleBorderBrush;
         }
 
 

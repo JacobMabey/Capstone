@@ -1,5 +1,3 @@
-
-using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Text;
@@ -7,7 +5,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
-using static PhysicsEngine.UI_Menus.AddCompOptions.AddCompPanel;
 
 namespace PhysicsEngine.UI_Menus.AddCompOptions
 {
@@ -114,7 +111,7 @@ namespace PhysicsEngine.UI_Menus.AddCompOptions
             ejectorTooltip.Foreground = new SolidColorBrush(Color.FromArgb(255, 240, 176, 146));
 
             TextBlock dragTooltip = new TextBlock();
-            dragTooltip.Text = "Click and Drag Shape to Add";
+            dragTooltip.Text = "Click Shape to Enter Add Mode";
             dragTooltip.Padding = new Thickness(0, 12, 0 , 0);
             dragTooltip.FontFamily = MainPage.GlobalFont;
             dragTooltip.TextWrapping = TextWrapping.Wrap;

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -101,6 +96,7 @@ namespace PhysicsEngine.UI_Menus
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
             };
+            ToolTipService.SetToolTip(PauseButton, "Pause (Space)");
             PauseButton.Width = ToolbarHeight;
             PauseButton.Height = ToolbarHeight;
             PauseButton.Source = Timer.IsPaused ? PlayImage : PauseImage;
@@ -140,10 +136,11 @@ namespace PhysicsEngine.UI_Menus
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
             };
+            ToolTipService.SetToolTip(AddButton, "Add Component (A)");
             AddButton.Width = ToolbarHeight;
             AddButton.Height = ToolbarHeight;
             AddButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/addBtn.png"));
-            Canvas.SetLeft(AddButton, Canvas.GetLeft(TimeScaleSlider) + TimeScaleSlider.Width + 15.0);
+            Canvas.SetLeft(AddButton, Canvas.GetLeft(TimeScaleSlider) + TimeScaleSlider.Width + 30.0);
             Canvas.SetZIndex(AddButton, 101);
             AddButton.PointerPressed += AddButton_Pressed;
             this.Children.Add(AddButton);
@@ -188,6 +185,7 @@ namespace PhysicsEngine.UI_Menus
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
             };
+            ToolTipService.SetToolTip(ClearButton, "Clear Scene");
             ClearButton.Width = ToolbarHeight;
             ClearButton.Height = ToolbarHeight;
             ClearButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/clearBtn.png"));
@@ -205,6 +203,7 @@ namespace PhysicsEngine.UI_Menus
             {
                 Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
             };
+            ToolTipService.SetToolTip(SettingsButton, "Settings (S)");
             SettingsButton.Width = ToolbarHeight;
             SettingsButton.Height = ToolbarHeight;
             SettingsButton.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/settingsBtn.png"));

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI;
+﻿using Windows.UI;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Shapes;
 
 namespace PhysicsEngine
 {
@@ -22,6 +16,13 @@ namespace PhysicsEngine
                     Scene.MainScene.Background = new SolidColorBrush(value);
                 bgColor = value;
                 Scene.WorldMenu.BgColorPicker.SetColor(bgColor);
+
+                //Set circle border color to black or white depending on intensity of bg color
+                //Recieved the following math from https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+                if (bgColor.R * 0.299 + bgColor.G * 0.587 + bgColor.B * 0.114 > 150)
+                    Scene.SetCircleBorderColor(Colors.Black);
+                else
+                    Scene.SetCircleBorderColor(Colors.White);
             }
         }
         private static TextBlock fpsText { get; set; }
