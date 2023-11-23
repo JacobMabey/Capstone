@@ -2,6 +2,7 @@
 
 using PhysicsEngine.UI_Menus.AddCompOptions;
 using System;
+using System.IO;
 using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -49,6 +50,8 @@ namespace PhysicsEngine.UI_Menus
             displayLine.X2 = 0.0;
             displayLine.Y2 = ShapeDisplaySize.Height + 50.0;
             displayLine.StrokeThickness = 8;
+            displayLine.StrokeStartLineCap = PenLineCap.Round;
+            displayLine.StrokeEndLineCap = PenLineCap.Round;
             displayLine.Stroke = new SolidColorBrush(Color.FromArgb(255, 52, 173, 79));
             AddLine = new AddCompPanel(AddCompPanel.eShapeType.LINE, displayLine,
                 "The Line component allows you to add linear structure to your scene."
@@ -79,7 +82,12 @@ namespace PhysicsEngine.UI_Menus
             displayEjector.StrokeThickness = 3.0;
             displayEjector.Margin = new Thickness(5, 0, 0, 0);
             displayEjector.Stroke = new SolidColorBrush(Colors.Black);
-            displayEjector.Fill = new SolidColorBrush(Color.FromArgb(255, 169, 80, 242));
+            LinearGradientBrush gradient = new LinearGradientBrush();
+            gradient.StartPoint = new Point(0.5, 1);
+            gradient.EndPoint = new Point(0.5, 0);
+            gradient.GradientStops.Add(new GradientStop { Color = Colors.Black, Offset = 0 });
+            gradient.GradientStops.Add(new GradientStop { Color = Color.FromArgb(255, 169, 80, 242), Offset = 0.3 });
+            displayEjector.Fill = gradient;
             AddEjector = new AddCompPanel(AddCompPanel.eShapeType.EJECTOR, displayEjector,
                 "The Particle Ejector shoots particles with customizable properties."
             );

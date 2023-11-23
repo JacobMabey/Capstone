@@ -44,7 +44,7 @@ namespace PhysicsEngine
         public static Dictionary<Coord, List<Particle>> SpacePartitionGrid { get; set; } = new Dictionary<Coord, List<Particle>>();
         public static Coord CurrentCell = new Coord(0, 0);
 
-        public static int MAX_PARTICLE_COUNT => 400;
+        public static int MAX_PARTICLE_COUNT => 300;
         public static int ParticleCount { get; private set; } = 0;
 
         //Main global toolbar
@@ -188,9 +188,8 @@ namespace PhysicsEngine
                 else if (Scene.Toolbar.ComponentAddMode == eComponentAddMode.PARTICLE)
                 {
                     Particle particle = new Particle();
-                    particle.Position = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
-                    particle.Position = new Coord(particle.Position.X - particle.Radius, particle.Position.Y - particle.Radius);
                     particle.Radius = 10;
+                    particle.Position = Coord.FromPoint(e.GetCurrentPoint(Scene.MainScene).Position);
                     particle.Fill = Color.FromArgb(255, 242, 80, 80);
 
                     particle.IsBeingDragged = true;
@@ -231,6 +230,11 @@ namespace PhysicsEngine
                 case Windows.System.VirtualKey.C: // Copy Selected Component
                     if (CompMenu.IsMenuExpanded && CompMenu.ParentComponent != null)
                         CompMenu.CloneSelectedComponent();
+
+                    break;
+                case Windows.System.VirtualKey.Delete: // Copy Selected Component
+                    if (CompMenu.IsMenuExpanded && CompMenu.ParentComponent != null)
+                        Scene.Remove(CompMenu.ParentComponent.ID);
                     break;
                 case Windows.System.VirtualKey.X: // Clear Add Component Mode
                     Toolbar.ComponentAddMode = eComponentAddMode.NONE;
@@ -243,6 +247,8 @@ namespace PhysicsEngine
                 case Windows.System.VirtualKey.Escape: // Close Any Menus
 
                     Toolbar.ComponentAddMode = eComponentAddMode.NONE;
+                    if (Window.Current.CoreWindow.PointerCursor.Type == CoreCursorType.Cross)
+                        Window.Current.CoreWindow.PointerCursor = new CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 1);
 
                     if (Scene.AddMenu.IsMenuExpanded)
                         Scene.AddMenu.ToggleMenuExpanded();
@@ -358,6 +364,7 @@ namespace PhysicsEngine
                 MainScene.Children.Add(elementsToBeAdded[i].GetUIElement());
             }
             elementsToBeAdded.Clear();
+
         }
 
         private static void AddToSpacePartitionGrid(Coord pos, Particle particle)
@@ -502,14 +509,15 @@ namespace PhysicsEngine
 
             //Clear scene and load properties
             ClearScene();
-            Toolbar.TogglePauseScene();
+            if (!Timer.IsPaused)
+                Toolbar.TogglePauseScene();
+            WorldMenu.ToggleMenuExpanded();
+            Toolbar.ComponentAddMode = eComponentAddMode.NONE;
 
             string text = await FileIO.ReadTextAsync(file);
 
             string[] lines = text.Split('\n');
-            bool isBuildingComponent = false;
-            string buildingComp = "";
-            for (int i = 6; i < lines.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 string[] prop = lines[i].Split(':');
 
@@ -518,6 +526,7 @@ namespace PhysicsEngine
                     //Scene Properties
                     case "IsGravityEnabled":
                         Physics.IsGravityEnabled = bool.Parse(prop[1]);
+                        Scene.WorldMenu.GravityCheckbox.IsChecked = Physics.IsGravityEnabled;
                         break;
                     case "GravityAcceleration":
                         Physics.GravityAcceleration = double.Parse(prop[1]);
@@ -535,8 +544,255 @@ namespace PhysicsEngine
                         SetCircleBorderRadius(double.Parse(prop[1]));
                         break;
 
-                    case "comp_rectangle":
+                    case "comp_rectangle": // Load Rectangle
+                        CompRectangle rect = new CompRectangle();
 
+                        //Is Collision Enabled
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("IsCollisionEnabled"))
+                            rect.IsCollisionEnabled = bool.Parse(prop[1]);
+
+                        //Position
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Position"))
+                            rect.Position = LoadPosition(prop[1]);
+
+                        //Size
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Size"))
+                            rect.Size = LoadSize(prop[1]);
+
+                        //Fill
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Fill"))
+                            rect.Fill = LoadColor(prop[1]);
+
+                        //RotationAngle
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("RotationAngle"))
+                            rect.RotationAngle = double.Parse(prop[1]);
+
+                        //RotationCenter
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("RotationCenter"))
+                            rect.RotationCenter = LoadPosition(prop[1]);
+
+                        //StrokeColor
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("StrokeColor"))
+                            rect.StrokeColor = LoadColor(prop[1]);
+
+                        //StrokeThickness
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("StrokeThickness"))
+                            rect.StrokeThickness = double.Parse(prop[1]);
+
+                        if (lines[++i].Equals("-"))
+                        {
+                            Add(rect);
+                        }
+                        else throw new Exception("Error Loading Rectangle Component");
+                        break;
+
+                    case "comp_line": // Load Line
+                        CompLine line = new CompLine();
+
+                        //Is Collision Enabled
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("IsCollisionEnabled"))
+                            line.IsCollisionEnabled = bool.Parse(prop[1]);
+
+                        //PosA
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("PosA"))
+                            line.PosA = LoadPosition(prop[1]);
+
+                        //PosB
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("PosB"))
+                            line.PosB = LoadPosition(prop[1]);
+
+                        //Fill
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Fill"))
+                            line.Fill = LoadColor(prop[1]);
+
+                        //Thickness
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Thickness"))
+                            line.Thickness = double.Parse(prop[1]);
+
+                        if (lines[++i].Equals("-"))
+                        {
+                            Add(line);
+                        }
+                        else throw new Exception("Error Loading Line Component");
+                        break;
+
+                    case "comp_particle": // Load Particle
+                        Particle particle = new Particle();
+
+                        //Is Collision Enabled
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("IsCollisionEnabled"))
+                            particle.IsCollisionEnabled = bool.Parse(prop[1]);
+
+                        //Is Particle Collision Enabled
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("IsParticleCollisionEnabled"))
+                            particle.IsParticleCollisionEnabled = bool.Parse(prop[1]);
+
+                        //Fill
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Fill"))
+                            particle.Fill = LoadColor(prop[1]);
+
+                        //ColorChangeRate
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ColorChangeRate"))
+                            particle.ColorChangeRate = double.Parse(prop[1]);
+
+                        //HasPhysics
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("HasPhysics"))
+                            particle.HasPhysics = bool.Parse(prop[1]);
+
+                        //Radius
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Radius"))
+                            particle.Radius = double.Parse(prop[1]);
+
+                        //Position
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Position"))
+                            particle.Position = LoadPosition(prop[1]);
+
+                        //Mass
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Mass"))
+                            particle.Phys.Mass = double.Parse(prop[1]);
+
+                        //Friction
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Friction"))
+                            particle.Phys.Friction = double.Parse(prop[1]);
+
+                        //Elasticity
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Elasticity"))
+                            particle.Phys.Elasticity = double.Parse(prop[1]);
+
+                        //Velocity
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Velocity"))
+                            particle.Phys.Velocity = LoadPosition(prop[1]);
+
+                        //Acceleration
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Acceleration"))
+                            particle.Phys.Acceleration = LoadPosition(prop[1]);
+
+
+                        if (lines[++i].Equals("-"))
+                        {
+                            Add(particle);
+                        }
+                        else throw new Exception("Error Loading Line Component");
+                        break;
+
+                    case "comp_ejector": // Load Particle
+                        Coord ejectorPosition = new Coord(0, 0);
+                        double rotateAngle = 0;
+                        double particleLimit = 100;
+
+                        //Position
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Position"))
+                            ejectorPosition = LoadPosition(prop[1]);
+
+                        //RotationAngle
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("RotationAngle"))
+                            rotateAngle = double.Parse(prop[1]);
+
+                        //ParticleLimit
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleLimit"))
+                            particleLimit = double.Parse(prop[1]);
+
+                        ParticleEjector ejector = new ParticleEjector(ejectorPosition, rotateAngle, (int)particleLimit);
+
+                        //ParticleRate
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleRate"))
+                            ejector.ParticleRate = double.Parse(prop[1]);
+
+                        //ParticleVelocity
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleVelocity"))
+                            ejector.ParticleVelocity = double.Parse(prop[1]);
+
+                        //ParticleElasticity
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleElasticity"))
+                            ejector.ParticleElasticity = double.Parse(prop[1]);
+
+                        //ParticleFriction
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleFriction"))
+                            ejector.ParticleFriction = double.Parse(prop[1]);
+
+                        //ColorChangeRate
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ColorChangeRate"))
+                            ejector.ColorChangeRate = double.Parse(prop[1]);
+
+                        //ParticleColorChangeRate
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleColorChangeRate"))
+                            ejector.ParticleColorChangeRate = double.Parse(prop[1]);
+
+                        //Fill
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("Fill"))
+                            ejector.Fill = LoadColor(prop[1]);
+
+                        //ParticleColor
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleColor"))
+                            ejector.ParticleColor = LoadColor(prop[1]);
+
+                        //FillColorIsBasedOnParticle
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("FillColorIsBasedOnParticle"))
+                            ejector.FillColorIsBasedOnParticle = bool.Parse(prop[1]);
+
+                        //ParticleRadius
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleRadius"))
+                            ejector.ParticleRadius = double.Parse(prop[1]);
+
+                        //ParticleRadiusRange
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleRadiusRange"))
+                            ejector.ParticleRadiusRange = double.Parse(prop[1]);
+
+                        //ParticleScatterAngle
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticleScatterAngle"))
+                            ejector.ParticleScatterAngle = double.Parse(prop[1]);
+
+                        //ParticlesEjected
+                        prop = lines[++i].Split(':');
+                        if (prop[0].Equals("ParticlesEjected"))
+                            ejector.ParticlesEjected = int.Parse(prop[1]);
+
+
+                        if (lines[++i].Equals("-"))
+                        {
+                            Add(ejector);
+                        }
+                        else throw new Exception("Error Loading Line Component");
                         break;
                 }
             }
@@ -546,6 +802,16 @@ namespace PhysicsEngine
         {
             string[] c = color.Split(',');
             return Color.FromArgb((byte)double.Parse(c[0]), (byte)double.Parse(c[1]), (byte)double.Parse(c[2]), (byte)double.Parse(c[3]));
+        }
+        private static Coord LoadPosition(string position)
+        {
+            string[] coord = position.Split(',');
+            return new Coord(double.Parse(coord[0]), double.Parse(coord[1]));
+        }
+        private static Size LoadSize(string size)
+        {
+            string[] coord = size.Split(',');
+            return new Size(double.Parse(coord[0]), double.Parse(coord[1]));
         }
 
 

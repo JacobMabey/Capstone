@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Radios;
 using Windows.Foundation;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -67,11 +69,15 @@ namespace PhysicsEngine
             set
             {
                 fill = value;
-                if (FillBrush == null)
-                    FillBrush = new SolidColorBrush();
-                FillBrush.Color = fill;
-                if (_rect.Fill != FillBrush)
-                    _rect.Fill = FillBrush;
+                if (GradientFillBrush == null)
+                    GradientFillBrush = new LinearGradientBrush();
+                else GradientFillBrush.GradientStops.Clear();
+                GradientFillBrush.StartPoint = new Point(0.5, 1);
+                GradientFillBrush.EndPoint = new Point(0.5, 0);
+                GradientFillBrush.GradientStops.Add(new GradientStop { Color = Colors.Black, Offset = 0 });
+                GradientFillBrush.GradientStops.Add(new GradientStop { Color = fill, Offset = 0.3 });
+                if (_rect.Fill != GradientFillBrush)
+                    _rect.Fill = GradientFillBrush;
             }
         }
 
@@ -129,7 +135,7 @@ namespace PhysicsEngine
         public int ParticlesEjected
         {
             get => particlesEjected;
-            private set
+            set
             {
                 particlesEjected = value;
 
@@ -166,8 +172,6 @@ namespace PhysicsEngine
         public double ColorChangeRate { get; set; } = 0.0;
         public double ParticleColorChangeRate { get; set; } = 0.0;
 
-
-
         public override void Initialize()
         {
             base.Initialize();
@@ -200,7 +204,7 @@ namespace PhysicsEngine
             ParticleVelocity = particleVelocity;
             ParticleScatterAngle = 0.0;
             ParticleElasticity = 0.8;
-            ParticleFriction = 0.0;
+            ParticleFriction = 0.1;
             ParticleRadius = 5.0;
             ParticleRadiusRange = 0.0;
             ParticlesEjected = 0;
@@ -237,9 +241,6 @@ namespace PhysicsEngine
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            if (IsBeingAdded)
-                OpenCompMenu();
-
             IsBeingDragged = false;
             IsBeingAdded = false;
             _rect.ReleasePointerCapture(e.Pointer);
@@ -330,6 +331,7 @@ namespace PhysicsEngine
         {
             string output = "comp_ejector\n";
 
+            output += "Position:" + Position.X + "," + Position.Y + "\n";
             output += "RotationAngle:" + RotationAngle + "\n";
             output += "ParticleLimit:" + ParticleLimit + "\n";
             output += "ParticleRate:" + ParticleRate + "\n";
@@ -345,7 +347,6 @@ namespace PhysicsEngine
             output += "ParticleRadiusRange:" + ParticleRadiusRange + "\n";
             output += "ParticleScatterAngle:" + ParticleScatterAngle + "\n";
             output += "ParticlesEjected:" + ParticlesEjected + "\n";
-            output += "Position:" + Position.X + "," + Position.Y + "\n";
 
             output += "-\n";
             return output;

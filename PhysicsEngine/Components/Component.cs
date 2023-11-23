@@ -29,9 +29,10 @@ namespace PhysicsEngine
         protected bool IsMouseRotateMode { get; set; } = false;
         public Coord PointerDragPoint { get; set; } = new Coord(0, 0);
         public SolidColorBrush FillBrush { get; set; }
+        public LinearGradientBrush GradientFillBrush { get; set; }
         public SolidColorBrush StrokeBrush { get; set; }
 
-        protected bool HasPhysics { get; set; } = false;
+        public bool HasPhysics { get; set; } = false;
         public Physics Phys { get; protected set; }
 
         public abstract Shape GetUIElement();

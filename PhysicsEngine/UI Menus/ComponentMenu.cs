@@ -195,6 +195,8 @@ namespace PhysicsEngine.UI_Menus
                     (SizeGrid.Children.Where(c => c is TextBox).ElementAt(1) as TextBox).Text = ((CompRectangle)ParentComponent).Size.Height + "";
                     SettingsStack.Children.Add(SizeGrid);
 
+                    while (((CompRectangle)ParentComponent).RotationAngle < 0) ((CompRectangle)ParentComponent).RotationAngle += 360;
+                    while (((CompRectangle)ParentComponent).RotationAngle > 360) ((CompRectangle)ParentComponent).RotationAngle -= 360;
                     RotateInput.Text = ((CompRectangle)ParentComponent).RotationAngle + "";
                     SettingsStack.Children.Add(RotateGrid);
 

@@ -45,6 +45,7 @@ namespace PhysicsEngine
                 size = value;
                 _rect.Width = size.Width;
                 _rect.Height = size.Height;
+                RotationCenter = new Coord(size.Width / 2.0, size.Height / 2.0);
             }
         }
 
@@ -160,7 +161,6 @@ namespace PhysicsEngine
             Fill = fill;
             StrokeColor = stroke;
             _rect.StrokeThickness = strokeThickness;
-
         }
 
 
@@ -183,9 +183,6 @@ namespace PhysicsEngine
         }
         private void Rect_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            if (IsBeingAdded)
-                OpenCompMenu();
-
             IsBeingDragged = false;
             IsBeingAdded = false;
             _rect.ReleasePointerCapture(e.Pointer);

@@ -19,7 +19,7 @@ namespace PhysicsEngine
             set
             {
                 if (bgColor != value)
-                    Scene.MainScene.Background = new SolidColorBrush(bgColor);
+                    Scene.MainScene.Background = new SolidColorBrush(value);
                 bgColor = value;
                 Scene.WorldMenu.BgColorPicker.SetColor(bgColor);
             }

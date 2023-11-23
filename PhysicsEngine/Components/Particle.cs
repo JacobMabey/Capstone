@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -69,7 +71,6 @@ namespace PhysicsEngine
 
         public bool IsParticleCollisionEnabled { get; set; } = true;
 
-
         public override void Initialize()
         {
             base.Initialize();
@@ -84,15 +85,15 @@ namespace PhysicsEngine
         public Particle()
         {
             Initialize();
-            Position = new Coord(0, 0);
             Radius = 5.0;
+            Position = new Coord(0, 0);
             Fill = Colors.Red;
         }
         public Particle(Coord position, double radius = 5.0)
         {
             Initialize();
-            Position = position;
             Radius = radius;
+            Position = position;
             Fill = Colors.Red;
         }
 
@@ -111,9 +112,6 @@ namespace PhysicsEngine
         }
         private void Ellipse_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            if (IsBeingAdded)
-                OpenCompMenu();
-
             IsBeingDragged = false;
             IsBeingAdded = false;
             _ellipse.ReleasePointerCapture(e.Pointer);
@@ -146,6 +144,7 @@ namespace PhysicsEngine
                 posy = Math.Round(posy / Scene.SnapCellSize) * Scene.SnapCellSize;
             }
             Position = new Coord(posx, posy);
+            Phys.Velocity = new Coord(0, 0);
         }
         private void Ellipse_Tapped(object sender, TappedRoutedEventArgs e)
         {

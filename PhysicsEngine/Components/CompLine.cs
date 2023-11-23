@@ -84,6 +84,8 @@ namespace PhysicsEngine
             _line.PointerReleased += Line_PointerReleased;
             _line.PointerMoved += Line_PointerMoved;
             _line.Tapped += Line_Tapped;
+            _line.StrokeStartLineCap = PenLineCap.Round;
+            _line.StrokeEndLineCap = PenLineCap.Round;
         }
 
         public CompLine()
@@ -139,9 +141,6 @@ namespace PhysicsEngine
         }
         private void Line_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            if (IsBeingAdded)
-                OpenCompMenu();
-
             IsBeingDragged = false;
             IsBeingAdded = false;
             _line.ReleasePointerCapture(e.Pointer);
