@@ -497,6 +497,9 @@ namespace PhysicsEngine
 
         public static async void LoadScene()
         {
+            if (!Timer.IsPaused)
+                Toolbar.TogglePauseScene();
+
             FileOpenPicker loadPicker = new FileOpenPicker();
             loadPicker.FileTypeFilter.Add(".psm");
             loadPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
@@ -506,8 +509,6 @@ namespace PhysicsEngine
 
             //Clear scene and load properties
             ClearScene();
-            if (!Timer.IsPaused)
-                Toolbar.TogglePauseScene();
             WorldMenu.ToggleMenuExpanded();
             Toolbar.ComponentAddMode = eComponentAddMode.NONE;
 

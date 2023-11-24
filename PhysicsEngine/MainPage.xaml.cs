@@ -11,7 +11,7 @@ namespace PhysicsEngine
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        public static FontFamily GlobalFont = new FontFamily("Cascadia Code");
+        public static FontFamily GlobalFont = new FontFamily("ms-appx:///Assets/Fonts/VarelaRound-Regular.ttf#Varela Round");
 
         private static Size windowSize;
         public static Size WindowSize
