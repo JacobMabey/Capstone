@@ -9,7 +9,7 @@
   <Identity
     Name="3f3c86ae-c751-4f9e-a361-2bc424988025"
     Publisher="CN=Jacob Mabey"
-    Version="1.0.1.0" />
+    Version="1.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="3f3c86ae-c751-4f9e-a361-2bc424988025" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

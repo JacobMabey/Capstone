@@ -8,6 +8,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -72,7 +73,12 @@ namespace PhysicsEngine
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
 
             //Set Size
-            MainPage.WindowSize = new Size(1080, 720);
+            double width = 1080;
+            double height = 720;
+            MainPage.WindowSize = new Size(width, height);
+            ApplicationView.PreferredLaunchViewSize = new Size(width, height);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+            ApplicationView.GetForCurrentView().TryResizeView(new Size(width, height));
             Rectangle background = new Rectangle
             {
                 Width = MainPage.WindowSize.Width,
