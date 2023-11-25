@@ -111,6 +111,7 @@ namespace PhysicsEngine.UI_Menus
             TimeScaleText.Foreground = new SolidColorBrush(Colors.White);
             TimeScaleText.Text = (int)(Timer.TimeScale * 100.0) + "%";
             TimeScaleText.Margin = new Thickness(4);
+            TimeScaleText.FontFamily = MainPage.GlobalFont;
             Canvas.SetLeft(TimeScaleText, ToolbarHeight + 10.0);
             this.Children.Add(TimeScaleText);
 
