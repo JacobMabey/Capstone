@@ -34,7 +34,7 @@ namespace PhysicsEngine
                 BackgroundColor = bgColor;
 
 #if DEBUG
-            fpsText = new TextBlock();
+            /*fpsText = new TextBlock();
             Canvas.SetLeft(fpsText, 10);
             Canvas.SetTop(fpsText, 10);
             Canvas.SetZIndex(fpsText, 100);
@@ -44,7 +44,7 @@ namespace PhysicsEngine
             Canvas.SetLeft(particleCountText, 10);
             Canvas.SetTop(particleCountText, 30);
             Canvas.SetZIndex(particleCountText, 100);
-            Scene.MainScene.Children.Add(particleCountText);
+            Scene.MainScene.Children.Add(particleCountText);*/
 #endif
         }
 
@@ -52,8 +52,8 @@ namespace PhysicsEngine
         {
             //DebugRender Here
 #if DEBUG
-            fpsText.Text = "FPS: "+Timer.FPS;
-            particleCountText.Text = "P#: " + Scene.ParticleCount;
+            //fpsText.Text = "FPS: "+Timer.FPS;
+            //particleCountText.Text = "P#: " + Scene.ParticleCount;
 #endif
         }
 
